@@ -63,7 +63,7 @@ def makeline(testdir,meanaz,linewidth=1):
                                    coords=coords,times=sp.array([[it,it+30.]]))
         midloc = sp.argmin(sp.absolute(rvec-(start+rng_vel*it)))
 
-        iloc = sp.arange(midloc+fwhm,midloc+1+fwhm)
+        iloc = sp.arange(midloc+fwhm,midloc+1+fwhm).astype(sp.int64)
         parammult[:,iloc] = multval
         Paramflt = parammult.flatten()
         Icont1.Param_List[:,0,0,0] = Icont1.Param_List[:,0,0,0]*Paramflt#ion density enhancement
