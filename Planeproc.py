@@ -80,7 +80,7 @@ def makeline(testdir,meanaz,linewidth=1):
 def makealldata(basedir,meanaz):
     w_list = sp.arange(1,20,2)
     basestr = 'exp_width_'
-    fsuffix = '{0:0'+str(sp.ceil(sp.log10(w_list.max())))+'d}'
+    fsuffix = '{0:0'+str(int(sp.ceil(sp.log10(w_list.max()))))+'d}'
     for iwid in w_list:
         dirname = basestr+fsuffix.format(iwid)
         fulldir = os.path.join(basedir,dirname)
