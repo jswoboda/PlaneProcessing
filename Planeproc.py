@@ -21,9 +21,11 @@ from  GeoData.utilityfuncs import readIono
 
 def makeline(testdir,meanaz,linewidth=1):
     """This will create """
-    if ~os.path.isdir(testdir):
+    if not os.path.isdir(testdir):
         os.mkdir(testdir)
-
+    datadir = os.path.join(testdir,'Origparams')
+    if not os.path.isdir(datadir):
+        os.mkdir(datadir)
 #    (sensdict,simparams) = readconfigfile(configfile)
 #    azangles = [iang[0] for iang in simparams['angles']]
 #    meanaz = sp.mean(azangles)
@@ -49,12 +51,14 @@ def makeline(testdir,meanaz,linewidth=1):
     paramadd =sp.zeros_like(Rmat).astype('float64')
     multval = 2.
     start = 450.
-    datadir = os.path.join(testdir,'Origparams')
+   
     # start file
     it=0.
     Icont1 = MakeTestIonoclass(testv=False,testtemp=False,N_0=1e11,z_0=250.0,H_0=50.0,
                                coords=coords,times=sp.array([[it,it+30.]]))
-    Icont1.saveh5(os.path.join(testdir,'startdata.h5'))
+    strtfile = os.path.join(os.path.split(testdir)[0],'startdata.h5')
+    if not os.path.isfile(strtfile):
+        Icont1.saveh5(strtfile)
     if sp.mod(linewidth,2):
         linewidth+=1
     fwhm = sp.floor(linewidth/2.)
@@ -224,8 +228,6 @@ def runradarsims(testpath,funcnamelist=['spectrums','radardata','fitting'],confi
         makeline(configfile,testpath)
     # clear everything out
     folderlist =[]
-    if 'origdata' in funcnamelist:
-        folderlist.append('Origdata')
     if 'spectrums' in funcnamelist:
         folderlist.append('Spectrums')
     if 'radardata' in funcnamelist and remakealldata:
@@ -247,13 +249,13 @@ def runradarsims(testpath,funcnamelist=['spectrums','radardata','fitting'],confi
     except:
         print "Analysis dump failed somewhere"
     plotoutput(testpath,os.path.join(testpath,'fittedimages'))
-    dboxpath =os.path.expanduser(os.path.join('~','Dropbox'))
-    dboxsave=os.path.join(dboxpath,'Planeexample')
-    if os.path.exists(dboxpath):
-        if os.path.exists(dboxsave):
-            shutil.rmtree(dboxsave)
-
-        shutil.copytree(curpath,dboxsave)
+#    dboxpath =os.path.expanduser(os.path.join('~','Dropbox'))
+#    dboxsave=os.path.join(dboxpath,'Planeexample')
+#    if os.path.exists(dboxpath):
+#        if os.path.exists(dboxsave):
+#            shutil.rmtree(dboxsave)
+#
+#        shutil.copytree(curpath,dboxsave)
 
 if __name__== '__main__':
     argv = sys.argv[1:]
@@ -267,6 +269,7 @@ if __name__== '__main__':
         sys.exit(2)
 
     remakealldata = False
+    basedir = os.path.join(curpath,'exp_width_01')
     for opt, arg in opts:
         if opt == '-h':
             print(outstr)
