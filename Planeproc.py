@@ -67,7 +67,7 @@ def makeline(testdir,meanaz,linewidth=1):
                                    coords=coords,times=sp.array([[it,it+30.]]))
         midloc = sp.argmin(sp.absolute(rvec-(start+rng_vel*it)))
 
-        iloc = sp.arange(midloc+fwhm,midloc+1+fwhm).astype(sp.int64)
+        iloc = sp.arange(midloc-fwhm,midloc+1+fwhm).astype(sp.int64)
         parammult[:,iloc] = multval
         Paramflt = parammult.flatten()
         Icont1.Param_List[:,0,0,0] = Icont1.Param_List[:,0,0,0]*Paramflt#ion density enhancement
@@ -88,6 +88,7 @@ def makealldata(basedir,meanaz):
     for iwid in w_list:
         dirname = basestr+fsuffix.format(iwid)
         fulldir = os.path.join(basedir,dirname)
+        print('Making Data for {0}'.format(fulldir))
         makeline(fulldir,meanaz,linewidth=iwid)
         plotoutdata(dirname,os.path.join(dirname,'Inputimages'))
 #%% For sorting
@@ -107,7 +108,7 @@ def plotoutdata(testdir,imgdir):
     else:
         os.mkdir(imgdir)
 
-    filelist = glob.glob(os.path.join(testdir,'*.h5'))
+    filelist = glob.glob(os.path.join(testdir,'Origparams','*.h5'))
     numlist = [os.path.splitext(os.path.split(x)[-1])[0] for x in filelist]
     numdict = {numlist[i]:filelist[i] for i in range(len(filelist))}
     slist = sorted(numlist,key=ke)
