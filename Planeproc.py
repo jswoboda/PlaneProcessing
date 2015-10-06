@@ -159,6 +159,7 @@ def plotoutdata(testdir,imgdir):
             plt.close(fig)
 
 def plotoutput(testdir,imgdir):
+    """ Plot fitted data"""
     if os.path.exists(imgdir):
         imgfiles = glob.glob(os.path.join(imgdir,'*.png'))
         for imgf in imgfiles:
@@ -202,7 +203,7 @@ def plotoutput(testdir,imgdir):
         Timat = Ti[:,:,itimen]
         pc1 = ax1.pcolor(Xmat,Zmat,Nemat,cmap = 'jet',vmin=5e10,vmax=2e11)
 
-        pc2 = ax2.pcolor(Xmat,Zmat,Timat,cmap = 'jet',vmin=3000,vmax=6000)
+        pc2 = ax2.pcolor(Xmat,Zmat,Timat,cmap = 'jet',vmin=1000,vmax=4000)
         ax1.set_xlim([Xmat.min(),Xmat.max()])
         ax2.set_ylim([Zmat.min(),Zmat.max()])
         spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0])))
