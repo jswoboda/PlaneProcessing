@@ -181,7 +181,7 @@ def plotoutput(testdir,imgdir):
 
     Xmat = Rngrdrmat*sp.cos(Elmat*sp.pi/180.)
     Zmat = Rngrdrmat*sp.sin(Elmat*sp.pi/180.)
-    Ne = Iono1.data['Ne'].reshape(len(rngrdrvec),len(elvec),nt)
+    Ne = Iono1.data['Nepow'].reshape(len(rngrdrvec),len(elvec),nt)
     Ti = Iono1.data['Ti'].reshape(len(rngrdrvec),len(elvec),nt)
 
 
@@ -242,7 +242,6 @@ def runradarsims(testpath,funcnamelist=['spectrums','radardata','fitting'],confi
         flist = glob.glob(os.path.join(testpath,ifl,'*.h5'))
         for ifile in flist:
             os.remove(ifile)
-
 
 
     runsim.main(funcnamelist,testpath,configfile,remakealldata)
