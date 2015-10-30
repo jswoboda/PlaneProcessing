@@ -49,9 +49,9 @@ def makeline(testdir,meanaz,linewidth=1):
 
     parammult = sp.ones_like(Rmat).astype('float64')
     paramadd =sp.zeros_like(Rmat).astype('float64')
-    multval = 2.
+    multval = 5.
     start = 450.
-   
+
     # start file
     it=0.
     Icont1 = MakeTestIonoclass(testv=False,testtemp=False,N_0=1e11,z_0=250.0,H_0=50.0,
@@ -82,7 +82,7 @@ def makeline(testdir,meanaz,linewidth=1):
         Icont1.saveh5(os.path.join(datadir,'{0} planeiono.h5'.format(int(it)) ))
 
 def makealldata(basedir,meanaz):
-    w_list = sp.arange(1,20,2)
+    w_list = sp.array([15])#sp.arange(1,20,2)
     basestr = 'exp_width_'
     fsuffix = '{0:0'+str(int(sp.ceil(sp.log10(w_list.max()))))+'d}'
     for iwid in w_list:
@@ -181,7 +181,7 @@ def plotoutput(testdir,imgdir):
 
     Xmat = Rngrdrmat*sp.cos(Elmat*sp.pi/180.)
     Zmat = Rngrdrmat*sp.sin(Elmat*sp.pi/180.)
-    Ne = Iono1.data['Nepow'].reshape(len(rngrdrvec),len(elvec),nt)
+    Ne = Iono1.data['Ne'].reshape(len(rngrdrvec),len(elvec),nt)
     Ti = Iono1.data['Ti'].reshape(len(rngrdrvec),len(elvec),nt)
 
 
@@ -261,7 +261,7 @@ def runradarsims(testpath,funcnamelist=['spectrums','radardata','fitting'],confi
 if __name__== '__main__':
     argv = sys.argv[1:]
 
-    outstr = 'runsim.py -f <function: origdata, spectrums, radardata, fitting or all> -i <basedir List or all> -c <config> -r <type y to remake data>'
+    outstr = 'Planeproc.py -f <function: origdata, spectrums, radardata, fitting or all> -i <basedir List or all> -c <config> -r <type y to remake data>'
     curpath = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
     try:
         opts, args = getopt.gnu_getopt(argv,"hf:i:c:r:")
