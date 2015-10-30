@@ -8,14 +8,16 @@ This is will create the plane based data sets for the ISR errors paper
 import os, glob,inspect,getopt,sys
 import pdb
 import scipy as sp
+import matplotlib
+matplotlib.use('Agg')
 from RadarDataSim.IonoContainer import IonoContainer, MakeTestIonoclass
 import RadarDataSim.runsim as runsim
 from RadarDataSim.analysisplots import analysisdump
+
 import matplotlib.pyplot as plt
 from GeoData.GeoData import GeoData
 from  GeoData.utilityfuncs import readIono
-import matplotlib
-matplotlib.use('Agg')
+
 
 
 def makeline(testdir,meanaz,linewidth=1,multval = 5.,start = 450.,rng_vel = -0.5):
