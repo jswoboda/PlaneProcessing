@@ -299,7 +299,6 @@ if __name__== '__main__':
 
         funcnamelist=['spectrums','radardata','fitting']
 
-    pdb.set_trace()
 
     if basedir.lower() == 'all':
         basedirlist = glob.glob('exp_width_*')
