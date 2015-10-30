@@ -271,6 +271,7 @@ if __name__== '__main__':
 
     remakealldata = False
     basedir = os.path.join(curpath,'exp_width_01')
+    funcnamelist=[]
     for opt, arg in opts:
         if opt == '-h':
             print(outstr)
@@ -282,13 +283,12 @@ if __name__== '__main__':
             outdirexist = True
             configfile = arg
         elif opt in ("-f", "--func"):
-            funcname = arg
+            funcnamelist.append(arg)
 
         elif opt in ('-r', "--re"):
             if arg.lower() == 'y':
                 remakealldata = True
 
-    funcnamelist= funcname.split()
 
     if 'origdata' in funcnamelist:
         funcnamelist.remove('origdata')
@@ -299,7 +299,7 @@ if __name__== '__main__':
 
         funcnamelist=['spectrums','radardata','fitting']
 
-
+    pdb.set_trace()
 
     if basedir.lower() == 'all':
         basedirlist = glob.glob('exp_width_*')
