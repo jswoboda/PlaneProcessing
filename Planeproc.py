@@ -1,26 +1,34 @@
 #!/usr/bin/env python
 """
-This is will create the plane based data and
+This is will create the plane based data sets for the ISR errors paper
 
 @author: John Swoboda
 """
 
 import os, glob,inspect,getopt,sys
-import shutil
 import pdb
 import scipy as sp
-from RadarDataSim.utilFunctions import makeconfigfile, readconfigfile
 from RadarDataSim.IonoContainer import IonoContainer, MakeTestIonoclass
 import RadarDataSim.runsim as runsim
 from RadarDataSim.analysisplots import analysisdump
 import matplotlib.pyplot as plt
 from GeoData.GeoData import GeoData
 from  GeoData.utilityfuncs import readIono
+import matplotlib
+matplotlib.use('Agg')
 
 
-
-def makeline(testdir,meanaz,linewidth=1):
-    """This will create """
+def makeline(testdir,meanaz,linewidth=1,multval = 5.,start = 450.,rng_vel = -0.5):
+    """This will create one of the plane datasets given the desired azmuth location
+    and line width in samples. The line will be an enhancement in electron density
+    Inputs:
+    testdir - directory that will house the simulation data.
+    meanaz - the Azimuth angle the data will lie on in degrees.
+    linewidth - The width of the enhancement in samples
+    multval - The enhancement's multiplicaive value compared to the background.
+    start - The start location of the enhancement. In km from radar.
+    rng_vel - The velocity of the enhancement - is toward the radar in km/s
+    """
     if not os.path.isdir(testdir):
         os.mkdir(testdir)
     datadir = os.path.join(testdir,'Origparams')
@@ -43,14 +51,13 @@ def makeline(testdir,meanaz,linewidth=1):
     Ymat = Rmat*sp.cos(d2r*meanaz)
     coords = sp.column_stack((Xmat.flatten(),Ymat.flatten(),Zmat.flatten()))
     timevec = sp.linspace(0,900,nt)
-    rng_vel = -0.5
+
     xvel = rng_vel*sp.sin(d2r*meanaz)
     yvel = rng_vel*sp.cos(d2r*meanaz)
 
     parammult = sp.ones_like(Rmat).astype('float64')
     paramadd =sp.zeros_like(Rmat).astype('float64')
-    multval = 5.
-    start = 450.
+
 
     # start file
     it=0.
@@ -72,7 +79,6 @@ def makeline(testdir,meanaz,linewidth=1):
         Paramflt = parammult.flatten()
         Icont1.Param_List[:,0,0,0] = Icont1.Param_List[:,0,0,0]*Paramflt#ion density enhancement
         Icont1.Param_List[:,0,1,0] = Icont1.Param_List[:,0,1,0]*Paramflt# electron density enhancement
-        Icont1.Param_List[:,0,0,1] = Icont1.Param_List[:,0,0,1]*Paramflt# ion temp enhancement
         paramadd[:,iloc] = xvel
         Icont1.Velocity[:,0,0] = paramadd.flatten()
         paramadd[:,iloc] = yvel
@@ -81,16 +87,38 @@ def makeline(testdir,meanaz,linewidth=1):
         parammult[:,iloc] = 1.
         Icont1.saveh5(os.path.join(datadir,'{0} planeiono.h5'.format(int(it)) ))
 
-def makealldata(basedir,meanaz):
-    w_list = sp.array([15])#sp.arange(1,20,2)
+def makealldata(basedir,meanaz,multval = 5.):
+    """This will make data sets of different enhancement widths and one stationary enhancement.
+    Inputs:
+    basedir - directory that will house all the different simulation data.
+    meanaz - the Azimuth angle the data will lie on in degrees.
+
+    multval - The enhancement's multiplicaive value compared to the background.
+    """
+
+    w_list = sp.arange(1,20,2)
     basestr = 'exp_width_'
     fsuffix = '{0:0'+str(int(sp.ceil(sp.log10(w_list.max()))))+'d}'
     for iwid in w_list:
         dirname = basestr+fsuffix.format(iwid)
         fulldir = os.path.join(basedir,dirname)
+        origparamsdir = os.path.join(fulldir,'Origparams')
+        if not os.path.exists(dirname):
+            os.mkdir(dirname)
+            print "Making a path for testdata at "+dirname
+        if not os.path.exists(origparamsdir):
+            os.mkdir(origparamsdir)
+            print "Making a path for testdata at "+origparamsdir
         print('Making Data for {0}'.format(fulldir))
-        makeline(fulldir,meanaz,linewidth=iwid)
+        makeline(fulldir,meanaz,linewidth=iwid,multval=multval,)
         plotoutdata(dirname,os.path.join(dirname,'Inputimages'))
+
+    # for stationary data
+    iwid = 1
+    dirname = basestr+'_stat_'+fsuffix.format(iwid)
+    makeline(fulldir,meanaz,linewidth=1,multval=multval,start = 150.,rng_vel = -0.0)
+    plotoutdata(dirname,os.path.join(dirname,'Inputimages'))
+
 #%% For sorting
 def ke(item):
     if item[0].isdigit():
@@ -99,7 +127,11 @@ def ke(item):
         return float('inf')
 #%%
 def plotoutdata(testdir,imgdir):
-
+    """This will plot all of the input data with each time step as a pcolor images of
+    electron density and ion tempreture.
+    Inputs
+    testdir - The directory with the input data in h5 files formated for the ionocontainer structure.
+    imgdir - The directory that holds the images."""
 
     if os.path.exists(imgdir):
         imgfiles = glob.glob(os.path.join(imgdir,'*.png'))
@@ -159,7 +191,11 @@ def plotoutdata(testdir,imgdir):
             plt.close(fig)
 
 def plotoutput(testdir,imgdir):
-    """ Plot fitted data"""
+    """This will plot all of the fitted data with each time step as a pcolor images of
+    electron density and electron density from power mesurements.
+    Inputs
+    testdir - The directory with the input data in h5 files formated for the ionocontainer structure.
+    imgdir - The directory that holds the images."""
     if os.path.exists(imgdir):
         imgfiles = glob.glob(os.path.join(imgdir,'*.png'))
         for imgf in imgfiles:
@@ -182,7 +218,7 @@ def plotoutput(testdir,imgdir):
     Xmat = Rngrdrmat*sp.cos(Elmat*sp.pi/180.)
     Zmat = Rngrdrmat*sp.sin(Elmat*sp.pi/180.)
     Ne = Iono1.data['Ne'].reshape(len(rngrdrvec),len(elvec),nt)
-    Ti = Iono1.data['Ti'].reshape(len(rngrdrvec),len(elvec),nt)
+    Ti = Iono1.data['Nepow'].reshape(len(rngrdrvec),len(elvec),nt)
 
 
     imcount=0
@@ -194,7 +230,7 @@ def plotoutput(testdir,imgdir):
         ax2=fig.add_subplot(1,2,2)
 
         ax1.set_title('Ne')
-        ax2.set_title('Ti')
+        ax2.set_title('Ne From Power')
         ax1.set_xlabel('Range in km')
         ax1.set_ylabel('Alt in km')
         ax2.set_xlabel('Range in km')
@@ -203,7 +239,7 @@ def plotoutput(testdir,imgdir):
         Timat = Ti[:,:,itimen]
         pc1 = ax1.pcolor(Xmat,Zmat,Nemat,cmap = 'jet',vmin=5e10,vmax=2e11)
 
-        pc2 = ax2.pcolor(Xmat,Zmat,Timat,cmap = 'jet',vmin=1000,vmax=4000)
+        pc2 = ax2.pcolor(Xmat,Zmat,Timat,cmap = 'jet',vmin=5e10,vmax=5e11)
         ax1.set_xlim([Xmat.min(),Xmat.max()])
         ax2.set_ylim([Zmat.min(),Zmat.max()])
         spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0])))
@@ -219,7 +255,7 @@ def plotoutput(testdir,imgdir):
 
 def runradarsims(testpath,funcnamelist=['spectrums','radardata','fitting'],configfile = 'planeproc2.ini',remakealldata=False):
     curpath = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-
+    """ This will run the radar simulations for all the selected data sets"""
     origparamsdir = os.path.join(testpath,'Origparams')
     if not os.path.exists(testpath):
         os.mkdir(testpath)
