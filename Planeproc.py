@@ -105,8 +105,8 @@ def makealldata(basedir,meanaz,multval = 5.):
         dirname = basestr+fsuffix.format(iwid)
         fulldir = os.path.join(basedir,dirname)
         origparamsdir = os.path.join(fulldir,'Origparams')
-        if not os.path.exists(dirname):
-            os.mkdir(dirname)
+        if not os.path.exists(fulldir):
+            os.mkdir(fulldir)
             print "Making a path for testdata at "+dirname
         if not os.path.exists(origparamsdir):
             os.mkdir(origparamsdir)
@@ -116,8 +116,19 @@ def makealldata(basedir,meanaz,multval = 5.):
         plotoutdata(dirname,os.path.join(dirname,'Inputimages'))
 
     # for stationary data
+
     iwid = 1
-    dirname = basestr+'_stat_'+fsuffix.format(iwid)
+    dirname = basestr+'stat_'+fsuffix.format(iwid)
+
+    fulldir = os.path.join(basedir,dirname)
+    origparamsdir = os.path.join(fulldir,'Origparams')
+    if not os.path.exists(fulldir):
+        os.mkdir(fulldir)
+        print "Making a path for testdata at "+dirname
+    if not os.path.exists(origparamsdir):
+        os.mkdir(origparamsdir)
+        print "Making a path for testdata at "+origparamsdir
+    print('Making Data for {0}'.format(fulldir))
     makeline(fulldir,meanaz,linewidth=1,multval=multval,start = 150.,rng_vel = -0.0)
     plotoutdata(dirname,os.path.join(dirname,'Inputimages'))
 
