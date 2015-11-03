@@ -6,6 +6,7 @@ This is will create the plane based data sets for the ISR errors paper
 """
 
 import os, glob,inspect,getopt,sys
+import shutil
 import pdb
 import scipy as sp
 import matplotlib
@@ -299,13 +300,18 @@ def runradarsims(testpath,funcnamelist=['spectrums','radardata','fitting'],confi
     except:
         print "Analysis dump failed somewhere"
     plotoutput(testpath,os.path.join(testpath,'fittedimages'))
-#    dboxpath =os.path.expanduser(os.path.join('~','Dropbox'))
-#    dboxsave=os.path.join(dboxpath,'Planeexample')
-#    if os.path.exists(dboxpath):
-#        if os.path.exists(dboxsave):
-#            shutil.rmtree(dboxsave)
-#
-#        shutil.copytree(curpath,dboxsave)
+
+def save2dropbox(testpath,imgonly=True):
+    endpath = testpath.split(os.path.sep)[-1]
+    imgpaths = ['Inputimages','fittedimages']
+    dboxpath =os.path.expanduser(os.path.join('~','Dropbox'))
+    dboxsave=os.path.join(dboxpath,'Planeexample',endpath)
+
+    if os.path.exists(dboxpath):
+        if os.path.exists(dboxsave):
+            shutil.rmtree(dboxsave)
+        for i in imgpaths:
+            shutil.copytree(os.path.join(testpath,i),os.path.join(dboxsave,i))
 
 if __name__== '__main__':
     argv = sys.argv[1:]
@@ -357,3 +363,4 @@ if __name__== '__main__':
     if len(funcnamelist)>0:
         for ibase in basedirlist:
             runradarsims(ibase,funcnamelist,configfile,remakealldata)
+            save2dropbox(ibase)
