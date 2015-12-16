@@ -14,7 +14,7 @@ matplotlib.use('Agg')
 from RadarDataSim.IonoContainer import IonoContainer, MakeTestIonoclass
 import RadarDataSim.runsim as runsim
 from RadarDataSim.analysisplots import analysisdump
-
+from RadarDataSim.utilFunctions import readconfigfile
 import matplotlib.pyplot as plt
 from GeoData.GeoData import GeoData
 from  GeoData.utilityfuncs import readIono
@@ -317,10 +317,10 @@ def save2dropbox(testpath,imgonly=True):
 if __name__== '__main__':
     argv = sys.argv[1:]
 
-    outstr = 'Planeproc.py -f <function: origdata, spectrums, radardata, fitting or all> -i <basedir List or all> -c <config> -r <type y to remake data>'
+    outstr = 'Planeproc.py -f <function: origdata, spectrums, radardata, fitting or all> -i <basedir List or all> -p <testpath> -c <config> -r <type y to remake data>'
     curpath = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
     try:
-        opts, args = getopt.gnu_getopt(argv,"hf:i:c:r:")
+        opts, args = getopt.gnu_getopt(argv,"hf:i:c:r:p:")
     except getopt.GetoptError:
         print(outstr)
         sys.exit(2)
@@ -347,11 +347,14 @@ if __name__== '__main__':
             if arg.lower() == 'y':
                 remakealldata = True
 
-
+    
     if 'origdata' in funcnamelist:
         funcnamelist.remove('origdata')
         makedirs = True
-        makealldata(curpath,20.5)
+        (sensdict,simparams) = readconfigfile(configfile)
+        azangles = [iang[0] for iang in simparams['angles']]
+        meanaz = sp.mean(azangles)
+        makealldata(curpath,meanaz)
 
     if 'all' in funcnamelist:
 
