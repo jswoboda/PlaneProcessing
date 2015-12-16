@@ -66,7 +66,8 @@ def makeline(testdir,meanaz,linewidth=1,multval = 5.,start = 450.,rng_vel = -0.5
     it=0.
     Icont1 = MakeTestIonoclass(testv=False,testtemp=False,N_0=1e11,z_0=250.0,H_0=50.0,
                                coords=coords,times=sp.array([[it,it+30.]]))
-    strtfile = os.path.join(os.path.split(testdir)[0],'startdata.h5')
+    strtstr = 'startdata{0}.h5'.format(str(meanaz).replace('.','_',1))
+    strtfile = os.path.join(os.path.split(testdir)[0],strtstr)
     if not os.path.isfile(strtfile):
         Icont1.saveh5(strtfile)
     if sp.mod(linewidth,2):
@@ -331,6 +332,8 @@ if __name__== '__main__':
         if opt == '-h':
             print(outstr)
             sys.exit()
+        elif opt in ('-p','--path'):
+            curpath=arg
         elif opt in ("-i", "--ifile"):
             basedir = arg
 
