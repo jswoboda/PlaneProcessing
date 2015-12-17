@@ -293,7 +293,6 @@ def runradarsims(testpath,funcnamelist=['spectrums','radardata','fitting'],confi
         for ifile in flist:
             os.remove(ifile)
 
-    pdb.set_trace()
     runsim.main(funcnamelist,testpath,configfile,remakealldata)
     try:
         analysisdump(testpath,configfile,'Plane Example')
@@ -346,7 +345,7 @@ if __name__== '__main__':
             if arg.lower() == 'y':
                 remakealldata = True
 
-    
+
     if 'origdata' in funcnamelist:
         funcnamelist.remove('origdata')
         makedirs = True
@@ -361,7 +360,7 @@ if __name__== '__main__':
 
 
     if basedir.lower() == 'all':
-        basedirlist = glob.glob('exp_width_*')
+        basedirlist = glob.glob(os.path.join(curpath,'exp_width_*'))
     else:
         basedirlist = basedir.split()
 
