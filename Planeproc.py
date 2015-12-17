@@ -269,7 +269,6 @@ def plotoutput(testdir,imgdir):
         plt.close(fig)
 
 def runradarsims(testpath,funcnamelist=['spectrums','radardata','fitting'],configfile = 'planeproc2.ini',remakealldata=False):
-    curpath = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
     """ This will run the radar simulations for all the selected data sets"""
     origparamsdir = os.path.join(testpath,'Origparams')
     if not os.path.exists(testpath):
@@ -294,7 +293,7 @@ def runradarsims(testpath,funcnamelist=['spectrums','radardata','fitting'],confi
         for ifile in flist:
             os.remove(ifile)
 
-
+    pdb.set_trace()
     runsim.main(funcnamelist,testpath,configfile,remakealldata)
     try:
         analysisdump(testpath,configfile,'Plane Example')
@@ -366,4 +365,4 @@ if __name__== '__main__':
     if len(funcnamelist)>0:
         for ibase in basedirlist:
             runradarsims(ibase,funcnamelist,configfile,remakealldata)
-            save2dropbox(ibase)
+            #save2dropbox(ibase)
