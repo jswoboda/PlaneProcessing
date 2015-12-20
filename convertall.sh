@@ -1,6 +1,20 @@
 fsuffix="/*.png"
 fsuff2=".gif"
-for f in exp_*/fittedimages; do
+
+BASEPATH=${PWD##*/}
+
+while getopts "h?vf:" opt; do
+    case "$opt" in
+    h|\?)
+        show_help
+        exit 0
+        ;;
+    f)  BASEPATH=$OPTARG
+        ;;
+    esac
+done
+echo $BASEPATH/exp_*/fittedimages
+for f in $BASEPATH/exp_*/fittedimages; do
   if [ -d "$f" ]; then
      #echo "$f""$fsuffix"
      arr1=(${f//// })
@@ -14,7 +28,7 @@ for f in exp_*/fittedimages; do
 done
 
 
-for f in exp_*/Inputimages; do
+for f in $BASEPATH/exp_*/Inputimages; do
   if [ -d "$f" ]; then
      #echo "$f""$fsuffix"
      arr1=(${f//// })

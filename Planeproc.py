@@ -115,7 +115,7 @@ def makealldata(basedir,meanaz,multval = 5.):
             print "Making a path for testdata at "+origparamsdir
         print('Making Data for {0}'.format(fulldir))
         makeline(fulldir,meanaz,linewidth=iwid,multval=multval,)
-        plotoutdata(dirname,os.path.join(dirname,'Inputimages'))
+        plotoutdata(dirname,os.path.join(fulldir,'Inputimages'))
 
     # for stationary data
 
@@ -132,7 +132,7 @@ def makealldata(basedir,meanaz,multval = 5.):
         print "Making a path for testdata at "+origparamsdir
     print('Making Data for {0}'.format(fulldir))
     makeline(fulldir,meanaz,linewidth=1,multval=multval,start = 150.,rng_vel = -0.0)
-    plotoutdata(dirname,os.path.join(dirname,'Inputimages'))
+    plotoutdata(dirname,os.path.join(fulldir,'Inputimages'))
 
 #%% For sorting
 def ke(item):
