@@ -1,5 +1,6 @@
 fsuffix="/*.png"
-fsuff2=".gif"
+fsuff2="_output.gif"
+fsuff3="_input.gif"
 
 BASEPATH=${PWD##*/}
 
@@ -13,14 +14,15 @@ while getopts "h?vf:" opt; do
         ;;
     esac
 done
-echo $BASEPATH/exp_*/fittedimages
+#echo $BASEPATH/exp_*/fittedimages
 for f in $BASEPATH/exp_*/fittedimages; do
   if [ -d "$f" ]; then
      #echo "$f""$fsuffix"
      arr1=(${f//// })
      arr1len=${arr1}
      arrind=${arr1len-1}
-     dataname="${arr1[$arrind]}"
+     dir1=$(dirname "$f")
+     dataname=$(basename "$dir1")
      gifname="$f""/""$dataname""$fsuff2"
      echo "Making ""$gifname"
      convert "$f""$fsuffix" "$gifname"
@@ -34,8 +36,9 @@ for f in $BASEPATH/exp_*/Inputimages; do
      arr1=(${f//// })
      arr1len=${arr1}
      arrind=${arr1len-1}
-     dataname="${arr1[$arrind]}"
-     gifname="$f""/""$dataname""$fsuff2"
+     dir1=$(dirname "$f")
+     dataname=$(basename "$dir1")
+     gifname="$f""/""$dataname""$fsuff3"
      echo "Making ""$gifname"
      convert "$f""$fsuffix" "$gifname"
   fi
