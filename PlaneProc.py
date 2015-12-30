@@ -15,9 +15,7 @@ from RadarDataSim.IonoContainer import MakeTestIonoclass
 import RadarDataSim.runsim as runsim
 from RadarDataSim.analysisplots import analysisdump
 from RadarDataSim.utilFunctions import readconfigfile
-
-from  GeoData.utilityfuncs import readIono
-
+from PlaneProcPlot import plotoutdata,plotoutput
 
 
 def makeline(testdir,meanaz,linewidth=1,multval = 5.,start = 450.,rng_vel = -0.5):
