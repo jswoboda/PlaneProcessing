@@ -129,7 +129,6 @@ def makealldata(basedir,meanaz,multval = 5.):
         print "Making a path for testdata at "+origparamsdir
     print('Making Data for {0}'.format(fulldir))
     makeline(fulldir,meanaz,linewidth=1,multval=multval,start = 150.,rng_vel = -0.0)
-    plotoutdata(dirname,os.path.join(fulldir,'Inputimages'))
 
 #%% For sorting
 def ke(item):
@@ -169,7 +168,6 @@ def runradarsims(testpath,funcnamelist=['spectrums','radardata','fitting'],confi
         analysisdump(testpath,configfile,'Plane Example')
     except:
         print "Analysis dump failed somewhere"
-    plotoutput(testpath,os.path.join(testpath,'fittedimages'))
 
 def save2dropbox(testpath,imgonly=True):
     endpath = testpath.split(os.path.sep)[-1]
@@ -227,15 +225,21 @@ if __name__== '__main__':
 
     if 'all' in funcnamelist:
 
-        funcnamelist=['spectrums','radardata','fitting']
+        funcnamelist=['spectrums','radardata','fitting','plotting']
 
 
     if basedir.lower() == 'all':
         basedirlist = glob.glob(os.path.join(curpath,'exp_width_*'))
     else:
         basedirlist = basedir.split()
-
+    plotbool = False
+    if 'plotting' in funcnamelist:
+        plotbool=True
+        funcnamelist.remove('plotting')
     if len(funcnamelist)>0:
         for ibase in basedirlist:
             runradarsims(ibase,funcnamelist,configfile,remakealldata)
             #save2dropbox(ibase)
+            if plotbool:
+                plotoutdata(ibase,os.path.join(ibase,'Inputimages'))
+                plotoutput(ibase,os.path.join(ibase,'fittedimages'))

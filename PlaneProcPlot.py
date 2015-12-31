@@ -137,9 +137,9 @@ def plotoutput(testdir,imgdir):
         ax2.set_ylabel('Alt in km')
         Nemat = Ne[:,:,itimen]
         Timat = Ti[:,:,itimen]
-        pc1 = ax1.pcolor(Xmat,Zmat,Nemat,cmap = 'jet',vmin=5e10,vmax=2e11)
+        pc1 = ax1.pcolor(Xmat,Zmat,Nemat,cmap = 'jet',vmin=5e10,vmax=3e11)
 
-        pc2 = ax2.pcolor(Xmat,Zmat,Timat,cmap = 'jet',vmin=5e10,vmax=5e11)
+        pc2 = ax2.pcolor(Xmat,Zmat,Timat,cmap = 'jet',vmin=5e10,vmax=3e11)
         ax1.set_xlim([Xmat.min(),Xmat.max()])
         ax2.set_ylim([Zmat.min(),Zmat.max()])
         spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0])))
