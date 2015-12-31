@@ -15,7 +15,10 @@ from RadarDataSim.IonoContainer import IonoContainer, MakeTestIonoclass
 import RadarDataSim.runsim as runsim
 from RadarDataSim.analysisplots import analysisdump
 from RadarDataSim.utilFunctions import readconfigfile
+from RadarDataSim.operators import RadarSpaceTimeOperator
 import matplotlib.pyplot as plt
+import scipy.fftpack as scfft
+
 
 from PlaneProcPlot import plotoutdata,plotoutput
 
@@ -27,10 +30,6 @@ def runradarsims(testpath,funcnamelist=['spectrums','radardata','fitting'],confi
     if not os.path.exists(testpath):
         os.mkdir(testpath)
         print "Making a path for testdata at "+testpath
-    if not os.path.exists(origparamsdir):
-        os.mkdir(origparamsdir)
-        print "Making a path for testdata at "+origparamsdir
-        makeline(configfile,testpath)
     # clear everything out
     folderlist =[]
     if 'spectrums' in funcnamelist:
@@ -40,6 +39,8 @@ def runradarsims(testpath,funcnamelist=['spectrums','radardata','fitting'],confi
         folderlist.append('ACF')
     if 'fitting' in funcnamelist:
         folderlist.append('Fitted')
+
+
 #    folderlist = ['Spectrums','Radardata','ACF','Fitted']
     for ifl in folderlist:
         flist = glob.glob(os.path.join(testpath,ifl,'*.h5'))
@@ -52,6 +53,64 @@ def runradarsims(testpath,funcnamelist=['spectrums','radardata','fitting'],confi
     except:
         print "Analysis dump failed somewhere"
     plotoutput(testpath,os.path.join(testpath,'fittedimages'))
+
+def matrixcalc(testpath,funcnamelist,configfile):
+
+    (sensdict,simparams) = readconfigfile(configfile)
+    ts = simparams['t_s']
+    plens = simparams['pulselength']
+    plen = sp.floor(plens/ts)
+    paramvec = sp.arange(plen)*ts
+    # clear everything out
+    folderlist =[]
+    if 'matrix' in funcnamelist:
+        folderlist.append('Matrix_ACF')
+        folderlist.append('ACFOrig')
+        folderlist.append('ACFMat')
+    if 'fittingmat' in funcnamelist:
+        folderlist.append('Matrix_Fitted')
+    if 'matrix' in funcnamelist or 'fittingmat' in funcnamelist:
+        folderlist.append('Matrix')
+
+
+    for ifl in folderlist:
+        fulldir = os.path.join(testpath,ifl)
+        if os.path.isdir(fulldir):
+            flist = glob.glob(os.path.join(fulldir,'*.h5'))
+            for ifile in flist:
+                os.remove(ifile)
+        else:
+            os.mkdir(fulldir)
+
+
+    if 'matrix' in funcnamelist:
+        specpath = os.path.join(testpath,'Spectrums')
+        acfinpath = os.path.join(testpath,'ACFOrig')
+        acfoutpath = os.path.join(testpath,'ACFMat')
+        specflist = glob.glob(os.path(specpath,'*.h5'))
+
+        acflist = []
+        timelist = []
+        for ifile in specflist:
+            fname = os.path.split(ifile)[-1]
+            newfname = os.path.join(acfinpath,fname)
+            acflist.append(newfname)
+            curiono = IonoContainer.readh5(ifile)
+            timelist.append(curiono.Time_Vector)
+            outdata = curiono.Param_List
+            outdata = scfft.ifftshift(outdata,axes=-1)
+            outdata = scfft.ifft(outdata,axes=-1)
+            outdata = outdata[:,:,:plen]
+            curiono.Param_List=outdata
+            curiono.Param_Names=paramvec
+            curiono.saveh5(newfname)
+        timelist = sp.vstack(timelist)
+        tidx = sp.argsort(timelist[:,0])
+        timelist = timelist[tidx]
+        acflist=acflist[tidx]
+        RSTO = RadarSpaceTimeOperator(curiono,configfile,timelist)
+        outiono = RSTO.mult_iono(acflist)
+        outiono.saveh5(os.path.join(acfoutpath,'00 acfmat.h5'))
 
 if __name__== '__main__':
     argv = sys.argv[1:]
@@ -87,13 +146,14 @@ if __name__== '__main__':
                 remakealldata = True
 
 
-    if 'origdata' in funcnamelist:
+
+
+    if 'matrix' in funcnamelist:
         funcnamelist.remove('origdata')
         makedirs = True
         (sensdict,simparams) = readconfigfile(configfile)
         azangles = [iang[0] for iang in simparams['angles']]
         meanaz = sp.mean(azangles)
-        makealldata(curpath,meanaz)
 
     if 'all' in funcnamelist:
 
