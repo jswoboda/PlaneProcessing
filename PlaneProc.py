@@ -200,7 +200,7 @@ if __name__== '__main__':
             print(outstr)
             sys.exit()
         elif opt in ('-p','--path'):
-            curpath=arg
+            curpath=os.path.expanduser(arg)
         elif opt in ("-i", "--ifile"):
             basedir = arg
 
