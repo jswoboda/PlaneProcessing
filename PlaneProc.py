@@ -236,15 +236,12 @@ if __name__== '__main__':
     if 'plotting' in funcnamelist:
         plotbool=True
         funcnamelist.remove('plotting')
-    if len(funcnamelist)>0:
-        for ibase in basedirlist:
+
+    for ibase in basedirlist:
+        if len(funcnamelist)>0:
             runradarsims(ibase,funcnamelist,configfile,remakealldata)
             #save2dropbox(ibase)
-            if plotbool:
-                plotoutdata(ibase,os.path.join(ibase,'Inputimages'))
-                plotoutput(ibase,os.path.join(ibase,'fittedimages'))
-    else:
         if plotbool:
-            for ibase in basedirlist:
-                plotoutdata(ibase,os.path.join(ibase,'Inputimages'))
-                plotoutput(ibase,os.path.join(ibase,'fittedimages'))
+            plotoutdata(ibase,os.path.join(ibase,'Inputimages'))
+            plotoutput(ibase,os.path.join(ibase,'fittedimages'))
+
