@@ -43,9 +43,11 @@ def plotoutdata(testdir,imgdir):
 
     imcount = 0
     filetemplate = 'outputdata'
+    dsetname = os.path.split(os.path.dirname(testdir))
+    print "Plotting input data for "+dsetname
 
-
-    for inum in slist:
+    for inumn, inum in enumerate(slist):
+        print "{0} Input for {1} of {2}".format(dsetname,inumn,len(slist))
         ifile = numdict[inum]
         iono = IonoContainer.readh5(ifile)
         Iono1 = GeoData(readIono,[iono])
@@ -124,7 +126,10 @@ def plotoutput(testdir,imgdir):
     imcount=0
     filetemplate = 'fitteddata'
 
+    dsetname = os.path.split(os.path.dirname(testdir))
+    print "Plotting Output data for "+dsetname
     for itimen,itime in enumerate(Iono1.times):
+        print "{0} Output for {1} of {2}".format(dsetname,itimen,len(Iono1.times))
         fig = plt.figure(facecolor='w',figsize=(14, 8))
         ax1=fig.add_subplot(1,2,1)
         ax2=fig.add_subplot(1,2,2)
