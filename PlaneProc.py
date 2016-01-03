@@ -243,3 +243,8 @@ if __name__== '__main__':
             if plotbool:
                 plotoutdata(ibase,os.path.join(ibase,'Inputimages'))
                 plotoutput(ibase,os.path.join(ibase,'fittedimages'))
+    else:
+        if plotbool:
+            for ibase in basedirlist:
+                plotoutdata(ibase,os.path.join(ibase,'Inputimages'))
+                plotoutput(ibase,os.path.join(ibase,'fittedimages'))

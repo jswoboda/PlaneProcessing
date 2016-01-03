@@ -61,7 +61,7 @@ def plotoutdata(testdir,imgdir):
 
         for itimen,itime in enumerate(Iono1.times):
             fig = plt.figure(facecolor='w',figsize=(14, 8))
-            ax1=fig.add_subplot(1,2,1)
+            ax1=fig.add_subplot(1,1,1)
 
 
             ax1.set_title('Ne')
