@@ -43,7 +43,7 @@ def plotoutdata(testdir,imgdir):
 
     imcount = 0
     filetemplate = 'outputdata'
-    dsetname = os.path.split(os.path.dirname(testdir))
+    dsetname = os.path.split(os.path.dirname(testdir))[-1]
     print "Plotting input data for "+dsetname
 
     for inumn, inum in enumerate(slist):
@@ -126,7 +126,7 @@ def plotoutput(testdir,imgdir):
     imcount=0
     filetemplate = 'fitteddata'
 
-    dsetname = os.path.split(os.path.dirname(testdir))
+    dsetname = os.path.split(os.path.dirname(testdir))[-1]
     print "Plotting Output data for "+dsetname
     for itimen,itime in enumerate(Iono1.times):
         print "{0} Output for {1} of {2}".format(dsetname,itimen,len(Iono1.times))
