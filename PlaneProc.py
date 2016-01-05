@@ -51,7 +51,10 @@ def makeline(testdir,meanaz,linewidth=1,multval = 5.,start = 450.,rng_vel = -0.5
     Xmat = Rmat*sp.cos(d2r*meanaz)
     Ymat = Rmat*sp.sin(d2r*meanaz)
     coords = sp.column_stack((Xmat.flatten(),Ymat.flatten(),Zmat.flatten()))
-    timevec = sp.linspace(0,900,nt)
+    if rng_vel==0.:
+        timevec = sp.array([0.])
+    else:
+        timevec = sp.linspace(0.,900.,nt)
 
     xvel = rng_vel*sp.sin(d2r*meanaz)
     yvel = rng_vel*sp.cos(d2r*meanaz)
@@ -209,6 +212,8 @@ if __name__== '__main__':
 
     outstr = 'Planeproc.py -f <function: origdata, spectrums, radardata, fitting or all> -i <basedir List or all> -p <testpath> -c <config> -r <type y to remake data>'
     curpath = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+
+    configlist = ['planeproc2.ini','planeproc2_stat.ini','dishplaneproc.ini','dishplaneproc_stat.ini']
     try:
         opts, args = getopt.gnu_getopt(argv,"hf:i:c:r:p:")
     except getopt.GetoptError:
@@ -238,6 +243,12 @@ if __name__== '__main__':
                 remakealldata = True
 
 
+    if basedir.lower() == 'all':
+        basedirlist = glob.glob(os.path.join(curpath,'exp_width_*'))
+    else:
+        basedirlist = basedir.split()
+
+
     if 'origdata' in funcnamelist:
         funcnamelist.remove('origdata')
         makedirs = True
@@ -251,10 +262,7 @@ if __name__== '__main__':
         funcnamelist=['spectrums','radardata','fitting','plotting']
 
 
-    if basedir.lower() == 'all':
-        basedirlist = glob.glob(os.path.join(curpath,'exp_width_*'))
-    else:
-        basedirlist = basedir.split()
+
     plotbool = False
     if 'plotting' in funcnamelist:
         plotbool=True
