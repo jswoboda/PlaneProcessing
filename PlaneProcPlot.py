@@ -8,6 +8,7 @@ Created on Wed Dec 30 16:20:38 2015
 import os, glob
 import scipy as sp
 import matplotlib
+import pdb
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from RadarDataSim.IonoContainer import IonoContainer
@@ -107,7 +108,6 @@ def plotoutput(testdir,imgdir):
     filename = os.path.join(testdir,'Fitted','fitteddata.h5')
     iono = IonoContainer.readh5(filename)
     Iono1 = GeoData(readIono,[iono])
-
     rngrdr =Iono1.dataloc[:,0]
     el = Iono1.dataloc[:,2]
     rngrdrvec,rndinv = sp.unique(rngrdr,return_inverse=True)
@@ -146,7 +146,10 @@ def plotoutput(testdir,imgdir):
 
         pc2 = ax2.pcolor(Xmat,Zmat,Timat,cmap = 'jet',vmin=5e10,vmax=3e11)
         ax1.set_xlim([Xmat.min(),Xmat.max()])
+        ax1.set_ylim([Zmat.min(),Zmat.max()])
+        ax2.set_xlim([Xmat.min(),Xmat.max()])
         ax2.set_ylim([Zmat.min(),Zmat.max()])
+
         spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0])))
 #            if imcount==0:
         cb1 = plt.colorbar(pc1, ax=ax1,format='%.0e')
