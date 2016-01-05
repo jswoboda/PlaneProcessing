@@ -182,7 +182,7 @@ def save2dropbox(testpath,imgonly=True):
         for i in imgpaths:
             shutil.copytree(os.path.join(testpath,i),os.path.join(dboxsave,i))
 #%% Fixplanes
-def fixspecs(basdirlist):
+def fixspecs(basedirlist):
     for ibase in basedirlist:
         filelist = glob.glob(os.path.join(ibase,'Origparams','*.h5'))
         numlist = [os.path.splitext(os.path.split(x)[-1])[0] for x in filelist]
