@@ -189,14 +189,14 @@ def fixspecs(basedirlist):
         numdict = {numlist[i]:filelist[i] for i in range(len(filelist))}
         slist = sorted(numlist,key=ke)
 
-        origlist = [numdict[slist[i]] for i in slist]
+        origlist = [numdict[i] for i in slist]
 
         filelist = glob.glob(os.path.join(ibase,'Spectrums','*.h5'))
         numlist = [os.path.splitext(os.path.split(x)[-1])[0] for x in filelist]
         numdict = {numlist[i]:filelist[i] for i in range(len(filelist))}
         slist = sorted(numlist,key=ke)
 
-        speclist = [numdict[slist[i]] for i in slist]
+        speclist = [numdict[i] for i in slist]
         for (iorig,ispec) in zip(origlist,speclist):
             origiono=IonoContainer.readh5(iorig)
             speciono=IonoContainer.readh5(ispec)
