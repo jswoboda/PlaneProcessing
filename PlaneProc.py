@@ -16,6 +16,7 @@ import RadarDataSim.runsim as runsim
 from RadarDataSim.analysisplots import analysisdump
 from RadarDataSim.utilFunctions import readconfigfile
 from PlaneProcPlot import plotoutdata,plotoutput
+from RadarDataSim.IonoContainer import IonoContainer
 
 
 def makeline(testdir,meanaz,linewidth=1,multval = 5.,start = 450.,rng_vel = -0.5):
@@ -47,8 +48,8 @@ def makeline(testdir,meanaz,linewidth=1,multval = 5.,start = 450.,rng_vel = -0.5
     rvec = sp.linspace(rngart,rngend,nr+1)
     zvec = sp.linspace(0,2.*nz,nz+1)
     Rmat,Zmat = sp.meshgrid(rvec,zvec)
-    Xmat = Rmat*sp.sin(d2r*meanaz)
-    Ymat = Rmat*sp.cos(d2r*meanaz)
+    Xmat = Rmat*sp.cos(d2r*meanaz)
+    Ymat = Rmat*sp.sin(d2r*meanaz)
     coords = sp.column_stack((Xmat.flatten(),Ymat.flatten(),Zmat.flatten()))
     timevec = sp.linspace(0,900,nt)
 
@@ -180,7 +181,29 @@ def save2dropbox(testpath,imgonly=True):
             shutil.rmtree(dboxsave)
         for i in imgpaths:
             shutil.copytree(os.path.join(testpath,i),os.path.join(dboxsave,i))
+#%% Fixplanes
+def fixspecs(basdirlist):
+    for ibase in basedirlist:
+        filelist = glob.glob(os.path.join(ibase,'Origparams','*.h5'))
+        numlist = [os.path.splitext(os.path.split(x)[-1])[0] for x in filelist]
+        numdict = {numlist[i]:filelist[i] for i in range(len(filelist))}
+        slist = sorted(numlist,key=ke)
 
+        origlist = [numdict[slist[i]] for i in slist]
+
+        filelist = glob.glob(os.path.join(ibase,'Spectrums','*.h5'))
+        numlist = [os.path.splitext(os.path.split(x)[-1])[0] for x in filelist]
+        numdict = {numlist[i]:filelist[i] for i in range(len(filelist))}
+        slist = sorted(numlist,key=ke)
+
+        speclist = [numdict[slist[i]] for i in slist]
+        for (iorig,ispec) in zip(origlist,speclist):
+            origiono=IonoContainer.readh5(iorig)
+            speciono=IonoContainer.readh5(ispec)
+            speciono.Cart_Coords=origiono.Cart_Coords
+            speciono.Sphere_Coords=origiono.Sphere_Coords
+            os.remove(ispec)
+            speciono.saveh5(ispec)
 if __name__== '__main__':
     argv = sys.argv[1:]
 
