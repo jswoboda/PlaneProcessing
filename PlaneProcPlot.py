@@ -47,6 +47,8 @@ def plotoutdata(testdir,imgdir):
     dsetname = os.path.split(os.path.dirname(testdir))[-1]
     print "Plotting input data for "+dsetname
 
+    xlim = [0.,350.]
+    ylim = [125.,475]
     for inumn, inum in enumerate(slist):
         print "{0} Input for {1} of {2}".format(dsetname,inumn,len(slist))
         ifile = numdict[inum]
@@ -73,7 +75,8 @@ def plotoutdata(testdir,imgdir):
             ax1.set_ylabel('Alt in km')
 
             pc1 = ax1.pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = 'jet',vmin=5e10,vmax=2e11)
-            ax1.set_xlim([rngmat.min(),rngmat.max()])
+            ax1.set_xlim(xlim)
+            ax1.set_ylim(ylim)
             spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0])))
 
             cb1 = plt.colorbar(pc1, ax=ax1,format='%.0e')
@@ -128,6 +131,9 @@ def plotoutput(testdir,imgdir):
 
     dsetname = os.path.split(os.path.dirname(testdir))[-1]
     print "Plotting Output data for "+dsetname
+
+    xlim = [0.,350.]
+    ylim = [125.,475]
     for itimen,itime in enumerate(Iono1.times):
         print "{0} Output for {1} of {2}".format(dsetname,itimen,len(Iono1.times))
         fig = plt.figure(facecolor='w',figsize=(14, 8))
@@ -145,10 +151,10 @@ def plotoutput(testdir,imgdir):
         pc1 = ax1.pcolor(Xmat,Zmat,Nemat,cmap = 'jet',vmin=5e10,vmax=3e11)
 
         pc2 = ax2.pcolor(Xmat,Zmat,Timat,cmap = 'jet',vmin=5e10,vmax=3e11)
-        ax1.set_xlim([Xmat.min(),Xmat.max()])
-        ax1.set_ylim([Zmat.min(),Zmat.max()])
-        ax2.set_xlim([Xmat.min(),Xmat.max()])
-        ax2.set_ylim([Zmat.min(),Zmat.max()])
+        ax1.set_xlim(xlim)
+        ax1.set_ylim(ylim)
+        ax2.set_xlim(xlim)
+        ax2.set_ylim(ylim)
 
         spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0])))
 #            if imcount==0:
