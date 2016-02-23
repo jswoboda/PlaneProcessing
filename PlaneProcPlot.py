@@ -47,7 +47,10 @@ def plotoutdata(testdir,imgdir):
     dsetname = os.path.split(os.path.dirname(testdir))[-1]
     print "Plotting input data for "+dsetname
 
-    xlim = [0.,350.]
+    if 'perryplane' in testdir.lower():
+        xlim = [-350.,350.]
+    else:
+        xlim = [0.,350.]
     ylim = [125.,475]
     for inumn, inum in enumerate(slist):
         print "{0} Input for {1} of {2}".format(dsetname,inumn,len(slist))
@@ -55,7 +58,7 @@ def plotoutdata(testdir,imgdir):
         iono = IonoContainer.readh5(ifile)
         Iono1 = GeoData(readIono,[iono])
         nt = Iono1.times.shape[0]
-        rng = sp.sqrt(Iono1.dataloc[:,0]**2+Iono1.dataloc[:,1]**2)
+        rng = sp.sqrt(Iono1.dataloc[:,0]**2+Iono1.dataloc[:,1]**2)*sp.sign(Iono1.dataloc[:,1])
         z = Iono1.dataloc[:,2]
         rngvec = sp.unique(rng)
         zvec = sp.unique(z)
@@ -73,8 +76,7 @@ def plotoutdata(testdir,imgdir):
 
             ax1.set_xlabel('Range in km')
             ax1.set_ylabel('Alt in km')
-
-            pc1 = ax1.pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = 'jet',vmin=5e10,vmax=2e11)
+            pc1 = ax1.pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = 'plasma',vmin=5e10,vmax=2e11)
             ax1.set_xlim(xlim)
             ax1.set_ylim(ylim)
             spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0])))
