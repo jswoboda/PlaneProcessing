@@ -113,7 +113,7 @@ def plotoutput(testdir,imgdir):
     filename = os.path.join(testdir,'Fitted','fitteddata.h5')
     iono = IonoContainer.readh5(filename)
     Iono1 = GeoData(readIono,[iono])
-    rngrdr =Iono1.dataloc[:,0]
+    rngrdr =Iono1.dataloc[:,0]*sp.sign(Iono1.dataloc[:,1])
     el = Iono1.dataloc[:,2]
     rngrdrvec,rndinv = sp.unique(rngrdr,return_inverse=True)
     elvec,elinv = sp.unique(el,return_inverse=True)
@@ -134,7 +134,10 @@ def plotoutput(testdir,imgdir):
     dsetname = os.path.split(os.path.dirname(testdir))[-1]
     print "Plotting Output data for "+dsetname
 
-    xlim = [0.,350.]
+    if 'perryplane' in testdir.lower():
+        xlim = [-350.,350.]
+    else:
+        xlim = [0.,350.]
     ylim = [125.,475]
     for itimen,itime in enumerate(Iono1.times):
         print "{0} Output for {1} of {2}".format(dsetname,itimen,len(Iono1.times))
@@ -150,9 +153,9 @@ def plotoutput(testdir,imgdir):
         ax2.set_ylabel('Alt in km')
         Nemat = Ne[:,:,itimen]
         Timat = Ti[:,:,itimen]
-        pc1 = ax1.pcolor(Xmat,Zmat,Nemat,cmap = 'jet',vmin=5e10,vmax=3e11)
+        pc1 = ax1.pcolor(Xmat,Zmat,Nemat,cmap = 'plasma',vmin=5e10,vmax=2e11)
 
-        pc2 = ax2.pcolor(Xmat,Zmat,Timat,cmap = 'jet',vmin=5e10,vmax=3e11)
+        pc2 = ax2.pcolor(Xmat,Zmat,Timat,cmap = 'plasma',vmin=5e10,vmax=2e11)
         ax1.set_xlim(xlim)
         ax1.set_ylim(ylim)
         ax2.set_xlim(xlim)
