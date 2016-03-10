@@ -113,19 +113,21 @@ def plotoutput(testdir,imgdir):
     filename = os.path.join(testdir,'Fitted','fitteddata.h5')
     iono = IonoContainer.readh5(filename)
     Iono1 = GeoData(readIono,[iono])
-    rngrdr =Iono1.dataloc[:,0]*sp.sign(Iono1.dataloc[:,1])
+    rngrdr =Iono1.dataloc[:,0]
+    sign1 = sp.sign(Iono1.dataloc[:,1])
     el = Iono1.dataloc[:,2]
-    rngrdrvec,rndinv = sp.unique(rngrdr,return_inverse=True)
     elvec,elinv = sp.unique(el,return_inverse=True)
+    nbeams = len(elvec)
+    nrg = len(rngrdr)/nbeams
     nt = Iono1.times.shape[0]
-    Rngrdrmat = sp.reshape(rngrdr,(len(rngrdrvec),len(elvec)))
-    Elmat = sp.reshape(el,(len(rngrdrvec),len(elvec)))
+    Rngrdrmat = sp.reshape(rngrdr,(nrg,nbeams))
+    Signmat = sp.reshape(sign1,(nrg,nbeams))
+    Elmat = sp.reshape(el,(nrg,nbeams))
 
-
-    Xmat = Rngrdrmat*sp.cos(Elmat*sp.pi/180.)
+    Xmat = Rngrdrmat*Signmat*sp.cos(Elmat*sp.pi/180.)
     Zmat = Rngrdrmat*sp.sin(Elmat*sp.pi/180.)
-    Ne = Iono1.data['Ne'].reshape(len(rngrdrvec),len(elvec),nt)
-    Ti = Iono1.data['Nepow'].reshape(len(rngrdrvec),len(elvec),nt)
+    Ne = Iono1.data['Ne'].reshape(nrg,nbeams,nt)
+    Ti = Iono1.data['Nepow'].reshape(nrg,nbeams,nt)
 
 
     imcount=0
