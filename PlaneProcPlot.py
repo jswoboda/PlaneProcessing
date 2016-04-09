@@ -112,7 +112,7 @@ def plotinputdata(testdir,imgdir):
             plt.subplots_adjust(top=0.85)
             spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0])),fontsize=24)
             fname= '{0:0>3}_'.format(imcount)+filetemplate+'.png'
-            plt.savefig(os.path.join(imgdir,fname))
+            plt.savefig(os.path.join(imgdir,fname),dpi=300)
             imcount=imcount+1
             plt.close(fig)
 #%%Plot output data
