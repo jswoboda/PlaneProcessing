@@ -11,9 +11,11 @@ import matplotlib
 import pdb
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
 from RadarDataSim.IonoContainer import IonoContainer
 from GeoData.GeoData import GeoData
 from GeoData.utilityfuncs import readIono
+from GeoData.plotting import insertinfo
 
 
 #%% For sorting
@@ -23,7 +25,7 @@ def ke(item):
     else:
         return float('inf')
 #%% Plot input data
-def plotoutdata(testdir,imgdir):
+def plotinputdata(testdir,imgdir):
     """This will plot all of the input data with each time step as a pcolor images of
     electron density and ion tempreture.
     Inputs
@@ -41,14 +43,14 @@ def plotoutdata(testdir,imgdir):
     numlist = [os.path.splitext(os.path.split(x)[-1])[0] for x in filelist]
     numdict = {numlist[i]:filelist[i] for i in range(len(filelist))}
     slist = sorted(numlist,key=ke)
-
+    slist=[slist[0]]
     imcount = 0
     filetemplate = 'outputdata'
     dsetname = os.path.split(os.path.dirname(testdir))[-1]
     print "Plotting input data for "+dsetname
 
     if 'perryplane' in testdir.lower():
-        xlim = [-350.,350.]
+        xlim = [-100.,600.]
     else:
         xlim = [0.,350.]
     ylim = [125.,475]
@@ -65,23 +67,38 @@ def plotoutdata(testdir,imgdir):
         rngmat = rng.reshape(len(zvec),len(rngvec))
         zmat = z.reshape(len(zvec),len(rngvec))
         Ne = Iono1.data['Ne'].reshape(len(zvec),len(rngvec),nt)
-#        Ti = Iono1.data['Ti'].reshape(len(zvec),len(rngvec),nt)
-
+        Ti = Iono1.data['Ti'].reshape(len(zvec),len(rngvec),nt)
+        Te = Iono1.data['Te'].reshape(len(zvec),len(rngvec),nt)
         for itimen,itime in enumerate(Iono1.times):
-            fig = plt.figure(facecolor='w',figsize=(14, 8))
-            ax1=fig.add_subplot(1,1,1)
+            fig ,axmat= plt.subplots(nrows=1,ncols=3,facecolor='w',figsize=(15,7 ),sharey=True)
+            avec = axmat.flatten()
 
 
-            ax1.set_title('Ne')
+            avec[0].set_xlabel('Range in km')
+            avec[0].set_ylabel('Alt in km')
+            pc1 = avec[0].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = 'plasma')
+            avec[0].set_xlim(xlim)
+            avec[0].set_ylim(ylim)
+            avec[0].set_title('Electron Density')
+            
+            pc1.set_norm(colors.LogNorm(vmin=1e8,vmax=5e11))
+            cb1 = plt.colorbar(pc1, ax=avec[0],format='%.0e')
+            
+            avec[1].set_xlabel('Range in km')
+            pc2 = avec[1].pcolor(rngmat,zmat,Te[:,:,itimen],cmap = 'plasma',vmin=500,vmax=3e3)
+            avec[1].set_xlim(xlim)
+            avec[1].set_ylim(ylim)
+            avec[1].set_title('Electron Tempreture')
 
-            ax1.set_xlabel('Range in km')
-            ax1.set_ylabel('Alt in km')
-            pc1 = ax1.pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = 'plasma',vmin=5e10,vmax=2e11)
-            ax1.set_xlim(xlim)
-            ax1.set_ylim(ylim)
-            spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0])))
-
-            cb1 = plt.colorbar(pc1, ax=ax1,format='%.0e')
+            cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
+            
+            avec[2].set_xlabel('Range in km')
+            pc3 = avec[2].pcolor(rngmat,zmat,Ti[:,:,itimen],cmap = 'plasma',vmin=500,vmax=3e3)
+            avec[2].set_xlim(xlim)
+            avec[2].set_ylim(ylim)
+            avec[2].set_title('Ion Tempreture')
+            
+            cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
 #            ax2=fig.add_subplot(1,2,2)
 #            ax2.set_title('Ti')
 #            ax2.set_xlabel('Range in km')
@@ -91,8 +108,9 @@ def plotoutdata(testdir,imgdir):
 #            ax2.set_ylim([zmat.min(),zmat.max()])
 
 #            cb2 = plt.colorbar(pc2, ax=ax2,format='%.0e')
-
-
+            plt.tight_layout()
+            plt.subplots_adjust(top=0.85)
+            spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0])),fontsize=24)
             fname= '{0:0>3}_'.format(imcount)+filetemplate+'.png'
             plt.savefig(os.path.join(imgdir,fname))
             imcount=imcount+1
