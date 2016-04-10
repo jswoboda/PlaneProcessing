@@ -43,7 +43,6 @@ def plotinputdata(testdir,imgdir):
     numlist = [os.path.splitext(os.path.split(x)[-1])[0] for x in filelist]
     numdict = {numlist[i]:filelist[i] for i in range(len(filelist))}
     slist = sorted(numlist,key=ke)
-    slist=[slist[0]]
     imcount = 0
     filetemplate = 'outputdata'
     dsetname = os.path.split(os.path.dirname(testdir))[-1]
@@ -145,7 +144,8 @@ def plotoutput(testdir,imgdir):
     Xmat = Rngrdrmat*Signmat*sp.cos(Elmat*sp.pi/180.)
     Zmat = Rngrdrmat*sp.sin(Elmat*sp.pi/180.)
     Ne = Iono1.data['Ne'].reshape(nrg,nbeams,nt)
-    Ti = Iono1.data['Nepow'].reshape(nrg,nbeams,nt)
+    Te = Iono1.data['Te'].reshape(nrg,nbeams,nt)
+    Ti = Iono1.data['Te'].reshape(nrg,nbeams,nt)
 
 
     imcount=0
@@ -161,30 +161,46 @@ def plotoutput(testdir,imgdir):
     ylim = [125.,475]
     for itimen,itime in enumerate(Iono1.times):
         print "{0} Output for {1} of {2}".format(dsetname,itimen,len(Iono1.times))
-        fig = plt.figure(facecolor='w',figsize=(14, 8))
-        ax1=fig.add_subplot(1,2,1)
-        ax2=fig.add_subplot(1,2,2)
-
-        ax1.set_title('Ne')
-        ax2.set_title('Ne From Power')
-        ax1.set_xlabel('Range in km')
-        ax1.set_ylabel('Alt in km')
-        ax2.set_xlabel('Range in km')
-        ax2.set_ylabel('Alt in km')
+        
+        
         Nemat = Ne[:,:,itimen]
         Timat = Ti[:,:,itimen]
-        pc1 = ax1.pcolor(Xmat,Zmat,Nemat,cmap = 'plasma',vmin=5e10,vmax=2e11)
+        Temat = Te[:,:,itimen]
+        
+        fig ,axmat= plt.subplots(nrows=1,ncols=3,facecolor='w',figsize=(15,7 ),sharey=True)
+        avec = axmat.flatten()
 
-        pc2 = ax2.pcolor(Xmat,Zmat,Timat,cmap = 'plasma',vmin=5e10,vmax=2e11)
-        ax1.set_xlim(xlim)
-        ax1.set_ylim(ylim)
-        ax2.set_xlim(xlim)
+
+        avec[0].set_xlabel('Range in km')
+        avec[0].set_ylabel('Alt in km')
+        pc1 = avec[0].pcolor(Xmat,Zmat,Nemat,cmap = 'plasma')
+        avec[0].set_xlim(xlim)
+        avec[0].set_ylim(ylim)
+        avec[0].set_title('Electron Density')
+        
+        pc1.set_norm(colors.LogNorm(vmin=1e8,vmax=5e11))
+        cb1 = plt.colorbar(pc1, ax=avec[0],format='%.0e')
+        
+        avec[1].set_xlabel('Range in km')
+        pc2 = avec[1].pcolor(Xmat,Zmat,Temat,cmap = 'plasma',vmin=500,vmax=3e3)
+        avec[1].set_xlim(xlim)
+        avec[1].set_ylim(ylim)
+        avec[1].set_title('Electron Tempreture')
+
+        cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
+        
+        avec[2].set_xlabel('Range in km')
+        pc3 = avec[2].pcolor(Xmat,Zmat,Timat,cmap = 'plasma',vmin=500,vmax=3e3)
+        avec[2].set_xlim(xlim)
+        avec[2].set_ylim(ylim)
+        avec[2].set_title('Ion Tempreture')
+        
+        cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
+        
         ax2.set_ylim(ylim)
 
         spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0])))
-#            if imcount==0:
-        cb1 = plt.colorbar(pc1, ax=ax1,format='%.0e')
-        cb2 = plt.colorbar(pc2, ax=ax2,format='%.0e')
+
 #            ims.append([pc1,pc2])
 
         fname= '{0:0>3}_'.format(imcount)+filetemplate+'.png'
