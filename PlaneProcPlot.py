@@ -44,7 +44,7 @@ def plotinputdata(testdir,imgdir):
     numdict = {numlist[i]:filelist[i] for i in range(len(filelist))}
     slist = sorted(numlist,key=ke)
     imcount = 0
-    filetemplate = 'outputdata'
+    filetemplate = 'inputdata'
     dsetname = os.path.split(os.path.dirname(testdir))[-1]
     print "Plotting input data for "+dsetname
 
@@ -73,26 +73,26 @@ def plotinputdata(testdir,imgdir):
             avec = axmat.flatten()
 
 
-            avec[0].set_xlabel('Range in km')
+            avec[0].set_xlabel('X Plane in km')
             avec[0].set_ylabel('Alt in km')
             pc1 = avec[0].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = 'plasma')
             avec[0].set_xlim(xlim)
             avec[0].set_ylim(ylim)
             avec[0].set_title('Electron Density')
             
-            pc1.set_norm(colors.LogNorm(vmin=1e8,vmax=5e11))
+            pc1.set_norm(colors.LogNorm(vmin=5e8,vmax=1e12))
             cb1 = plt.colorbar(pc1, ax=avec[0],format='%.0e')
             
-            avec[1].set_xlabel('Range in km')
-            pc2 = avec[1].pcolor(rngmat,zmat,Te[:,:,itimen],cmap = 'plasma',vmin=500,vmax=3e3)
+            avec[1].set_xlabel('X Plane in km')
+            pc2 = avec[1].pcolor(rngmat,zmat,Te[:,:,itimen],cmap = 'plasma',vmin=500,vmax=3.5e3)
             avec[1].set_xlim(xlim)
             avec[1].set_ylim(ylim)
             avec[1].set_title('Electron Tempreture')
 
             cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
             
-            avec[2].set_xlabel('Range in km')
-            pc3 = avec[2].pcolor(rngmat,zmat,Ti[:,:,itimen],cmap = 'plasma',vmin=500,vmax=3e3)
+            avec[2].set_xlabel('X Plane in km')
+            pc3 = avec[2].pcolor(rngmat,zmat,Ti[:,:,itimen],cmap = 'plasma',vmin=500,vmax=3.5e3)
             avec[2].set_xlim(xlim)
             avec[2].set_ylim(ylim)
             avec[2].set_title('Ion Tempreture')
@@ -171,17 +171,17 @@ def plotoutput(testdir,imgdir):
         avec = axmat.flatten()
 
 
-        avec[0].set_xlabel('Range in km')
+        avec[0].set_xlabel('X Plane in km')
         avec[0].set_ylabel('Alt in km')
         pc1 = avec[0].pcolor(Xmat,Zmat,Nemat,cmap = 'plasma')
         avec[0].set_xlim(xlim)
         avec[0].set_ylim(ylim)
         avec[0].set_title('Electron Density')
         
-        pc1.set_norm(colors.LogNorm(vmin=1e8,vmax=5e11))
+        pc1.set_norm(colors.LogNorm(vmin=5e8,vmax=5e12))
         cb1 = plt.colorbar(pc1, ax=avec[0],format='%.0e')
         
-        avec[1].set_xlabel('Range in km')
+        avec[1].set_xlabel('X Planein km')
         pc2 = avec[1].pcolor(Xmat,Zmat,Temat,cmap = 'plasma',vmin=500,vmax=3e3)
         avec[1].set_xlim(xlim)
         avec[1].set_ylim(ylim)
@@ -189,7 +189,7 @@ def plotoutput(testdir,imgdir):
 
         cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
         
-        avec[2].set_xlabel('Range in km')
+        avec[2].set_xlabel('X Plane in km')
         pc3 = avec[2].pcolor(Xmat,Zmat,Timat,cmap = 'plasma',vmin=500,vmax=3e3)
         avec[2].set_xlim(xlim)
         avec[2].set_ylim(ylim)
