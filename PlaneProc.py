@@ -208,41 +208,30 @@ def fixspecs(basedirlist):
             os.remove(ispec)
             speciono.saveh5(ispec)
 if __name__== '__main__':
-    argv = sys.argv[1:]
 
-    outstr = 'Planeproc.py -f <function: origdata, spectrums, radardata, fitting or all> -i <basedir List or all> -p <testpath> -c <config> -r <type y to remake data>'
+    from argparse import ArgumentParser
+    descr = '''
+             This script will perform the basic run est for ISR sim.
+            '''
     curpath = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+    p = ArgumentParser(description=descr)
+    p.add_argument('-i','--idir',help='Base directory',default='all')
+    p.add_argument('-c','--config',help='Config file for simlation',default = 'planeproc2_stat.ini')
+    p.add_argument('-r ','--re',help='Remake data True or False.',type=bool,default=False)
+    p.add_argument("-p", "--path",help='Number of pulses.',default=curpath)
+    p.add_argument('-f','--funclist',help='Functions to be uses',nargs='+',default=['spectrums','radardata','fitting'])#action='append',dest='collection',default=['spectrums','radardata','fitting','analysis'])
+    
+    p = p.parse_args()
+    basdir = p.i
+    curpath = p.p
+    configfile = p.c
+    remakealldata = p.r
+    
+   
+    
 
     configlist = ['planeproc2.ini','planeproc2_stat.ini','dishplaneproc.ini','dishplaneproc_stat.ini']
-    try:
-        opts, args = getopt.gnu_getopt(argv,"hf:i:c:r:p:")
-    except getopt.GetoptError:
-        print(outstr)
-        sys.exit(2)
-
-    remakealldata = False
-    basedir = os.path.join(curpath,'exp_width_01')
-    funcnamelist=[]
-    for opt, arg in opts:
-        if opt == '-h':
-            print(outstr)
-            sys.exit()
-        elif opt in ('-p','--path'):
-            curpath=os.path.expanduser(arg)
-        elif opt in ("-i", "--ifile"):
-            basedir = arg
-
-        elif opt in ("-c", "--cfile"):
-            outdirexist = True
-            configfile = arg
-        elif opt in ("-f", "--func"):
-            funcnamelist.append(arg)
-
-        elif opt in ('-r', "--re"):
-            if arg.lower() == 'y':
-                remakealldata = True
-
-
+   
     if basedir.lower() == 'all':
         basedirlist = glob.glob(os.path.join(curpath,'exp_width_*'))
     else:
