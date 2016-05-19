@@ -221,12 +221,12 @@ if __name__== '__main__':
     p.add_argument("-p", "--path",help='Number of pulses.',default=curpath)
     p.add_argument('-f','--funclist',help='Functions to be uses',nargs='+',default=['spectrums','radardata','fitting'])#action='append',dest='collection',default=['spectrums','radardata','fitting','analysis'])
     
-    p = p.parse_args()
-    basdir = p.i
-    curpath = p.p
-    configfile = p.c
-    remakealldata = p.r
-    
+    args = p.parse_args()
+    basedir = args.idir
+    curpath = args.path
+    configfile = args.config
+    remakealldata = args.re
+    funcnamelist = args.funclist
    
     
 

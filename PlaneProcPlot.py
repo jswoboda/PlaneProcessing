@@ -197,7 +197,6 @@ def plotoutput(testdir,imgdir):
         
         cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
         
-        ax2.set_ylim(ylim)
 
         spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0])))
 
