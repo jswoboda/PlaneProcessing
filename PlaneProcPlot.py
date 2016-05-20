@@ -115,12 +115,14 @@ def plotinputdata(testdir,imgdir):
             imcount=imcount+1
             plt.close(fig)
 #%%Plot output data
-def plotoutput(testdir,imgdir):
+def plotoutput(testdir,imgdir,config):
     """This will plot all of the fitted data with each time step as a pcolor images of
     electron density and electron density from power mesurements.
     Inputs
     testdir - The directory with the input data in h5 files formated for the ionocontainer structure.
     imgdir - The directory that holds the images."""
+    (sensdict,simparams)=readconfigfile(config)
+    tvec = simparams['Timevec']
     if os.path.exists(imgdir):
         imgfiles = glob.glob(os.path.join(imgdir,'*.png'))
         for imgf in imgfiles:
@@ -199,7 +201,7 @@ def plotoutput(testdir,imgdir):
         
         ax2.set_ylim(ylim)
 
-        spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0])))
+        spti = fig.suptitle('Parameters at {0} seconds'.format(int(tvec[itimen])))
 
 #            ims.append([pc1,pc2])
 

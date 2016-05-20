@@ -263,5 +263,5 @@ if __name__== '__main__':
             #save2dropbox(ibase)
         if plotbool:
             plotinputdata(ibase,os.path.join(ibase,'Inputimages'))
-            plotoutput(ibase,os.path.join(ibase,'fittedimages'))
+            plotoutput(ibase,os.path.join(ibase,'fittedimages'),configfile)
 
