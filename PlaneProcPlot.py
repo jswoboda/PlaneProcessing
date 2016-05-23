@@ -200,7 +200,7 @@ def plotoutput(testdir,imgdir,config):
         cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
         
 
-        spti = fig.suptitle('Parameters at {0} seconds'.format(int(tvec[itimen])))
+        spti = fig.suptitle('Parameters at {0} seconds'.format(int(tvec[itimen])),fontsize=24)
 
 #            ims.append([pc1,pc2])
 
