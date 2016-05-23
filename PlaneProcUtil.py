@@ -29,3 +29,21 @@ def changefilenames(folder,exten,inttime,filetemplate,folder2=None):
         shutil.copy2(curfile,newfilename)
 
         
+if __name__== '__main__':
+
+    from argparse import ArgumentParser
+    descr = '''
+             This script will perform the basic run est for ISR sim.
+            '''
+    p = ArgumentParser(description=descr)
+    p.add_argument('-f','--fold',help='Folder',default='~/Dropbox/PerryPlane/fittedimages240seconds/')
+    p.add_argument('-p','--path2',help='Output Folder',default='~/Dropbox/PerryPlane/fittedimages240seconds2/')
+    p.add_argument('-i','--inttime',help='Integration Time',type=int,default = 240)
+    
+    args = p.parse_args()
+    folder = os.path.expanduser(args.fold)
+    folder2 = os.path.expanduser(args.path2)
+    inttime = args.inttime
+    filetemplate = "__{0}__int".format(inttime)
+    exten= 'png'
+    changefilenames(folder,exten,inttime,filetemplate,folder2)

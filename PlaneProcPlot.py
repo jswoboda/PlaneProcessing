@@ -188,7 +188,7 @@ def plotoutput(testdir,imgdir,config):
         pc1.set_norm(colors.LogNorm(vmin=5e8,vmax=5e12))
         cb1 = plt.colorbar(pc1, ax=avec[0],format='%.0e')
         
-        avec[1].set_xlabel('X Planein km')
+        avec[1].set_xlabel('X Plane in km')
         pc2 = avec[1].pcolor(Xmat,Zmat,Temat,cmap = 'plasma',vmin=500,vmax=3.5e3)
         avec[1].set_xlim(xlim)
         avec[1].set_ylim(ylim)
@@ -210,6 +210,6 @@ def plotoutput(testdir,imgdir,config):
 #            ims.append([pc1,pc2])
 
         fname= '{0:0>3}_'.format(imcount)+filetemplate+'.png'
-        plt.savefig(os.path.join(imgdir,fname))
+        plt.savefig(os.path.join(imgdir,fname),dpi=300)
         imcount=imcount+1
         plt.close(fig)
