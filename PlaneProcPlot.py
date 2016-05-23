@@ -49,7 +49,7 @@ def plotinputdata(testdir,imgdir):
     print "Plotting input data for "+dsetname
 
     if 'perryplane' in testdir.lower():
-        xlim = [-100.,600.]
+        xlim = [-100.,400.]
     else:
         xlim = [0.,350.]
     ylim = [125.,475]
@@ -157,7 +157,7 @@ def plotoutput(testdir,imgdir,config):
     print "Plotting Output data for "+dsetname
 
     if 'perryplane' in testdir.lower():
-        xlim = [-350.,350.]
+        xlim = [-100.,400.]
     else:
         xlim = [0.,350.]
     ylim = [125.,475]
