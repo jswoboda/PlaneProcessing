@@ -11,7 +11,7 @@ import numpy as np
 def changefilenames(folder,exten,inttime,filetemplate,folder2=None):
     if folder2 is None:
         folder2=folder
-    if ~os.path.isdir(folder2):
+    if not os.path.isdir(folder2):
         os.mkdir(folder2)
     
     files = glob.glob(os.path.join(folder,'*.'+exten))

@@ -88,7 +88,7 @@ def plotinputdata(testdir,imgdir):
             pc2 = avec[1].pcolor(rngmat,zmat,Te[:,:,itimen],cmap = 'plasma',vmin=500,vmax=3.5e3)
             avec[1].set_xlim(xlim)
             avec[1].set_ylim(ylim)
-            avec[1].set_title('Electron Tempreture')
+            avec[1].set_title('Electron Temperature')
 
             cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
             
@@ -96,7 +96,7 @@ def plotinputdata(testdir,imgdir):
             pc3 = avec[2].pcolor(rngmat,zmat,Ti[:,:,itimen],cmap = 'plasma',vmin=500,vmax=3.5e3)
             avec[2].set_xlim(xlim)
             avec[2].set_ylim(ylim)
-            avec[2].set_title('Ion Tempreture')
+            avec[2].set_title('Ion Temperature')
             
             cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
 #            ax2=fig.add_subplot(1,2,2)
@@ -188,7 +188,7 @@ def plotoutput(testdir,imgdir,config):
         pc2 = avec[1].pcolor(Xmat,Zmat,Temat,cmap = 'plasma',vmin=500,vmax=3e3)
         avec[1].set_xlim(xlim)
         avec[1].set_ylim(ylim)
-        avec[1].set_title('Electron Tempreture')
+        avec[1].set_title('Electron Temperature')
 
         cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
         
@@ -196,7 +196,7 @@ def plotoutput(testdir,imgdir,config):
         pc3 = avec[2].pcolor(Xmat,Zmat,Timat,cmap = 'plasma',vmin=500,vmax=3e3)
         avec[2].set_xlim(xlim)
         avec[2].set_ylim(ylim)
-        avec[2].set_title('Ion Tempreture')
+        avec[2].set_title('Ion Temperature')
         
         cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
         
