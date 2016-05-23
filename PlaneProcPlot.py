@@ -54,6 +54,7 @@ def plotinputdata(testdir,imgdir):
     else:
         xlim = [0.,350.]
     ylim = [125.,475]
+    f1 =  True
     for inumn, inum in enumerate(slist):
         print "{0} Input for {1} of {2}".format(dsetname,inumn,len(slist))
         ifile = numdict[inum]
@@ -70,6 +71,9 @@ def plotinputdata(testdir,imgdir):
         Ti = Iono1.data['Ti'].reshape(len(zvec),len(rngvec),nt)
         Te = Iono1.data['Te'].reshape(len(zvec),len(rngvec),nt)
         for itimen,itime in enumerate(Iono1.times):
+            if f1:
+                f1=False
+                t0 = itime[0]
             fig ,axmat= plt.subplots(nrows=1,ncols=3,facecolor='w',figsize=(15,7 ),sharey=True)
             avec = axmat.flatten()
 
@@ -110,7 +114,7 @@ def plotinputdata(testdir,imgdir):
 #            cb2 = plt.colorbar(pc2, ax=ax2,format='%.0e')
             plt.tight_layout()
             plt.subplots_adjust(top=0.85)
-            spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0])),fontsize=24)
+            spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0]-t0)),fontsize=24)
             fname= '{0:0>3}_'.format(imcount)+filetemplate+'.png'
             plt.savefig(os.path.join(imgdir,fname),dpi=300)
             imcount=imcount+1
