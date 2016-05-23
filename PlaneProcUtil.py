@@ -44,6 +44,6 @@ if __name__== '__main__':
     folder = os.path.expanduser(args.fold)
     folder2 = os.path.expanduser(args.path2)
     inttime = args.inttime
-    filetemplate = "__{0}__int".format(inttime)
+    filetemplate = "_{0}_int".format(inttime)
     exten= 'png'
     changefilenames(folder,exten,inttime,filetemplate,folder2)
