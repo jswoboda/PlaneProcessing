@@ -81,7 +81,7 @@ def plotinputdata(testdir,imgdir):
             avec[0].set_ylim(ylim)
             avec[0].set_title('Electron Density')
             
-            pc1.set_norm(colors.LogNorm(vmin=5e8,vmax=1e12))
+            pc1.set_norm(colors.LogNorm(vmin=5e8,vmax=5e12))
             cb1 = plt.colorbar(pc1, ax=avec[0],format='%.0e')
             
             avec[1].set_xlabel('X Plane in km')
@@ -185,7 +185,7 @@ def plotoutput(testdir,imgdir,config):
         cb1 = plt.colorbar(pc1, ax=avec[0],format='%.0e')
         
         avec[1].set_xlabel('X Planein km')
-        pc2 = avec[1].pcolor(Xmat,Zmat,Temat,cmap = 'plasma',vmin=500,vmax=3e3)
+        pc2 = avec[1].pcolor(Xmat,Zmat,Temat,cmap = 'plasma',vmin=500,vmax=3.5e3)
         avec[1].set_xlim(xlim)
         avec[1].set_ylim(ylim)
         avec[1].set_title('Electron Temperature')
@@ -193,7 +193,7 @@ def plotoutput(testdir,imgdir,config):
         cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
         
         avec[2].set_xlabel('X Plane in km')
-        pc3 = avec[2].pcolor(Xmat,Zmat,Timat,cmap = 'plasma',vmin=500,vmax=3e3)
+        pc3 = avec[2].pcolor(Xmat,Zmat,Timat,cmap = 'plasma',vmin=500,vmax=3.5e3)
         avec[2].set_xlim(xlim)
         avec[2].set_ylim(ylim)
         avec[2].set_title('Ion Temperature')
