@@ -13,6 +13,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 from RadarDataSim.IonoContainer import IonoContainer
+from RadarDataSim.utilFunctions import readconfigfile
 from GeoData.GeoData import GeoData
 from GeoData.utilityfuncs import readIono
 from GeoData.plotting import insertinfo
