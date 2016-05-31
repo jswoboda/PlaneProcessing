@@ -51,8 +51,10 @@ def plotinputdata(testdir,imgdir):
 
     if 'perryplane' in testdir.lower():
         xlim = [-100.,400.]
+        xticks = [0.,150.,300.]
     else:
         xlim = [0.,350.]
+        xticks = [0.,150.,300.]
     ylim = [125.,475]
     f1 =  True
     for inumn, inum in enumerate(slist):
@@ -77,32 +79,42 @@ def plotinputdata(testdir,imgdir):
             fig ,axmat= plt.subplots(nrows=1,ncols=3,facecolor='w',figsize=(15,7 ),sharey=True)
             avec = axmat.flatten()
 
-
-            avec[0].set_xlabel('X Plane in km')
-            avec[0].set_ylabel('Alt in km')
-            pc1 = avec[0].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = 'plasma')
+            plt.sca(avec[0])
+            plt.xticks(xticks)
+            plt.tick_params(labelsize=16)
+            avec[0].set_xlabel('X Plane in km',fontsize=18)
+            avec[0].set_ylabel('Alt in km',fontsize=18)
+            pc1 = avec[0].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = 'plasma',vmin=3e10,vmax=3e11)
             avec[0].set_xlim(xlim)
             avec[0].set_ylim(ylim)
-            avec[0].set_title('Electron Density')
+            avec[0].set_title('Electron Density',fontsize=18)
             
-            pc1.set_norm(colors.LogNorm(vmin=5e8,vmax=5e12))
+           #pc1.set_norm(colors.LogNorm(vmin=5e8,vmax=5e12))
             cb1 = plt.colorbar(pc1, ax=avec[0],format='%.0e')
-            
-            avec[1].set_xlabel('X Plane in km')
-            pc2 = avec[1].pcolor(rngmat,zmat,Te[:,:,itimen],cmap = 'plasma',vmin=500,vmax=3.5e3)
+            cb1.ax.set_xlabel(r'm$^{-3}$')
+
+            plt.sca(avec[1])
+            plt.xticks(xticks)
+            plt.tick_params(labelsize=16)
+            avec[1].set_xlabel('X Plane in km',fontsize=18)
+            pc2 = avec[1].pcolor(rngmat,zmat,Te[:,:,itimen],cmap = 'plasma',vmin=0,vmax=5.e3)
             avec[1].set_xlim(xlim)
             avec[1].set_ylim(ylim)
-            avec[1].set_title('Electron Temperature')
+            avec[1].set_title('Electron Temperature',fontsize=18)
 
             cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
-            
-            avec[2].set_xlabel('X Plane in km')
-            pc3 = avec[2].pcolor(rngmat,zmat,Ti[:,:,itimen],cmap = 'plasma',vmin=500,vmax=3.5e3)
+            cb1.ax.set_xlabel(r'$^{\circ}$K')
+            plt.sca(avec[2])
+            plt.xticks(xticks)
+            plt.tick_params(labelsize=16)
+            avec[2].set_xlabel('X Plane in km',fontsize=18)
+            pc3 = avec[2].pcolor(rngmat,zmat,Ti[:,:,itimen],cmap = 'plasma',vmin=0,vmax=5.e3)
             avec[2].set_xlim(xlim)
             avec[2].set_ylim(ylim)
-            avec[2].set_title('Ion Temperature')
+            avec[2].set_title('Ion Temperature',fontsize=18)
             
             cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
+            cb3.ax.set_xlabel(r'$^{\circ}$K')
 #            ax2=fig.add_subplot(1,2,2)
 #            ax2.set_title('Ti')
 #            ax2.set_xlabel('Range in km')
@@ -114,10 +126,10 @@ def plotinputdata(testdir,imgdir):
 #            cb2 = plt.colorbar(pc2, ax=ax2,format='%.0e')
             plt.tight_layout()
             plt.subplots_adjust(top=0.85)
-            spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0]-t0)),fontsize=24)
+           # spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0]-t0)),fontsize=24)
             fname= '{0:0>3}_'.format(imcount)+filetemplate+'.png'
             plt.savefig(os.path.join(imgdir,fname),dpi=300)
-            for ax in axvec:
+            for ax in avec:
                 for label in (ax.get_xticklabels() + ax.get_yticklabels()):
                     label.set_fontsize(20)
             imcount=imcount+1
@@ -166,8 +178,10 @@ def plotoutput(testdir,imgdir,config):
 
     if 'perryplane' in testdir.lower():
         xlim = [-100.,400.]
+        xticks = [0.,150.,300.]
     else:
         xlim = [0.,350.]
+        xticks = [0.,150.,300]
     ylim = [125.,475]
     for itimen,itime in enumerate(Iono1.times):
         print "{0} Output for {1} of {2}".format(dsetname,itimen,len(Iono1.times))
@@ -180,38 +194,46 @@ def plotoutput(testdir,imgdir,config):
         fig ,axmat= plt.subplots(nrows=1,ncols=3,facecolor='w',figsize=(15,7 ),sharey=True)
         avec = axmat.flatten()
 
-
-        avec[0].set_xlabel('X Plane in km')
-        avec[0].set_ylabel('Alt in km')
-        pc1 = avec[0].pcolor(Xmat,Zmat,Nemat,cmap = 'plasma')
+        plt.sca(avec[0])
+        avec[0].set_xlabel('X Plane in km',fontsize=18)
+        avec[0].set_ylabel('Alt in km',fontsize=18)
+        pc1 = avec[0].pcolor(Xmat,Zmat,Nemat,cmap = 'plasma',vmin=3e10,vmax=3e11)
+        plt.tick_params(labelsize=16)
+        plt.xticks(xticks)
         avec[0].set_xlim(xlim)
         avec[0].set_ylim(ylim)
-        avec[0].set_title('Electron Density')
+        avec[0].set_title('Electron Density',fontsize=18)
         
-        pc1.set_norm(colors.LogNorm(vmin=5e8,vmax=5e12))
+        #pc1.set_norm(colors.LogNorm(vmin=5e8,vmax=5e12))
         cb1 = plt.colorbar(pc1, ax=avec[0],format='%.0e')
-        
-        avec[1].set_xlabel('X Plane in km')
-        pc2 = avec[1].pcolor(Xmat,Zmat,Temat,cmap = 'plasma',vmin=500,vmax=3.5e3)
+        cb1.ax.set_xlabel(r'm$^{-3}$',fontsize=14)
+        plt.sca(avec[1])
+        plt.tick_params(labelsize=16)
+        plt.xticks(xticks)
+        avec[1].set_xlabel('X Plane in km',fontsize=18)
+        pc2 = avec[1].pcolor(Xmat,Zmat,Temat,cmap = 'plasma',vmin=0,vmax=5.e3)
         avec[1].set_xlim(xlim)
         avec[1].set_ylim(ylim)
-        avec[1].set_title('Electron Temperature')
+        avec[1].set_title('Electron Temperature',fontsize=18)
 
         cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
-        
-        avec[2].set_xlabel('X Plane in km')
-        pc3 = avec[2].pcolor(Xmat,Zmat,Timat,cmap = 'plasma',vmin=500,vmax=3.5e3)
+        cb2.ax.set_xlabel(r'$^{\circ}$K',fontsize=14)
+        plt.sca(avec[2])
+        plt.xticks(xticks)
+        plt.tick_params(labelsize=16)
+        avec[2].set_xlabel('X Plane in km',fontsize=18)
+        pc3 = avec[2].pcolor(Xmat,Zmat,Timat,cmap = 'plasma',vmin=0,vmax=5.e3)
         avec[2].set_xlim(xlim)
         avec[2].set_ylim(ylim)
-        avec[2].set_title('Ion Temperature')
-        for ax in axvec:
-            for label in (ax.get_xticklabels() + ax.get_yticklabels()):
-                label.set_fontsize(20)
+        avec[2].set_title('Ion Temperature',fontsize=18)
+#        for ax in avec:
+#            for label in (ax.get_xticklabels() + ax.get_yticklabels()):
+#                label.set_fontsize(20)
         
         cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
-        
+        cb3.ax.set_xlabel(r'$^{\circ}$K',fontsize=14)
 
-        spti = fig.suptitle('Parameters at {0} seconds'.format(int(tvec[itimen])),fontsize=24)
+       # spti = fig.suptitle('Parameters at {0} seconds'.format(int(tvec[itimen])),fontsize=24)
 
 #            ims.append([pc1,pc2])
 
