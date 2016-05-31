@@ -117,6 +117,9 @@ def plotinputdata(testdir,imgdir):
             spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0]-t0)),fontsize=24)
             fname= '{0:0>3}_'.format(imcount)+filetemplate+'.png'
             plt.savefig(os.path.join(imgdir,fname),dpi=300)
+            for ax in axvec:
+                for label in (ax.get_xticklabels() + ax.get_yticklabels()):
+                    label.set_fontsize(20)
             imcount=imcount+1
             plt.close(fig)
 #%%Plot output data
@@ -201,6 +204,9 @@ def plotoutput(testdir,imgdir,config):
         avec[2].set_xlim(xlim)
         avec[2].set_ylim(ylim)
         avec[2].set_title('Ion Temperature')
+        for ax in axvec:
+            for label in (ax.get_xticklabels() + ax.get_yticklabels()):
+                label.set_fontsize(20)
         
         cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
         
