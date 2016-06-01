@@ -256,7 +256,7 @@ if __name__== '__main__':
     plotboolout= False
     if 'plotting' in funcnamelist:
         plotboolin=True
-        plotbooout=True
+        plotboolout=True
         funcnamelist.remove('plotting')
     if 'plottingin' in funcnamelist:
         plotboolin=True
