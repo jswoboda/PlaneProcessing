@@ -213,9 +213,10 @@ def plotoutput(testdir,imgdir,config):
         avec[0].set_xlim(xlim)
         avec[0].set_ylim(ylim)
         avec[0].set_title('Electron Density',fontsize=18)
+        cb1 = plt.colorbar(pc1, ax=avec[0],format='%.0e')
+        cb1.ax.set_xlabel(r'm$^{-3}$',fontsize=14)
         if allparams:
-            cb1 = plt.colorbar(pc1, ax=avec[0],format='%.0e')
-            cb1.ax.set_xlabel(r'm$^{-3}$',fontsize=14)
+
             
             plt.sca(avec[1])
             plt.tick_params(labelsize=16)
