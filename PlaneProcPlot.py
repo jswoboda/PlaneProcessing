@@ -126,7 +126,7 @@ def plotinputdata(testdir,imgdir):
                 cb3.ax.set_xlabel(r'$^{\circ}$K')
 
             plt.tight_layout()
-            plt.subplots_adjust(top=0.85)
+#            plt.subplots_adjust(top=0.85)
            # spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0]-t0)),fontsize=24)
             fname= '{0:0>3}_'.format(imcount)+filetemplate+'.png'
             plt.savefig(os.path.join(imgdir,fname),dpi=300)
@@ -247,6 +247,7 @@ def plotoutput(testdir,imgdir,config):
        # spti = fig.suptitle('Parameters at {0} seconds'.format(int(tvec[itimen])),fontsize=24)
 
 #            ims.append([pc1,pc2])
+        plt.tight_layout()
 
         fname= '{0:0>3}_'.format(imcount)+filetemplate+'.png'
         plt.savefig(os.path.join(imgdir,fname),dpi=300)
