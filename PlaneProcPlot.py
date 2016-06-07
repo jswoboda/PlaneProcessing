@@ -112,7 +112,7 @@ def plotinputdata(testdir,imgdir):
                 avec[1].set_title('Electron Temperature',fontsize=18)
 
                 cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
-                cb1.ax.set_xlabel(r'$^{\circ}$K')
+                cb2.ax.set_xlabel(r'$^{\circ}$K')
                 plt.sca(avec[2])
                 plt.xticks(xticks)
                 plt.tick_params(labelsize=16)
