@@ -12,7 +12,7 @@ import pdb
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
-from RadarDataSim.IonoContainer import IonoContainer
+from RadarDataSim.IonoContainer import IonoContainer, makeionocombined
 from RadarDataSim.utilFunctions import readconfigfile
 from GeoData.GeoData import GeoData
 from GeoData.utilityfuncs import readIono
@@ -168,7 +168,7 @@ def plotoutput(testdir,imgdir,config):
     Zmat = Rngrdrmat*sp.sin(Elmat*sp.pi/180.)
     Ne = Iono1.data['Ne'].reshape(nrg,nbeams,nt)
     Te = Iono1.data['Te'].reshape(nrg,nbeams,nt)
-    Ti = Iono1.data['Te'].reshape(nrg,nbeams,nt)
+    Ti = Iono1.data['Ti'].reshape(nrg,nbeams,nt)
 
 
     imcount=0
@@ -253,3 +253,26 @@ def plotoutput(testdir,imgdir,config):
         plt.savefig(os.path.join(imgdir,fname),dpi=300)
         imcount=imcount+1
         plt.close(fig)
+def plotlines(inputlist,fitiono,timelist,paramlist,altlist):
+
+    inputiono = makeionocombined(inputlist)
+    Iono1 = GeoData(readIono,[ionoinputiono])
+    fitiono = IonoContainer.readh5(fitiono)
+    fitGeo = GeoData(readIono,[fitiono])
+
+    
+    (x,y,z) = inputiono.Cart_Coords.transpose()
+    r = sp.sqrt(x**2+y**2)*sp.sign(y)
+    incoords = sp.column_stack((r,z,sp.ones_like(z)))
+    (xf,yf,zf) = fitiono.Cart_Coords.transpose()
+    rf = sp.sqrt(xf**2+yf**2)*sp.sign(yf)
+    outcoords = sp.column_stack((rf,zf,sp.ones_like(z)))
+
+    fitGeo.interpolate(incoords,Iono1.coordnames,method='linear',fill_value=np.nan,twodinterp = True,oldcoords=outcoords)
+
+    uz = sp.unique(z)
+    ur = sp.unique(r)
+    (rmat,zmat) = sp.meshgrid(ur,uz)
+    
+    inputdata = {}
+    
