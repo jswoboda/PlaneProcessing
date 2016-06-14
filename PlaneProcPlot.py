@@ -260,14 +260,19 @@ def plotlines(inputlist,fitiono,timelist,paramlist,altlist):
     fitiono = IonoContainer.readh5(fitiono)
     fitGeo = GeoData(readIono,[fitiono])
 
-    
+    paramlist = ['Ne','Te','Ti']
     (x,y,z) = inputiono.Cart_Coords.transpose()
     r = sp.sqrt(x**2+y**2)*sp.sign(y)
     incoords = sp.column_stack((r,z,sp.ones_like(z)))
+    ru,zu =[ sp.unique(r),sp.unique(z)]
+    Rmat,Zmat = sp.meshgrid(ru,zu)
+    zinput
     (xf,yf,zf) = fitiono.Cart_Coords.transpose()
     rf = sp.sqrt(xf**2+yf**2)*sp.sign(yf)
     outcoords = sp.column_stack((rf,zf,sp.ones_like(z)))
-
+    rfu,zfu =[ sp.unique(rf),sp.unique(zf)]
+    Rfmat,Zfmat = sp.meshgrid(rfu,zfu)
+    
     fitGeo.interpolate(incoords,Iono1.coordnames,method='linear',fill_value=np.nan,twodinterp = True,oldcoords=outcoords)
 
     uz = sp.unique(z)
