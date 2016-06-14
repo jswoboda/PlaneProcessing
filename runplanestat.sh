@@ -1,4 +1,4 @@
 #!/bin/bash
 
-python PlaneProc.py -f radardata fitting plotting -i ~/DATA/PlaneProcessing/exp_width_stat_01 -c ~/DATA/PlaneProcessing/planeproc2_stat.ini -r y
-cp ~/DATA/PlaneProcessing/exp_width_01_stat/fittedimages/*.png  ~/Dropbox/PlaneProcessing/Stationary/fittedimages/
+python PlaneProc.py -f radardata fitting plotting -i ~/DATA/PlaneProcessing/Phased_Array/exp_width_stat_01 -c ~/DATA/PlaneProcessing/Phased_Array/planeproc2_stat.ini -r y
+cp ~/DATA/PlaneProcessing/Phased_Array/exp_width_01_stat/fittedimages/*.png  ~/Dropbox/PlaneProcessing/Stationary/fittedimages/
