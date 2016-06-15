@@ -50,18 +50,18 @@ def plotinputdata(testdir,imgdir):
     print "Plotting input data for "+dsetname
 
     if 'perryplane' in testdir.lower():
-        xlim = [-100.,400.]
+        xlim = [-100.,450.]
         xticks = [0.,150.,300.]
         allparams = True
         ncols=3
         figsize = (15,7)
     else:
-        xlim = [0.,350.]
+        xlim = [0.,400.]
         xticks = [0.,150.,300.]
         allparams = False
         ncols=1
         figsize = (5,7)
-    ylim = [125.,475]
+    ylim = [100.,500.]
     f1 =  True
     for inumn, inum in enumerate(slist):
         print "{0} Input for {1} of {2}".format(dsetname,inumn,len(slist))
@@ -178,18 +178,18 @@ def plotoutput(testdir,imgdir,config):
     print "Plotting Output data for "+dsetname
 
     if 'perryplane' in testdir.lower():
-        xlim = [-100.,400.]
+        xlim = [-100.,450.]
         xticks = [0.,150.,300.]
         allparams=True
         ncols=3
         figsize = (15,7)
     else:
-        xlim = [0.,350.]
+        xlim = [0.,400.]
         xticks = [0.,150.,300]
         allparams = False
         ncols=1
         figsize = (5,7)
-    ylim = [125.,475]
+    ylim = [100.,500]
     for itimen,itime in enumerate(Iono1.times):
         print "{0} Output for {1} of {2}".format(dsetname,itimen,len(Iono1.times))
         
