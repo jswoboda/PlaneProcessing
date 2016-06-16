@@ -253,7 +253,7 @@ def plotoutput(testdir,imgdir,config):
         plt.savefig(os.path.join(imgdir,fname),dpi=300)
         imcount=imcount+1
         plt.close(fig)
-def plotlines(inputlist,fitiono,timelist,paramlist,altlist):
+def plotlines(inputlist,fitiono,alt,times,paramlist=['Ne','Te','Ti']):
 
     inputiono = makeionocombined(inputlist)
     Iono1 = GeoData(readIono,[ionoinputiono])
@@ -266,12 +266,14 @@ def plotlines(inputlist,fitiono,timelist,paramlist,altlist):
     incoords = sp.column_stack((r,z,sp.ones_like(z)))
     ru,zu =[ sp.unique(r),sp.unique(z)]
     Rmat,Zmat = sp.meshgrid(ru,zu)
-    zinput
+    zinput = sp.argmin(sp.absolute(zu-alt))
+    
     (xf,yf,zf) = fitiono.Cart_Coords.transpose()
     rf = sp.sqrt(xf**2+yf**2)*sp.sign(yf)
     outcoords = sp.column_stack((rf,zf,sp.ones_like(z)))
     rfu,zfu =[ sp.unique(rf),sp.unique(zf)]
     Rfmat,Zfmat = sp.meshgrid(rfu,zfu)
+    zoutput = sp.argmin(sp.absolute(zfu-alt))
     
     fitGeo.interpolate(incoords,Iono1.coordnames,method='linear',fill_value=np.nan,twodinterp = True,oldcoords=outcoords)
 
@@ -280,4 +282,25 @@ def plotlines(inputlist,fitiono,timelist,paramlist,altlist):
     (rmat,zmat) = sp.meshgrid(ur,uz)
     
     inputdata = {}
+    for iparm in paramlist:
+        if iparm =='Nepow':
+            iparam='Ne'
+        curdata = Iono1.data[iparam][:,times[0]]
+        
+        inputdata[iparm] = sp.reshape(curdata,Rmat.shape)[zinput]
+
+    outputdata = {}
+    for iparm in paramlist:
+        curdata = fitGeo.data[iparam][:, times[1]]
+        outputdata[iparm] = sp.reshape(curdata,Rmat.shape)[zoutput]
+
+    fig, axvec = plt.subplots(len(paramlist),1,sharey=False)
     
+    for ipn,iparam in enumerate(paramlist):
+        ax = axvec[ipn]
+        ax.plot(ru,inputdata[iparm],label='Input',linewidth=4)
+        ax.plot(ru,outputdata[iparm],label='Output',linewidth=4)
+        ax.set_title(iparam)
+        ax.set_xlabel('X Plane in km')
+
+    return(fig)

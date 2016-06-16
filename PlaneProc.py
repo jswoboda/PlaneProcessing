@@ -215,6 +215,7 @@ if __name__== '__main__':
             '''
     curpath = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
     p = ArgumentParser(description=descr)
+    p.add_argument('-t','--times',help='Times, as locations in the output time vector array that will be fit.',nargs='+',default=[])
     p.add_argument('-i','--idir',help='Base directory',default='all')
     p.add_argument('-c','--config',help='Config file for simlation',default = 'planeproc2_stat.ini')
     p.add_argument('-r ','--re',help='Remake data True or False.',type=bool,default=False)
@@ -227,8 +228,10 @@ if __name__== '__main__':
     configfile = args.config
     remakealldata = args.re
     funcnamelist = args.funclist
-   
-    
+    fittimes = args.times
+    if len(fittimes)==0:
+        fittimes=None
+    optinputs = [remakealldata,fittimes]
 
     configlist = ['planeproc2.ini','planeproc2_stat.ini','dishplaneproc.ini','dishplaneproc_stat.ini']
    
@@ -266,7 +269,7 @@ if __name__== '__main__':
         funcnamelist.remove('plottingout')
     for ibase in basedirlist:
         if len(funcnamelist)>0:
-            runradarsims(ibase,funcnamelist,configfile,remakealldata)
+            runradarsims(ibase,funcnamelist,configfile,optinputs)
             #save2dropbox(ibase)
         if plotboolin:
             plotinputdata(ibase,os.path.join(ibase,'Inputimages'))
