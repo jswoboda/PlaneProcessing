@@ -256,7 +256,7 @@ def plotoutput(testdir,imgdir,config):
 def plotlines(inputlist,fitiono,alt,times,paramlist=['Ne','Te','Ti']):
 
     inputiono = makeionocombined(inputlist)
-    Iono1 = GeoData(readIono,[ionoinputiono])
+    Iono1 = GeoData(readIono,[inputiono])
     fitiono = IonoContainer.readh5(fitiono)
     fitGeo = GeoData(readIono,[fitiono])
 
@@ -270,12 +270,12 @@ def plotlines(inputlist,fitiono,alt,times,paramlist=['Ne','Te','Ti']):
     
     (xf,yf,zf) = fitiono.Cart_Coords.transpose()
     rf = sp.sqrt(xf**2+yf**2)*sp.sign(yf)
-    outcoords = sp.column_stack((rf,zf,sp.ones_like(z)))
+    outcoords = sp.column_stack((rf,zf,sp.ones_like(zf)))
     rfu,zfu =[ sp.unique(rf),sp.unique(zf)]
     Rfmat,Zfmat = sp.meshgrid(rfu,zfu)
     zoutput = sp.argmin(sp.absolute(zfu-alt))
     
-    fitGeo.interpolate(incoords,Iono1.coordnames,method='linear',fill_value=np.nan,twodinterp = True,oldcoords=outcoords)
+    fitGeo.interpolate(incoords,Iono1.coordnames,method='linear',fill_value=sp.nan,twodinterp = True,oldcoords=outcoords)
 
     uz = sp.unique(z)
     ur = sp.unique(r)
@@ -284,30 +284,33 @@ def plotlines(inputlist,fitiono,alt,times,paramlist=['Ne','Te','Ti']):
     inputdata = {}
     for iparm in paramlist:
         if iparm =='Nepow':
-            iparam='Ne'
-        curdata = Iono1.data[iparam][:,times[0]]
+            iparm='Ne'
+        curdata = Iono1.data[iparm][:,times[0]]
         
         inputdata[iparm] = sp.reshape(curdata,Rmat.shape)[zinput]
 
     outputdata = {}
     for iparm in paramlist:
-        curdata = fitGeo.data[iparam][:, times[1]]
-        outputdata[iparm] = sp.reshape(curdata,Rmat.shape)[zoutput]
-
-    fig, axvec = plt.subplots(len(paramlist),1,sharey=False)
+        curdata = fitGeo.data[iparm][:, times[1]]
+        outputdata[iparm] = sp.reshape(curdata,Rmat.shape)[zinput]
+    
+    fig, axvec = plt.subplots(len(paramlist),1,sharey=False,figsize=(12,5*len(paramlist)))
     
     for ipn,iparam in enumerate(paramlist):
         ax = axvec[ipn]
         ax2 = ax.twinx()
-        p1 = ax.plot(ru,inputdata[iparm],'b-',label='In',linewidth=4)
-        p2 = ax.plot(ru,outputdata[iparm],'b--',label='Out',linewidth=4)
+        p1, = ax.plot(ru,inputdata[iparam],'b-',label='In',linewidth=3)
+        p2, = ax.plot(ru,outputdata[iparam],'b--',label='Out',linewidth=3)
         ax.set_title(iparam)
         ax.set_xlabel('X Plane in km')
-        gi = sp.gradient(inputdata[iparm])/sp.gradient(ru)
-        go = sp.gradient(output[iparm])/sp.gradient(ru)
-        p3 = ax2.plot(ru,gi,'g-',label='Grad In',linewidth=4)
-        p4 = ax2.plot(ru,go,'g--',label='Grad Out',linewidth=4)
+        gi = sp.gradient(inputdata[iparam])/sp.gradient(ru)
+        go = sp.gradient(outputdata[iparam])/sp.gradient(ru)
+        p3, = ax2.plot(ru,gi,'g-',label='Grad In',linewidth=3)
+        p4, = ax2.plot(ru,go,'g--',label='Grad Out',linewidth=3)
         ax.yaxis.label.set_color(p1.get_color())
         ax2.yaxis.label.set_color(p3.get_color())
-        ax.legend()
+        lines = [p1,p2,p3,p4]
+        ax.legend(lines,[l.get_label() for l in lines])
+    
+    plt.tight_layout()    
     return(fig)
