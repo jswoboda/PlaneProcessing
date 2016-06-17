@@ -298,9 +298,16 @@ def plotlines(inputlist,fitiono,alt,times,paramlist=['Ne','Te','Ti']):
     
     for ipn,iparam in enumerate(paramlist):
         ax = axvec[ipn]
-        ax.plot(ru,inputdata[iparm],label='Input',linewidth=4)
-        ax.plot(ru,outputdata[iparm],label='Output',linewidth=4)
+        ax2 = ax.twinx()
+        p1 = ax.plot(ru,inputdata[iparm],'b-',label='In',linewidth=4)
+        p2 = ax.plot(ru,outputdata[iparm],'b--',label='Out',linewidth=4)
         ax.set_title(iparam)
         ax.set_xlabel('X Plane in km')
-
+        gi = sp.gradient(inputdata[iparm])/sp.gradient(ru)
+        go = sp.gradient(output[iparm])/sp.gradient(ru)
+        p3 = ax2.plot(ru,gi,'g-',label='Grad In',linewidth=4)
+        p4 = ax2.plot(ru,go,'g--',label='Grad Out',linewidth=4)
+        ax.yaxis.label.set_color(p1.get_color())
+        ax2.yaxis.label.set_color(p3.get_color())
+        ax.legend()
     return(fig)
