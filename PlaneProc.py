@@ -142,7 +142,7 @@ def ke(item):
         return float('inf')
 #%%
 
-def runradarsims(testpath,funcnamelist=['spectrums','radardata','fitting'],configfile = 'planeproc2.ini',remakealldata=False):
+def runradarsims(testpath,funcnamelist=['spectrums','radardata','fitting'],configfile = 'planeproc2.ini',remakealldata=False,fittimes=None):
     """ This will run the radar simulations for all the selected data sets"""
     origparamsdir = os.path.join(testpath,'Origparams')
     if not os.path.exists(testpath):
@@ -167,7 +167,7 @@ def runradarsims(testpath,funcnamelist=['spectrums','radardata','fitting'],confi
         for ifile in flist:
             os.remove(ifile)
 
-    runsim.main(funcnamelist,testpath,configfile,remakealldata)
+    runsim.main(funcnamelist,testpath,configfile,remakealldata,fittimes)
     try:
         analysisdump(testpath,configfile,'Plane Example')
     except:
@@ -229,9 +229,11 @@ if __name__== '__main__':
     remakealldata = args.re
     funcnamelist = args.funclist
     fittimes = args.times
+
     if len(fittimes)==0:
         fittimes=None
-    optinputs = [remakealldata,fittimes]
+    else:
+        fittimes = [int(i) for i in fittimes]
 
     configlist = ['planeproc2.ini','planeproc2_stat.ini','dishplaneproc.ini','dishplaneproc_stat.ini']
    
@@ -269,7 +271,7 @@ if __name__== '__main__':
         funcnamelist.remove('plottingout')
     for ibase in basedirlist:
         if len(funcnamelist)>0:
-            runradarsims(ibase,funcnamelist,configfile,optinputs)
+            runradarsims(ibase,funcnamelist,configfile,remakealldata,fittimes)
             #save2dropbox(ibase)
         if plotboolin:
             plotinputdata(ibase,os.path.join(ibase,'Inputimages'))
