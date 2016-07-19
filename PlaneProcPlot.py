@@ -99,7 +99,7 @@ def plotinputdata(testdir,imgdir):
             avec[0].set_title('Electron Density',fontsize=18)
             
            #pc1.set_norm(colors.LogNorm(vmin=5e8,vmax=5e12))
-            cb1 = plt.colorbar(pc1, ax=avec[0],format='%.0e')
+            cb1 = plt.colorbar(pc1, ax=avec[0],format='%.2e')
             cb1.ax.set_xlabel(r'm$^{-3}$')
             if allparams:
                 plt.sca(avec[1])
@@ -213,7 +213,7 @@ def plotoutput(testdir,imgdir,config):
         avec[0].set_xlim(xlim)
         avec[0].set_ylim(ylim)
         avec[0].set_title('Electron Density',fontsize=18)
-        cb1 = plt.colorbar(pc1, ax=avec[0],format='%.0e')
+        cb1 = plt.colorbar(pc1, ax=avec[0],format='%.2e')
         cb1.ax.set_xlabel(r'm$^{-3}$',fontsize=14)
         if allparams:
 
