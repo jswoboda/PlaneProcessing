@@ -220,6 +220,8 @@ if __name__== '__main__':
     p.add_argument('-c','--config',help='Config file for simlation',default = 'planeproc2_stat.ini')
     p.add_argument('-r ','--re',help='Remake data True or False.',type=bool,default=False)
     p.add_argument("-p", "--path",help='Number of pulses.',default=curpath)
+    p.add_argument("-l", "--linewid",help='Line Width in number of Samples.',default=1)
+    p.add_argument('-m', "--mult", help="Multiplication of enhancement.", default=5.)
     p.add_argument('-f','--funclist',help='Functions to be uses',nargs='+',default=['spectrums','radardata','fitting'])#action='append',dest='collection',default=['spectrums','radardata','fitting','analysis'])
     
     args = p.parse_args()
@@ -229,6 +231,8 @@ if __name__== '__main__':
     remakealldata = args.re
     funcnamelist = args.funclist
     fittimes = args.times
+    lw =float( args.linewid)
+    mult = float(args.mult)
 
     if len(fittimes)==0:
         fittimes=None
@@ -249,7 +253,8 @@ if __name__== '__main__':
         (sensdict,simparams) = readconfigfile(configfile)
         azangles = [iang[0] for iang in simparams['angles']]
         meanaz = sp.mean(azangles)
-        makealldata(curpath,meanaz)
+        for ibase in basedirlist:
+            makeline(ibase,meanaz,linewidth=lw,multval = mult)
 
     if 'all' in funcnamelist:
 
