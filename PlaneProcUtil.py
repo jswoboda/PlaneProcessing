@@ -6,7 +6,7 @@ Created on Wed Dec 30 16:20:38 2015
 """
 import os,glob,shutil
 import numpy as np
-
+import scipy.io as io 
 
 def changefilenames(folder,exten,inttime,filetemplate,folder2=None):
     if folder2 is None:
@@ -28,7 +28,73 @@ def changefilenames(folder,exten,inttime,filetemplate,folder2=None):
         newfilename = os.path.join(folder2,newnames[inum])
         shutil.copy2(curfile,newfilename)
 
+
+def convertMattsfiles(fname_list,angle,keepspec=sp.array([0,1,2,6]),offset=0.,outdir=os.path.getcwd()):
+    """ 
+    This function will convert a set of files from Matt Zettegrens simulator to formated h5 files that 
+    RadarDataSim can read. 
+    Inputs
+        fname_list - This is a list of .mat files that will be converted.
+        angle - The angle in degrees that the thing will lie on.
+        keepspec - A numpy array of numbers.
+        offset - Offset of the x-axis.
+        outdir - The directory this is getting saved.
+    """
+    angle_r = angle*sp.pi/180.
+    if isinstance(fname_list,str):
+        fname_list=[fname_list]
+
+    for ifile in fname_list:
+        dirname,fname = os.path.split(ifile)
+        origfname,ext = os.path.splitext(fname)
+        filetime= origfname.split('_')[-1]
+        outfile = os.path.join(outdir,filetime+'.h5')
+
+        matdict = io.loadmat(ifile)
         
+        x1v=matdict['xg']['xp'][0][0]
+        x3v=matdict['xg']['zp'][0][0]
+
+        x1v=x1v+offset*1e3
+        x1mat,x3mat = sp.meshgrid(x1v,x3v)
+
+
+        E = x1mat.flatten()*sp.cos(angle_r)
+        N = x1mat.flatten()*sp.sin(angle_r)
+        U = x3mat.flatten()
+        cart_coords = sp.column_stack((E,N,U))*1e-3
+        lxs=x3mat.size
+
+        Time_Vector = matdict['t']
+
+        ns= matdict['ns']
+        lsp = ns.shape[-1]
+        ns = ns.reshape(lxs,lsp)
+        # set up the tempretures
+        Ts = matdict['Ts']
+        Ts = Ts.reshape(lxs,lsp)
+        # Set up the velocities
+        vs= matdict['vsx1']
+        vs = vs.reshape(lxs,lsp)
+        vion=sp.sum(vs[:,:lxs-1]*ns[:,:lxs-1],1)/ns[:,-1]
+
+        # reduce the number of species
+        Ts = Ts[:,keepspec]
+        Ts = Ts[:,sp.newaxis,:]
+        ns = ns[:,keepspec]
+        ns = ns[:,sp.newaxis,:]
+
+        Param_List=sp.concatenate((ns[:,:,:,sp.newaxis],Ts[:,:,:,sp.newaxis]),3)
+        v_e = vion*sp.cos(angle_r)
+        v_n = vion*sp.sin(angle_r)
+        v_u = sp.zeros_like(v_n)
+        Velocity = sp.column_stack((v_e,v_n,v_u))
+        Velocity = Velocity[:,sp.newaxis,:]
+        Species = ['O+','NO+','N2+','O2+','N+', 'H+','e-']
+        Species = [Species[i] for i in keepspec]
+        Iono1 = IonoContainer(cart_coords,Param_List,times=Time_Vector,ver=0,species=Species,velocity=Velocity)
+        
+        Iono1.saveh5(outfile)
 if __name__== '__main__':
 
     from argparse import ArgumentParser
