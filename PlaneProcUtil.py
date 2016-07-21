@@ -6,6 +6,7 @@ Created on Wed Dec 30 16:20:38 2015
 """
 import os,glob,shutil
 import numpy as np
+import scipy as sp
 import scipy.io as io 
 
 def changefilenames(folder,exten,inttime,filetemplate,folder2=None):
