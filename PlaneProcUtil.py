@@ -30,7 +30,7 @@ def changefilenames(folder,exten,inttime,filetemplate,folder2=None):
         shutil.copy2(curfile,newfilename)
 
 
-def convertMattsfiles(fname_list,angle,keepspec=sp.array([0,1,2,6]),offset=0.,outdir=os.path.getcwd()):
+def convertMattsfiles(fname_list,angle,keepspec=sp.array([0,1,2,6]),offset=0.,outdir=os.getcwd()):
     """ 
     This function will convert a set of files from Matt Zettegrens simulator to formated h5 files that 
     RadarDataSim can read. 
