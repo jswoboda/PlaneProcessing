@@ -7,7 +7,8 @@ Created on Wed Dec 30 16:20:38 2015
 import os,glob,shutil
 import numpy as np
 import scipy as sp
-import scipy.io as io 
+import scipy.io as io
+from RadarDataSim.IonoContainer import IonoContainer
 
 def changefilenames(folder,exten,inttime,filetemplate,folder2=None):
     if folder2 is None:
