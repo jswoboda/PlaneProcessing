@@ -66,9 +66,10 @@ def convertMattsfiles(fname_list,angle,keepspec=sp.array([0,1,2,6]),offset=0.,ou
         U = x3mat.flatten()
         cart_coords = sp.column_stack((E,N,U))*1e-3
         lxs=x3mat.size
-
-        Time_Vector = matdict['t']
-
+        
+        t1 = matdict['t'][0][0]
+        Time_Vector = sp.array([[t1,t1+15]])
+        
         ns= matdict['ns']
         lsp = ns.shape[-1]
         ns = ns.reshape(lxs,lsp)

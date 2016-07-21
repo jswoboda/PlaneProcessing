@@ -26,7 +26,7 @@ def ke(item):
     else:
         return float('inf')
 #%% Plot input data
-def plotinputdata(testdir,imgdir):
+def plotinputdata(testdir,imgdir,wtimes=False):
     """This will plot all of the input data with each time step as a pcolor images of
     electron density and ion tempreture.
     Inputs
@@ -50,7 +50,7 @@ def plotinputdata(testdir,imgdir):
     print "Plotting input data for "+dsetname
 
     if 'perryplane' in testdir.lower():
-        xlim = [-100.,450.]
+        xlim = [-150.,360.]
         xticks = [0.,150.,300.]
         allparams = True
         ncols=3
@@ -126,8 +126,9 @@ def plotinputdata(testdir,imgdir):
                 cb3.ax.set_xlabel(r'$^{\circ}$K')
 
             plt.tight_layout()
-#            plt.subplots_adjust(top=0.85)
-           # spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0]-t0)),fontsize=24)
+            if wtimes:
+                plt.subplots_adjust(top=0.9)
+                spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0]-t0)),fontsize=24)
             fname= '{0:0>3}_'.format(imcount)+filetemplate+'.png'
             plt.savefig(os.path.join(imgdir,fname),dpi=300)
             for ax in avec:
@@ -136,7 +137,7 @@ def plotinputdata(testdir,imgdir):
             imcount=imcount+1
             plt.close(fig)
 #%%Plot output data
-def plotoutput(testdir,imgdir,config):
+def plotoutput(testdir,imgdir,config,wtimes=False):
     """This will plot all of the fitted data with each time step as a pcolor images of
     electron density and electron density from power mesurements.
     Inputs
@@ -178,7 +179,7 @@ def plotoutput(testdir,imgdir,config):
     print "Plotting Output data for "+dsetname
 
     if 'perryplane' in testdir.lower():
-        xlim = [-100.,450.]
+        xlim = [-150.,360.]
         xticks = [0.,150.,300.]
         allparams=True
         ncols=3
@@ -243,11 +244,14 @@ def plotoutput(testdir,imgdir,config):
 
             cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
             cb3.ax.set_xlabel(r'$^{\circ}$K',fontsize=14)	
-
-       # spti = fig.suptitle('Parameters at {0} seconds'.format(int(tvec[itimen])),fontsize=24)
+        
+        plt.tight_layout()
+        if wtimes:
+            plt.subplots_adjust(top=0.9)
+            spti = fig.suptitle('Parameters at {0} seconds'.format(int(tvec[itimen])),fontsize=24)
 
 #            ims.append([pc1,pc2])
-        plt.tight_layout()
+       
 
         fname= '{0:0>3}_'.format(imcount)+filetemplate+'.png'
         plt.savefig(os.path.join(imgdir,fname),dpi=300)

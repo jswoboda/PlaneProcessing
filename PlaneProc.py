@@ -222,6 +222,7 @@ if __name__== '__main__':
     p.add_argument("-p", "--path",help='Number of pulses.',default=curpath)
     p.add_argument("-l", "--linewid",help='Line Width in number of Samples.',default=1)
     p.add_argument('-m', "--mult", help="Multiplication of enhancement.", default=5.)
+    p.add_argument('-w', "--wtimes", help="Put times at top of plots.",default='n')
     p.add_argument('-f','--funclist',help='Functions to be uses',nargs='+',default=['spectrums','radardata','fitting'])#action='append',dest='collection',default=['spectrums','radardata','fitting','analysis'])
     
     args = p.parse_args()
@@ -233,6 +234,7 @@ if __name__== '__main__':
     fittimes = args.times
     lw =float( args.linewid)
     mult = float(args.mult)
+    wtimes=args.wtimes.lower()=='y'
 
     if len(fittimes)==0:
         fittimes=None
@@ -279,7 +281,7 @@ if __name__== '__main__':
             runradarsims(ibase,funcnamelist,configfile,remakealldata,fittimes)
             #save2dropbox(ibase)
         if plotboolin:
-            plotinputdata(ibase,os.path.join(ibase,'Inputimages'))
+            plotinputdata(ibase,os.path.join(ibase,'Inputimages'),wtimes)
         if plotboolout:
-            plotoutput(ibase,os.path.join(ibase,'fittedimages'),configfile)
+            plotoutput(ibase,os.path.join(ibase,'fittedimages'),configfile,wtimes)
 
