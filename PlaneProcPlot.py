@@ -50,8 +50,8 @@ def plotinputdata(testdir,imgdir,wtimes=False):
     print "Plotting input data for "+dsetname
 
     if 'perryplane' in testdir.lower():
-        xlim = [-150.,360.]
-        xticks = [0.,150.,300.]
+        xlim = [-200.,360.]
+        xticks = [-150.,0.,150.,300.]
         allparams = True
         ncols=3
         figsize = (15,7)
@@ -327,12 +327,7 @@ def plotsampling(testdir,outfile,wtimes=False):
     testdir - The directory with the input data in h5 files formated for the ionocontainer structure.
     imgdir - The directory that holds the images."""
 
-    if os.path.exists(imgdir):
-        imgfiles = glob.glob(os.path.join(imgdir,'*.png'))
-        for imgf in imgfiles:
-            os.remove(imgf)
-    else:
-        os.mkdir(imgdir)
+
 
     filelist = glob.glob(os.path.join(testdir,'Origparams','*.h5'))
     numlist = [os.path.splitext(os.path.split(x)[-1])[0] for x in filelist]
@@ -348,13 +343,13 @@ def plotsampling(testdir,outfile,wtimes=False):
         xticks = [0.,150.,300.]
         allparams = True
         ncols=3
-        figsize = (15,7)
+        figsize = (10,21)
     else:
         xlim = [0.,400.]
         xticks = [0.,150.,300.]
         allparams = False
         ncols=1
-        figsize = (5,7)
+        figsize = (10,7)
     ylim = [100.,500.]
     f1 =  True
     
@@ -384,10 +379,7 @@ def plotsampling(testdir,outfile,wtimes=False):
         f1=False
         t0 = itime[0]
         fig ,axmat= plt.subplots(nrows=ncols,ncols=2,facecolor='w',figsize=figsize ,sharey=True)
-    if allparams:
-        avec = axmat.flatten()
-    else:
-        avec =[axmat]
+    avec=axmat.flatten()
 
     plt.sca(avec[0])
     plt.xticks(xticks)
@@ -397,10 +389,15 @@ def plotsampling(testdir,outfile,wtimes=False):
     pc1 = avec[0].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = 'plasma',vmin=0.,vmax=3e11)
     avec[0].set_xlim(xlim)
     avec[0].set_ylim(ylim)
+    plt.sca(avec[1])
+    plt.xticks(xticks)
+    plt.tick_params(labelsize=16)
     pc2 = avec[1].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = 'plasma',vmin=0.,vmax=3e11)
     plot1 = avec[1].plot(rout,zout,'w.')
     avec[1].set_xlim(xlim)
     avec[1].set_ylim(ylim)
+    avec[1].set_xlabel('X Plane in km',fontsize=18)
+    avec[1].set_ylabel('Alt in km',fontsize=18)
 
    #pc1.set_norm(colors.LogNorm(vmin=5e8,vmax=5e12))
     cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
@@ -410,4 +407,4 @@ def plotsampling(testdir,outfile,wtimes=False):
     if wtimes:
         plt.subplots_adjust(top=0.9)
         spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0]-t0)),fontsize=24)
-    return (fig,axvec)
+    return (fig,avec)
