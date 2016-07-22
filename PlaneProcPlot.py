@@ -402,35 +402,9 @@ def plotsampling(testdir,outfile,wtimes=False):
     avec[1].set_xlim(xlim)
     avec[1].set_ylim(ylim)
 
-    
-
-    
-   # avec[0].set_title('Electron Density',fontsize=18)
-
    #pc1.set_norm(colors.LogNorm(vmin=5e8,vmax=5e12))
     cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
     cb1.ax.set_xlabel(r'm$^{-3}$')
-    if allparams:
-        plt.sca(avec[1])
-        plt.xticks(xticks)
-        plt.tick_params(labelsize=16)
-        avec[1].set_xlabel('X Plane in km',fontsize=18)
-        pc2 = avec[1].pcolor(rngmat,zmat,Te[:,:,itimen],cmap = 'plasma',vmin=0,vmax=5.e3)
-        avec[2].set_xlim(xlim)
-        avec[2].set_ylim(ylim)
-
-        cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
-        cb2.ax.set_xlabel(r'$^{\circ}$K')
-        plt.sca(avec[2])
-        plt.xticks(xticks)
-        plt.tick_params(labelsize=16)
-        avec[2].set_xlabel('X Plane in km',fontsize=18)
-        pc3 = avec[2].pcolor(rngmat,zmat,Ti[:,:,itimen],cmap = 'plasma',vmin=0,vmax=5.e3)
-        avec[4].set_xlim(xlim)
-        avec[4].set_ylim(ylim)
-
-        cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
-        cb3.ax.set_xlabel(r'$^{\circ}$K')
 
     plt.tight_layout()
     if wtimes:
