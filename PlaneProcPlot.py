@@ -180,8 +180,8 @@ def plotoutput(testdir,imgdir,config,wtimes=False):
     print "Plotting Output data for "+dsetname
 
     if 'perryplane' in testdir.lower():
-        xlim = [-150.,360.]
-        xticks = [0.,150.,300.]
+        xlim = [-200.,360.]
+        xticks = [-150.,0.,150.,300.]
         allparams=True
         ncols=3
         figsize = (15,7)
