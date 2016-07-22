@@ -130,11 +130,12 @@ def plotinputdata(testdir,imgdir,wtimes=False):
                 plt.subplots_adjust(top=0.9)
                 spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0]-t0)),fontsize=24)
             fname= '{0:0>3}_'.format(imcount)+filetemplate+'.png'
-            plt.savefig(os.path.join(imgdir,fname),dpi=300)
-            for ax in avec:
-                for label in (ax.get_xticklabels() + ax.get_yticklabels()):
-                    label.set_fontsize(20)
+            
+           # for ax in avec:
+            #    for label in (ax.get_xticklabels() + ax.get_yticklabels()):
+             #       label.set_fontsize(20)
             imcount=imcount+1
+            plt.savefig(os.path.join(imgdir,fname),dpi=300)
             plt.close(fig)
 #%%Plot output data
 def plotoutput(testdir,imgdir,config,wtimes=False):
@@ -318,3 +319,121 @@ def plotlines(inputlist,fitiono,alt,times,paramlist=['Ne','Te','Ti']):
     
     plt.tight_layout()    
     return(fig)
+
+def plotsampling(testdir,outfile,wtimes=False):
+    """This will plot all of the input data with each time step as a pcolor images of
+    electron density and ion tempreture.
+    Inputs
+    testdir - The directory with the input data in h5 files formated for the ionocontainer structure.
+    imgdir - The directory that holds the images."""
+
+    if os.path.exists(imgdir):
+        imgfiles = glob.glob(os.path.join(imgdir,'*.png'))
+        for imgf in imgfiles:
+            os.remove(imgf)
+    else:
+        os.mkdir(imgdir)
+
+    filelist = glob.glob(os.path.join(testdir,'Origparams','*.h5'))
+    numlist = [os.path.splitext(os.path.split(x)[-1])[0] for x in filelist]
+    numdict = {numlist[i]:filelist[i] for i in range(len(filelist))}
+    slist = sorted(numlist,key=ke)
+    imcount = 0
+    filetemplate = 'inputdata'
+    dsetname = os.path.split(os.path.dirname(testdir))[-1]
+    print "Plotting input data for "+dsetname
+
+    if 'perryplane' in testdir.lower():
+        xlim = [-150.,360.]
+        xticks = [0.,150.,300.]
+        allparams = True
+        ncols=3
+        figsize = (15,7)
+    else:
+        xlim = [0.,400.]
+        xticks = [0.,150.,300.]
+        allparams = False
+        ncols=1
+        figsize = (5,7)
+    ylim = [100.,500.]
+    f1 =  True
+    
+    inumn=0
+    inum = slist[0]
+    print "{0} Input for {1} of {2}".format(dsetname,inumn,len(slist))
+    ifile = numdict[inum]
+    iono = IonoContainer.readh5(ifile)
+    iono2 = IonoContainer.readh5(outfile)
+    xout,yout,zout = iono2.Cart_Coords.transpose()
+    rout=sp.sqrt(xout**2+yout**2)
+    Iono1 = GeoData(readIono,[iono])
+    nt = Iono1.times.shape[0]
+    rng = sp.sqrt(Iono1.dataloc[:,0]**2+Iono1.dataloc[:,1]**2)*sp.sign(Iono1.dataloc[:,1])
+    z = Iono1.dataloc[:,2]
+    rngvec = sp.unique(rng)
+    zvec = sp.unique(z)
+    rngmat = rng.reshape(len(zvec),len(rngvec))
+    zmat = z.reshape(len(zvec),len(rngvec))
+    Ne = Iono1.data['Ne'].reshape(len(zvec),len(rngvec),nt)
+    Ti = Iono1.data['Ti'].reshape(len(zvec),len(rngvec),nt)
+    Te = Iono1.data['Te'].reshape(len(zvec),len(rngvec),nt)
+
+    itimen=0
+    itime = Iono1.times[0]
+    if f1:
+        f1=False
+        t0 = itime[0]
+        fig ,axmat= plt.subplots(nrows=ncols,ncols=2,facecolor='w',figsize=figsize ,sharey=True)
+    if allparams:
+        avec = axmat.flatten()
+    else:
+        avec =[axmat]
+
+    plt.sca(avec[0])
+    plt.xticks(xticks)
+    plt.tick_params(labelsize=16)
+    avec[0].set_xlabel('X Plane in km',fontsize=18)
+    avec[0].set_ylabel('Alt in km',fontsize=18)
+    pc1 = avec[0].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = 'plasma',vmin=0.,vmax=3e11)
+    avec[0].set_xlim(xlim)
+    avec[0].set_ylim(ylim)
+    pc2 = avec[1].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = 'plasma',vmin=0.,vmax=3e11)
+    plot1 = avec[1].plot(rout,zout,'w.')
+    avec[1].set_xlim(xlim)
+    avec[1].set_ylim(ylim)
+
+    
+
+    
+   # avec[0].set_title('Electron Density',fontsize=18)
+
+   #pc1.set_norm(colors.LogNorm(vmin=5e8,vmax=5e12))
+    cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
+    cb1.ax.set_xlabel(r'm$^{-3}$')
+    if allparams:
+        plt.sca(avec[1])
+        plt.xticks(xticks)
+        plt.tick_params(labelsize=16)
+        avec[1].set_xlabel('X Plane in km',fontsize=18)
+        pc2 = avec[1].pcolor(rngmat,zmat,Te[:,:,itimen],cmap = 'plasma',vmin=0,vmax=5.e3)
+        avec[2].set_xlim(xlim)
+        avec[2].set_ylim(ylim)
+
+        cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
+        cb2.ax.set_xlabel(r'$^{\circ}$K')
+        plt.sca(avec[2])
+        plt.xticks(xticks)
+        plt.tick_params(labelsize=16)
+        avec[2].set_xlabel('X Plane in km',fontsize=18)
+        pc3 = avec[2].pcolor(rngmat,zmat,Ti[:,:,itimen],cmap = 'plasma',vmin=0,vmax=5.e3)
+        avec[4].set_xlim(xlim)
+        avec[4].set_ylim(ylim)
+
+        cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
+        cb3.ax.set_xlabel(r'$^{\circ}$K')
+
+    plt.tight_layout()
+    if wtimes:
+        plt.subplots_adjust(top=0.9)
+        spti = fig.suptitle('Parameters at {0} seconds'.format(int(itime[0]-t0)),fontsize=24)
+    return (fig,axvec)
