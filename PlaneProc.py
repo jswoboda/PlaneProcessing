@@ -15,7 +15,7 @@ from RadarDataSim.IonoContainer import MakeTestIonoclass
 import RadarDataSim.runsim as runsim
 from RadarDataSim.analysisplots import analysisdump
 from RadarDataSim.utilFunctions import readconfigfile
-from PlaneProcPlot import plotinputdata,plotoutput
+from PlaneProcPlot import plotinputdata,plotoutput,plotoutputerrors
 from RadarDataSim.IonoContainer import IonoContainer
 
 
@@ -175,7 +175,7 @@ def runradarsims(testpath,funcnamelist=['spectrums','radardata','fitting'],confi
 
 def save2dropbox(testpath,imgonly=True):
     endpath = testpath.split(os.path.sep)[-1]
-    imgpaths = ['Inputimages','fittedimages']
+    imgpaths = ['Inputimages','fittedimages','fittederrorimages']
     dboxpath =os.path.expanduser(os.path.join('~','Dropbox'))
     dboxsave=os.path.join(dboxpath,'Planeexample',endpath)
 
@@ -284,4 +284,5 @@ if __name__== '__main__':
             plotinputdata(ibase,os.path.join(ibase,'Inputimages'),wtimes)
         if plotboolout:
             plotoutput(ibase,os.path.join(ibase,'fittedimages'),configfile,wtimes)
+            plotoutputerrors(ibase,os.path.join(ibase,'fittederrorimages'),configfile,wtimes)
 
