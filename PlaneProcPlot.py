@@ -19,6 +19,7 @@ from GeoData.utilityfuncs import readIono
 from GeoData.plotting import insertinfo
 
 
+defmap = 'viridis'
 #%% For sorting
 def ke(item):
     if item[0].isdigit():
@@ -93,7 +94,7 @@ def plotinputdata(testdir,imgdir,wtimes=False):
             plt.tick_params(labelsize=16)
             avec[0].set_xlabel('X Plane in km',fontsize=18)
             avec[0].set_ylabel('Alt in km',fontsize=18)
-            pc1 = avec[0].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = 'plasma',vmin=0.,vmax=3e11)
+            pc1 = avec[0].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = defmap,vmin=0.,vmax=3e11)
             avec[0].set_xlim(xlim)
             avec[0].set_ylim(ylim)
             avec[0].set_title('Electron Density',fontsize=18)
@@ -106,7 +107,7 @@ def plotinputdata(testdir,imgdir,wtimes=False):
                 plt.xticks(xticks)
                 plt.tick_params(labelsize=16)
                 avec[1].set_xlabel('X Plane in km',fontsize=18)
-                pc2 = avec[1].pcolor(rngmat,zmat,Te[:,:,itimen],cmap = 'plasma',vmin=0,vmax=5.e3)
+                pc2 = avec[1].pcolor(rngmat,zmat,Te[:,:,itimen],cmap = defmap,vmin=0,vmax=5.e3)
                 avec[1].set_xlim(xlim)
                 avec[1].set_ylim(ylim)
                 avec[1].set_title('Electron Temperature',fontsize=18)
@@ -117,7 +118,7 @@ def plotinputdata(testdir,imgdir,wtimes=False):
                 plt.xticks(xticks)
                 plt.tick_params(labelsize=16)
                 avec[2].set_xlabel('X Plane in km',fontsize=18)
-                pc3 = avec[2].pcolor(rngmat,zmat,Ti[:,:,itimen],cmap = 'plasma',vmin=0,vmax=5.e3)
+                pc3 = avec[2].pcolor(rngmat,zmat,Ti[:,:,itimen],cmap = defmap,vmin=0,vmax=5.e3)
                 avec[2].set_xlim(xlim)
                 avec[2].set_ylim(ylim)
                 avec[2].set_title('Ion Temperature',fontsize=18)
@@ -138,7 +139,7 @@ def plotinputdata(testdir,imgdir,wtimes=False):
             plt.savefig(os.path.join(imgdir,fname),dpi=300)
             plt.close(fig)
 #%%Plot output data
-def plotoutput(testdir,imgdir,config,wtimes=False):
+def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
     """This will plot all of the fitted data with each time step as a pcolor images of
     electron density and electron density from power mesurements.
     Inputs
@@ -152,7 +153,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False):
             os.remove(imgf)
     else:
         os.mkdir(imgdir)
-    filename = os.path.join(testdir,'Fitted','fitteddata.h5')
+    filename = os.path.join(testdir,fitpath,'fitteddata.h5')
     iono = IonoContainer.readh5(filename)
     Iono1 = GeoData(readIono,[iono])
     rngrdr =Iono1.dataloc[:,0]
@@ -209,7 +210,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False):
         plt.sca(avec[0])
         avec[0].set_xlabel('X Plane in km',fontsize=18)
         avec[0].set_ylabel('Alt in km',fontsize=18)
-        pc1 = avec[0].pcolor(Xmat,Zmat,Nemat,cmap = 'plasma',vmin=0.,vmax=3e11)
+        pc1 = avec[0].pcolor(Xmat,Zmat,Nemat,cmap = defmap,vmin=0.,vmax=3e11)
         plt.tick_params(labelsize=16)
         plt.xticks(xticks)
         avec[0].set_xlim(xlim)
@@ -224,7 +225,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False):
             plt.tick_params(labelsize=16)
             plt.xticks(xticks)
             avec[1].set_xlabel('X Plane in km',fontsize=18)
-            pc2 = avec[1].pcolor(Xmat,Zmat,Temat,cmap = 'plasma',vmin=0,vmax=5.e3)
+            pc2 = avec[1].pcolor(Xmat,Zmat,Temat,cmap = defmap,vmin=0,vmax=5.e3)
             avec[1].set_xlim(xlim)
             avec[1].set_ylim(ylim)
             avec[1].set_title('Electron Temperature',fontsize=18)
@@ -235,7 +236,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False):
             plt.xticks(xticks)
             plt.tick_params(labelsize=16)
             avec[2].set_xlabel('X Plane in km',fontsize=18)
-            pc3 = avec[2].pcolor(Xmat,Zmat,Timat,cmap = 'plasma',vmin=0,vmax=5.e3)
+            pc3 = avec[2].pcolor(Xmat,Zmat,Timat,cmap = defmap,vmin=0,vmax=5.e3)
             avec[2].set_xlim(xlim)
             avec[2].set_ylim(ylim)
             avec[2].set_title('Ion Temperature',fontsize=18)
@@ -386,14 +387,14 @@ def plotsampling(testdir,outfile,wtimes=False):
     plt.tick_params(labelsize=16)
     avec[0].set_xlabel('X Plane in km',fontsize=18)
     avec[0].set_ylabel('Alt in km',fontsize=18)
-    pc1 = avec[0].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = 'plasma',vmin=0.,vmax=3e11)
+    pc1 = avec[0].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = defmap,vmin=0.,vmax=3e11)
     avec[0].set_xlim(xlim)
     avec[0].set_ylim(ylim)
     plt.sca(avec[1])
     plt.xticks(xticks)
     plt.tick_params(labelsize=16)
-    pc2 = avec[1].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = 'plasma',vmin=0.,vmax=3e11)
-    plot1 = avec[1].plot(rout,zout,'w.')
+    pc2 = avec[1].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = defmap,vmin=0.,vmax=3e11)
+    plot1 = avec[1].plot(rout,zout,'w.',markersize=3)
     avec[1].set_xlim(xlim)
     avec[1].set_ylim(ylim)
     avec[1].set_xlabel('X Plane in km',fontsize=18)
