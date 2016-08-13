@@ -84,7 +84,7 @@ if __name__== '__main__':
 
     if 'all' in funcnamelist:
 
-        funcnamelist=['spectrums','radardata','fitting','plotting']
+        funcnamelist=['spectrums','applymat','fittingmat','plotting']
 
 
 
