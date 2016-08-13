@@ -107,6 +107,6 @@ if __name__== '__main__':
         if plotboolin:
             plotinputdata(ibase,os.path.join(ibase,'Inputimages'),wtimes)
         if plotboolout:
-            plotoutput(ibase,os.path.join(ibase,'fittedimages'),configfile,wtimes)
-            plotoutputerrors(ibase,os.path.join(ibase,'fittederrorimages'),configfile,wtimes)
+            plotoutput(ibase,os.path.join(ibase,'fittedimages'),configfile,wtimes,fitpath='FittedMat')
+            plotoutputerrors(ibase,os.path.join(ibase,'fittederrorimages'),configfile,wtimes,fitpath='FittedMat')
             #save2dropbox(ibase)
