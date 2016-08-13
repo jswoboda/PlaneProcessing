@@ -13,7 +13,7 @@ import matplotlib
 matplotlib.use('Agg')
 from RadarDataSim.IonoContainer import MakeTestIonoclass
 import RadarDataSim.runsim as runsim
-from RadarDataSim.analysisplots import analysisdump
+from RadarDataSim.analysisplots import analysisdump,plotbeamparametersv2
 from RadarDataSim.utilFunctions import readconfigfile
 from PlaneProcPlot import plotinputdata,plotoutput,plotoutputerrors
 from RadarDataSim.IonoContainer import IonoContainer
@@ -116,7 +116,6 @@ def makealldata(basedir,meanaz,multval = 5.):
             print "Making a path for testdata at "+origparamsdir
         print('Making Data for {0}'.format(fulldir))
         makeline(fulldir,meanaz,linewidth=iwid,multval=multval,)
-        plotoutdata(dirname,os.path.join(fulldir,'Inputimages'))
 
     # for stationary data
 
@@ -153,23 +152,34 @@ def runradarsims(testpath,funcnamelist=['spectrums','radardata','fitting'],confi
         print "Making a path for testdata at "+origparamsdir
         makeline(configfile,testpath)
     # clear everything out
-    folderlist =[]
-    if 'spectrums' in funcnamelist:
-        folderlist.append('Spectrums')
-    if 'radardata' in funcnamelist and remakealldata:
-        folderlist.append('Radardata')
-        folderlist.append('ACF')
-    if 'fitting' in funcnamelist:
-        folderlist.append('Fitted')
-#    folderlist = ['Spectrums','Radardata','ACF','Fitted']
-    for ifl in folderlist:
-        flist = glob.glob(os.path.join(testpath,ifl,'*.h5'))
-        for ifile in flist:
-            os.remove(ifile)
-
+#    folderlist =[]
+#    if 'spectrums' in funcnamelist:
+#        folderlist.append('Spectrums')
+#    if 'radardata' in funcnamelist and remakealldata:
+#        folderlist.append('Radardata')
+#        folderlist.append('ACF')
+#    if 'fitting' in funcnamelist:
+#        folderlist.append('Fitted')
+##    folderlist = ['Spectrums','Radardata','ACF','Fitted']
+#    for ifl in folderlist:
+#        flist = glob.glob(os.path.join(testpath,ifl,'*.h5'))
+#        for ifile in flist:
+#            os.remove(ifile)
+    
+    ismat = False
+    for ifc in funcnamelist:
+        if 'mat' in ifc:
+            ismat=True
+            break
     runsim.main(funcnamelist,testpath,configfile,remakealldata,fittimes)
     try:
-        analysisdump(testpath,configfile,'Plane Example')
+        if ismat:
+            plotdir = os.path.join(testpath,'AnalysisPlots')
+            f_templ = os.path.join(plotdir,'paramsmat')
+            plotbeamparametersv2([0.],configfile,testpath,fitdir = 'FittedMat',params=['Ne','Ti','Te'],filetemplate=f_templ,
+                             suptitle = 'With Mat',werrors=False,nelog=False)
+        else:
+            analysisdump(testpath,configfile,'Plane Example')
     except:
         print "Analysis dump failed somewhere"
 
