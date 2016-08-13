@@ -306,7 +306,7 @@ def plotoutputerrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
     pTi=100.*Ti/nTi
     imcount=0
     filetemplate = 'fitteddataerrorp'
-
+    maxerr = 1e3
     dsetname = os.path.split(os.path.dirname(testdir))[-1]
     print "Plotting Output error data for "+dsetname
 
@@ -340,13 +340,13 @@ def plotoutputerrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
         plt.sca(avec[0])
         avec[0].set_xlabel('X Plane in km',fontsize=fs)
         avec[0].set_ylabel('Alt in km',fontsize=fs)
-        pc1 = avec[0].pcolor(Xmat,Zmat,Nemat,cmap = defmap,vmin=0.,vmax=100)
+        pc1 = avec[0].pcolor(Xmat,Zmat,Nemat,cmap = defmap,vmin=0.,vmax=maxerr)
         plt.tick_params(labelsize=16)
         plt.xticks(xticks)
         avec[0].set_xlim(xlim)
         avec[0].set_ylim(ylim)
         avec[0].set_title('Electron Density % Error',fontsize=fs)
-        cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
+        cb1 = plt.colorbar(pc1, ax=avec[0],format='%.0d')
         cb1.ax.set_xlabel(r'm$^{-3}$',fontsize=14)
         if allparams:
 
@@ -355,7 +355,7 @@ def plotoutputerrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
             plt.tick_params(labelsize=16)
             plt.xticks(xticks)
             avec[1].set_xlabel('X Plane in km',fontsize=fs)
-            pc2 = avec[1].pcolor(Xmat,Zmat,Temat,cmap = defmap,vmin=0,vmax=100)
+            pc2 = avec[1].pcolor(Xmat,Zmat,Temat,cmap = defmap,vmin=0,vmax=maxerr)
             avec[1].set_xlim(xlim)
             avec[1].set_ylim(ylim)
             avec[1].set_title('Electron Temperature % Error',fontsize=fs)
@@ -366,7 +366,7 @@ def plotoutputerrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
             plt.xticks(xticks)
             plt.tick_params(labelsize=16)
             avec[2].set_xlabel('X Plane in km',fontsize=fs)
-            pc3 = avec[2].pcolor(Xmat,Zmat,Timat,cmap = defmap,vmin=0,vmax=100)
+            pc3 = avec[2].pcolor(Xmat,Zmat,Timat,cmap = defmap,vmin=0,vmax=maxerr)
             avec[2].set_xlim(xlim)
             avec[2].set_ylim(ylim)
             avec[2].set_title('Ion Temperature % Error',fontsize=fs)
