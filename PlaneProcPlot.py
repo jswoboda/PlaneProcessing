@@ -309,6 +309,7 @@ def plotoutputerrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
     maxerr = 1e3
     dsetname = os.path.split(os.path.dirname(testdir))[-1]
     print "Plotting Output error data for "+dsetname
+    cbstr = '% Error'
 
     if 'perryplane' in testdir.lower():
         xlim = [-200.,360.]
@@ -347,7 +348,7 @@ def plotoutputerrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
         avec[0].set_ylim(ylim)
         avec[0].set_title('Electron Density % Error',fontsize=fs)
         cb1 = plt.colorbar(pc1, ax=avec[0],format='%.0d')
-        cb1.ax.set_xlabel(r'm$^{-3}$',fontsize=14)
+        cb1.ax.set_xlabel(cbstr,fontsize=14)
         if allparams:
 
             
@@ -361,7 +362,7 @@ def plotoutputerrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
             avec[1].set_title('Electron Temperature % Error',fontsize=fs)
 
             cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
-            cb2.ax.set_xlabel(r'$^{\circ}$K',fontsize=14)
+            cb2.ax.set_xlabel(cbstr,fontsize=14)
             plt.sca(avec[2])
             plt.xticks(xticks)
             plt.tick_params(labelsize=16)
@@ -375,7 +376,7 @@ def plotoutputerrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
             #                label.set_fontsize(20)
 
             cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
-            cb3.ax.set_xlabel(r'$^{\circ}$K',fontsize=14)	
+            cb3.ax.set_xlabel(cbstr,fontsize=14)	
         
         plt.tight_layout()
         if wtimes:
