@@ -19,9 +19,12 @@ from GeoData.utilityfuncs import readIono
 from GeoData.plotting import insertinfo
 
 
-defmap = 'viridis'
-fs=18
-lw=4
+defmap = 'viridis'# color map
+fs=18# fontsize
+lw=4 #line width
+nemin,nemax=[0.,3e11]
+temin,temax=[0,4e3]
+timin,timax=[0,4e3]
 #%% For sorting
 def ke(item):
     if item[0].isdigit():
@@ -96,7 +99,7 @@ def plotinputdata(testdir,imgdir,wtimes=False):
             plt.tick_params(labelsize=16)
             avec[0].set_xlabel('X Plane in km',fontsize=fs)
             avec[0].set_ylabel('Alt in km',fontsize=fs)
-            pc1 = avec[0].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = defmap,vmin=0.,vmax=3e11)
+            pc1 = avec[0].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = defmap,vmin=nemin,vmax=nemax)
             avec[0].set_xlim(xlim)
             avec[0].set_ylim(ylim)
             avec[0].set_title('Electron Density',fontsize=fs)
@@ -109,7 +112,7 @@ def plotinputdata(testdir,imgdir,wtimes=False):
                 plt.xticks(xticks)
                 plt.tick_params(labelsize=16)
                 avec[1].set_xlabel('X Plane in km',fontsize=fs)
-                pc2 = avec[1].pcolor(rngmat,zmat,Te[:,:,itimen],cmap = defmap,vmin=0,vmax=4.e3)
+                pc2 = avec[1].pcolor(rngmat,zmat,Te[:,:,itimen],cmap = defmap,vmin=temin,vmax=temax)
                 avec[1].set_xlim(xlim)
                 avec[1].set_ylim(ylim)
                 avec[1].set_title('Electron Temperature',fontsize=fs)
@@ -120,7 +123,7 @@ def plotinputdata(testdir,imgdir,wtimes=False):
                 plt.xticks(xticks)
                 plt.tick_params(labelsize=16)
                 avec[2].set_xlabel('X Plane in km',fontsize=fs)
-                pc3 = avec[2].pcolor(rngmat,zmat,Ti[:,:,itimen],cmap = defmap,vmin=0,vmax=4.e3)
+                pc3 = avec[2].pcolor(rngmat,zmat,Ti[:,:,itimen],cmap = defmap,vmin=timin,vmax=timax)
                 avec[2].set_xlim(xlim)
                 avec[2].set_ylim(ylim)
                 avec[2].set_title('Ion Temperature',fontsize=fs)
@@ -175,7 +178,6 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
     Te = Iono1.data['Te'].reshape(nrg,nbeams,nt)
     Ti = Iono1.data['Ti'].reshape(nrg,nbeams,nt)
 
-
     imcount=0
     filetemplate = 'fitteddata'
 
@@ -212,7 +214,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
         plt.sca(avec[0])
         avec[0].set_xlabel('X Plane in km',fontsize=fs)
         avec[0].set_ylabel('Alt in km',fontsize=fs)
-        pc1 = avec[0].pcolor(Xmat,Zmat,Nemat,cmap = defmap,vmin=0.,vmax=3e11)
+        pc1 = avec[0].pcolor(Xmat,Zmat,Nemat,cmap = defmap,vmin=nemin,vmax=nemax)
         plt.tick_params(labelsize=16)
         plt.xticks(xticks)
         avec[0].set_xlim(xlim)
@@ -227,7 +229,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
             plt.tick_params(labelsize=16)
             plt.xticks(xticks)
             avec[1].set_xlabel('X Plane in km',fontsize=fs)
-            pc2 = avec[1].pcolor(Xmat,Zmat,Temat,cmap = defmap,vmin=0,vmax=4.e3)
+            pc2 = avec[1].pcolor(Xmat,Zmat,Temat,cmap = defmap,vmin=temin,vmax=temax)
             avec[1].set_xlim(xlim)
             avec[1].set_ylim(ylim)
             avec[1].set_title('Electron Temperature',fontsize=fs)
@@ -238,7 +240,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
             plt.xticks(xticks)
             plt.tick_params(labelsize=16)
             avec[2].set_xlabel('X Plane in km',fontsize=fs)
-            pc3 = avec[2].pcolor(Xmat,Zmat,Timat,cmap = defmap,vmin=0,vmax=4.e3)
+            pc3 = avec[2].pcolor(Xmat,Zmat,Timat,cmap = defmap,vmin=timin,vmax=timax)
             avec[2].set_xlim(xlim)
             avec[2].set_ylim(ylim)
             avec[2].set_title('Ion Temperature',fontsize=fs)
@@ -262,7 +264,129 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
         imcount=imcount+1
         plt.close(fig)
         
+def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
+    """This will plot all of the fitted data with each time step as a pcolor images of
+    electron density and electron density from power mesurements.
+    Inputs
+    testdir - The directory with the input data in h5 files formated for the ionocontainer structure.
+    imgdir - The directory that holds the images."""
+    (sensdict,simparams)=readconfigfile(config)
+    tvec = simparams['Timevec']
+    if os.path.exists(imgdir):
+        imgfiles = glob.glob(os.path.join(imgdir,'*.png'))
+        for imgf in imgfiles:
+            os.remove(imgf)
+    else:
+        os.mkdir(imgdir)
+    filename = os.path.join(testdir,fitpath,'fitteddata.h5')
+    iono = IonoContainer.readh5(filename)
+    Iono1 = GeoData(readIono,[iono])
+    rngrdr =Iono1.dataloc[:,0]
+    sign1 = sp.sign(Iono1.dataloc[:,1])
+    el = Iono1.dataloc[:,2]
+    elvec,elinv = sp.unique(el,return_inverse=True)
+    nbeams = len(elvec)
+    nrg = len(rngrdr)/nbeams
+    nt = Iono1.times.shape[0]
+    Rngrdrmat = sp.reshape(rngrdr,(nrg,nbeams))
+    Signmat = sp.reshape(sign1,(nrg,nbeams))
+    Elmat = sp.reshape(el,(nrg,nbeams))
+
+    Xmat = Rngrdrmat*Signmat*sp.cos(Elmat*sp.pi/180.)
+    Zmat = Rngrdrmat*sp.sin(Elmat*sp.pi/180.)
+    Ne = Iono1.data['Ne'].reshape(nrg,nbeams,nt)
+    Te = Iono1.data['Te'].reshape(nrg,nbeams,nt)
+    Ti = Iono1.data['Ti'].reshape(nrg,nbeams,nt)
+    
+    nNe = Iono1.data['nNe'].reshape(nrg,nbeams,nt)
+    nTe = Iono1.data['nTe'].reshape(nrg,nbeams,nt)
+    nTi = Iono1.data['nTi'].reshape(nrg,nbeams,nt)
+    
+
+    imcount=0
+    filetemplate = 'fitteddataerrorp'
+    dsetname = os.path.split(os.path.dirname(testdir))[-1]
+    print "Plotting Output error data for "+dsetname
+
+    if 'perryplane' in testdir.lower():
+        xlim = [-200.,360.]
+        xticks = [-150.,0.,150.,300.]
+        allparams=True
+        ncols=3
+        figsize = (15,7)
+    else:
+        xlim = [0.,400.]
+        xticks = [0.,150.,300]
+        allparams = False
+        ncols=1
+        figsize = (5,7)
+    ylim = [100.,500]
+    for itimen,itime in enumerate(Iono1.times):
+        print "{0} Output for {1} of {2}".format(dsetname,itimen,len(Iono1.times))
         
+        
+        Nemat = nNe[:,:,itimen]
+        Timat = nTi[:,:,itimen]
+        Temat = nTe[:,:,itimen]
+        
+        fig ,axmat= plt.subplots(nrows=1,ncols=ncols,facecolor='w',figsize=figsize,sharey=True)
+        if allparams:
+            avec=axmat.flatten()
+        else:
+            avec=[axmat]
+
+        plt.sca(avec[0])
+        avec[0].set_xlabel('X Plane in km',fontsize=fs)
+        avec[0].set_ylabel('Alt in km',fontsize=fs)
+        pc1 = avec[0].pcolor(Xmat,Zmat,Nemat,cmap = defmap,vmin=nemin,vmax=nemax)
+        plt.tick_params(labelsize=16)
+        plt.xticks(xticks)
+        avec[0].set_xlim(xlim)
+        avec[0].set_ylim(ylim)
+        avec[0].set_title('Electron Density Error',fontsize=fs)
+        cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
+        cb1.ax.set_xlabel(r'm$^{-3}$',fontsize=14)
+        if allparams:
+
+            
+            plt.sca(avec[1])
+            plt.tick_params(labelsize=16)
+            plt.xticks(xticks)
+            avec[1].set_xlabel('X Plane in km',fontsize=fs)
+            pc2 = avec[1].pcolor(Xmat,Zmat,Temat,cmap = defmap,vmin=temin,vmax=temax)
+            avec[1].set_xlim(xlim)
+            avec[1].set_ylim(ylim)
+            avec[1].set_title('Electron Temperature % Error',fontsize=fs)
+
+            cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
+            cb2.ax.set_xlabel(r'$^{\circ}$K',fontsize=14)
+            plt.sca(avec[2])
+            plt.xticks(xticks)
+            plt.tick_params(labelsize=16)
+            avec[2].set_xlabel('X Plane in km',fontsize=fs)
+            pc3 = avec[2].pcolor(Xmat,Zmat,Timat,cmap = defmap,vmin=timin,vmax=timax)
+            avec[2].set_xlim(xlim)
+            avec[2].set_ylim(ylim)
+            avec[2].set_title('Ion Temperature % Error',fontsize=fs)
+            #        for ax in avec:
+            #            for label in (ax.get_xticklabels() + ax.get_yticklabels()):
+            #                label.set_fontsize(20)
+
+            cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
+            cb3.ax.set_xlabel(r'$^{\circ}$K',fontsize=14)	
+        
+        plt.tight_layout()
+        if wtimes:
+            plt.subplots_adjust(top=0.9)
+            spti = fig.suptitle('Percent Error at {0} seconds'.format(int(tvec[itimen])),fontsize=24)
+
+#            ims.append([pc1,pc2])
+       
+
+        fname= '{0:0>3}_'.format(imcount)+filetemplate+'.png'
+        plt.savefig(os.path.join(imgdir,fname),dpi=300)
+        imcount=imcount+1
+        plt.close(fig)
 def plotoutputerrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
     """This will plot all of the fitted data with each time step as a pcolor images of
     electron density and electron density from power mesurements.
@@ -390,6 +514,8 @@ def plotoutputerrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
         plt.savefig(os.path.join(imgdir,fname),dpi=300)
         imcount=imcount+1
         plt.close(fig)
+        
+
         
 def plotbackground(testdir,figname):
     """ Plots the background densities and temperatures"""
