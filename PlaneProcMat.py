@@ -18,16 +18,53 @@ from RadarDataSim.utilFunctions import readconfigfile
 from RadarDataSim.operators import RadarSpaceTimeOperator
 import matplotlib.pyplot as plt
 import scipy.fftpack as scfft
-
+import cvxpy as cvx
 from PlaneProc import makeline, runradarsims
-from PlaneProcPlot import plotinputdata,plotoutput,plotoutputerrors
+from PlaneProcPlot import plotinputdata,plotoutput,plotoutputerrors,ploterrors
 
 
 
 
-
-
-
+def invertRSTO(RSTO,Iono):
+    
+    nlout,ntout,np=Iono.Param_List.shape[-1]
+    nlin=len(RSTO.Cart_Coords_In)
+    time_out=RSTO.Time_Out
+    time_in=RSTO.Time_In
+    overlaps = RSTO.overlaps
+    new_params=sp.zeros((nlin,len(time_in),np),dtype=Iono.Param_List.dtype)
+    for itimen, itime in enumerate(time_out):
+        allovers=overlaps[itimen]
+        curintimes=[i[0] for i in allovers]
+        for it_in_n,it in enumerate(curintimes):
+            
+            A=RSTO.RSTMat[itimen*nlout:(itimen+1)*nlout,it*nlin:(it+1)*nlin]
+            Acvx=cvx.Constantnt(A)
+            for ip in range(np):
+                b=Iono.Param_List[:,itimen,ip]
+                xr=cvx.Variable(nlin)
+                xi=cvx.Variable(nlin)
+                br=b.real
+                bi=b.imag
+                if ip==0:
+                    objective=cvx.Minimize(cvx.norm(Acvx*xr-br,2))
+                    constraints= xr>=0
+                    prob=cvx.Problem(objective,constraints)
+                    result=prob.solve()
+                    new_params[:,it,ip].real=xr.value
+                else:
+                    objective=cvx.Minimize(cvx.norm(Acvx*xr-br,2))
+                    prob=cvx.Problem(objective)
+                    result=prob.solve()
+                    new_params[:,it,ip].real=xr.value
+                    
+                    objective=cvx.Minimize(cvx.norm(Acvx*xi-bi,2))
+                    prob=cvx.Problem(objective)
+                    result=prob.solve()
+                    new_params[:,it,ip].imag=xi.value
+    ionoout=IonoContainer(coordlist=RSTO.Cart_Coords_In,paramlist=new_params,times = time_in,sensor_loc = sp.zeros(3),ver =0,coordvecs =
+        ['x','y','z'],paramnames=Iono.Param_Names)
+    return ionoout
 if __name__== '__main__':
     
     
@@ -90,9 +127,11 @@ if __name__== '__main__':
 
     plotboolin = False
     plotboolout= False
+    ploterror=False
     if 'plotting' in funcnamelist:
         plotboolin=True
         plotboolout=True
+        ploterror=True
         funcnamelist.remove('plotting')
     if 'plottingin' in funcnamelist:
         plotboolin=True
@@ -100,6 +139,9 @@ if __name__== '__main__':
     if 'plottingout' in funcnamelist:
         plotboolout=True
         funcnamelist.remove('plottingout')
+    if 'plottingerror' in funcnamelist:
+        ploterror=True
+        funcnamelist.remove('plottingerror')
     for ibase in basedirlist:
         if len(funcnamelist)>0:
             runradarsims(ibase,funcnamelist,configfile,remakealldata,fittimes)
@@ -107,6 +149,8 @@ if __name__== '__main__':
         if plotboolin:
             plotinputdata(ibase,os.path.join(ibase,'Inputimages'),wtimes)
         if plotboolout:
-            plotoutput(ibase,os.path.join(ibase,'fittedimages'),configfile,wtimes,fitpath='FittedMat')
-            plotoutputerrors(ibase,os.path.join(ibase,'fittederrorimages'),configfile,wtimes,fitpath='FittedMat')
+            plotoutput(ibase,os.path.join(ibase,'fittedimagesmat'),configfile,wtimes,fitpath='FittedMat')
+        if ploterror:
+            plotoutputerrors(ibase,os.path.join(ibase,'fittedmaterrorimages'),configfile,wtimes,fitpath='FittedMat')
+            ploterrors(ibase,os.path.join(ibase,'fittederroronlyimages'),configfile,wtimes,fitpath='FittedMat')
             #save2dropbox(ibase)
