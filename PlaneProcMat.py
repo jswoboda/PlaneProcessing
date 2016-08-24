@@ -33,12 +33,24 @@ def invertRSTO(RSTO,Iono,alpha=1e-2):
     time_out=RSTO.Time_Out
     time_in=RSTO.Time_In
     overlaps = RSTO.overlaps
+    xin,yin,zin=RSTO.Cart_Coords_In.transpose()
+    z_u=sp.unique(zin)
+    rplane=sp.sqrt(xin**2+yin**2)*sp.sign(xin)
+    r_u=sp.unique(rplane)
+    n_z=z_u.size
+    n_r=r_u.size
+    dims= [n_r,n_z]
+    
     rin,azin,elin=RSTO.Sphere_Coords_In.transpose()
     
     anglist=RSTO.simparams['angles']
     ang_vec=sp.array([[i[0],i[1]] for i in anglist])
     
     # trim out cruft
+    zmin,zmax=[150,500]
+    rpmin,rpmax=[100,200]
+    altlog= sp.logical_and(zin>zmin,zin<zmax)
+    rplog=sp.logical_and(rplane>rpmin,rplane<rpmax)
     allrng= RSTO.simparams['Rangegatesfinal']
     dR=allrng[1]-allrng[0]
     npdir=sp.ceil(int(np)/2.)
@@ -46,12 +58,16 @@ def invertRSTO(RSTO,Iono,alpha=1e-2):
     rngbounds=[allrng[0]-npdir*dR,allrng[-1]+npdir*dR]
     rng_log=sp.logical_and(rin>rngbounds[0],rin<rngbounds[1])
     elbounds=elin>minangpos-2
-    keeplog=sp.logical_and(rng_log,elbounds)
+    keeplog=sp.logical_and(sp.logical_and(rng_log,elbounds),sp.logical_and(altlog,rplog))
     keeplist=sp.where(keeplog)[0]
     nlin_red=len(keeplist)
+    dx,dy=diffmat(dims)
+    dx_red=dx[keeplist][:,keeplist]
+    dy_red=dy[keeplist][:,keeplist]
+    D=sp.sparse.vstack((dx_red,dy_red))
     #make constriants
-    alpha=1/(1e1)**2
     new_params=sp.zeros((nlin,len(time_in),np),dtype=Iono.Param_List.dtype)
+    
     for itimen, itime in enumerate(time_out):
         print('Making Outtime {0:d} of {1:d}'.format(itimen+1,len(time_out)))
         allovers=overlaps[itimen]
@@ -60,23 +76,31 @@ def invertRSTO(RSTO,Iono,alpha=1e-2):
             print('\t Making Intime {0:d} of {1:d}'.format(it_in_n+1,len(curintimes)))
             A=RSTO.RSTMat[itimen*nlout:(itimen+1)*nlout,it*nlin:(it+1)*nlin]
             Acvx=cvx.Constant(A[:,keeplist])
-            
-            np1=np
-            b=Iono.Param_List[:,itimen,:np1]
-            br=b.real
-            bi=b.imag[:,1:]
-            xr=cvx.Variable(nlin_red,np1)
-            xi=cvx.Variable(nlin_red,np1-1)
-            exp_real= cvx.sum_entries(cvx.square(Acvx*xr-br))
-            exp_imag= cvx.sum_entries(cvx.square(Acvx*xi-bi))
-            obj=cvx.Minimize(exp_real+exp_imag)
-            prob=cvx.Problem(obj)
-            result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True)
-            pad1=sp.zeros(nlin_red)
-            xipart=sp.column_stack((pad1,sp.array(xi.value)))
-            xrpart=sp.array(xr.value)
-            result=xrpart+1j*xipart
-            new_params[keeplog,it]=result
+            for ip in range(np):
+                print('\t\t Making Lag {0:d} of {1:d}'.format(ip+1,np))
+                b=Iono.Param_List[:,itimen,ip]
+                xr=cvx.Variable(nlin_red)
+                xi=cvx.Variable(nlin_red)
+                constr=alpha*cvx.norm(D*xr,2)
+                consti=alpha*cvx.norm(D*xi,2)
+                br=b.real
+                bi=b.imag
+                if ip==0:
+                    objective=cvx.Minimize(cvx.norm(Acvx*xr-br,2)+constr)
+                    constraints= [xr>=0]
+                    prob=cvx.Problem(objective)
+                    result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True)
+                    new_params[keeplog,it,ip]=xr.value.flatten()
+                else:
+                    objective=cvx.Minimize(cvx.norm(Acvx*xr-br,2)+constr)
+                    prob=cvx.Problem(objective)
+                    result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True)
+                    
+                    objective=cvx.Minimize(cvx.norm(Acvx*xi-bi,2)+consti)
+                    prob=cvx.Problem(objective)
+                    result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True)
+                    xcomp=xr.value.flatten()+1j*xi.value.flatten()
+                    new_params[keeplog,it,ip]=xcomp
 
     ionoout=IonoContainer(coordlist=RSTO.Cart_Coords_In,paramlist=new_params,times = time_in,sensor_loc = sp.zeros(3),ver =0,coordvecs =
         ['x','y','z'],paramnames=Iono.Param_Names)
@@ -177,15 +201,44 @@ def diffmat(dims,order = 'C'):
             E = sp.sparse.eye(sp.prod(dims[idimn+1:]))
             D = sp.sparse.kron(E,D)
 
-        outD.append(D)
+        outD.append(sp.sparse.csc_matrix(D))
     if order.lower() == 'c':
         outD=outD[::-1]
     Dy=outD[0]
     Dx = outD[1]
     outD[0]=Dx
     outD[1]=Dy
-
     return tuple(outD)
+    
+def cgmat(A,x,b,M=None,max_it=100,tol=1e-8):
+    """ This function will performa conjuguate gradient search to find the inverse of
+        an operator A, given a starting point x, and data b.
+    """
+    if M is None:
+        M= sp.diag(A)
+    bnrm2 = sp.linalg.norm(b)
+    r=b-A.dot(x)
+    rho=sp.zeros(max_it)
+    for i in range(max_it):
+        z=sp.linalg.solve(M,r)
+        rho[i] = sp.dot(r,z)
+        if i==0:
+            p=z
+        else:
+            beta=rho/rho[i-1]
+            p=z+beta*p
+
+        q=A.dot(p)
+        alpha=rho/sp.dot(p,q)
+        x = x+alpha*p
+        r = r-alpha*q
+        error = sp.linalg.norm( r ) / bnrm2
+        if error <tol:
+            return (x,error,i,False)
+
+    return (x,error,max_it,True)
+
+    
 if __name__== '__main__':
     
     
