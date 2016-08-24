@@ -60,31 +60,24 @@ def invertRSTO(RSTO,Iono,alpha=1e-2):
             print('\t Making Intime {0:d} of {1:d}'.format(it_in_n+1,len(curintimes)))
             A=RSTO.RSTMat[itimen*nlout:(itimen+1)*nlout,it*nlin:(it+1)*nlin]
             Acvx=cvx.Constant(A[:,keeplist])
-            for ip in range(1):
-                print('\t\t Making Lag {0:d} of {1:d}'.format(ip+1,np))
-                b=Iono.Param_List[:,itimen,ip]
-                xr=cvx.Variable(nlin_red)
-                xi=cvx.Variable(nlin_red)
-                constr=alpha*cvx.norm(xr,2)
-                consti=alpha*cvx.norm(xi,2)
-                br=b.real
-                bi=b.imag
-                if ip==0:
-                    objective=cvx.Minimize(cvx.norm(Acvx*xr-br,2)+constr)
-                    constraints= [xr>=0]
-                    prob=cvx.Problem(objective)
-                    result=prob.solve(verbose=True,solver=cvx.ECOS)
-                    new_params[keeplog,it,ip]=xr.value.flatten()
-                else:
-                    objective=cvx.Minimize(cvx.norm(Acvx*xr-br,2)+constr)
-                    prob=cvx.Problem(objective)
-                    result=prob.solve(verbose=True,solver=cvx.ECOS)
-                    
-                    objective=cvx.Minimize(cvx.norm(Acvx*xi-bi,2)+consti)
-                    prob=cvx.Problem(objective)
-                    result=prob.solve(verbose=True,solver=cvx.ECOS)
-                    xcomp=xr.value.flatten()+1j*xi.value.flatten()
-                    new_params[keeplog,it,ip]=xcomp
+            
+            np1=np
+            b=Iono.Param_List[:,itimen,:np1]
+            br=b.real
+            bi=b.imag[:,1:]
+            xr=cvx.Variable(nlin_red,np1)
+            xi=cvx.Variable(nlin_red,np1-1)
+            exp_real= cvx.sum_entries(cvx.square(Acvx*xr-br))
+            exp_imag= cvx.sum_entries(cvx.square(Acvx*xi-bi))
+            obj=cvx.Minimize(exp_real+exp_imag)
+            prob=cvx.Problem(obj)
+            result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True)
+            pad1=sp.zeros(nlin_red)
+            xipart=sp.column_stack((pad1,sp.array(xi.value)))
+            xrpart=sp.array(xr.value)
+            result=xrpart+1j*xipart
+            new_params[keeplog,it]=result
+
     ionoout=IonoContainer(coordlist=RSTO.Cart_Coords_In,paramlist=new_params,times = time_in,sensor_loc = sp.zeros(3),ver =0,coordvecs =
         ['x','y','z'],paramnames=Iono.Param_Names)
     return ionoout
