@@ -10,11 +10,12 @@ import shutil
 import pdb
 import scipy as sp
 import matplotlib
+import pickle
 matplotlib.use('Agg')
-from RadarDataSim.IonoContainer import IonoContainer, MakeTestIonoclass
+from RadarDataSim.IonoContainer import IonoContainer, MakeTestIonoclass,makeionocombined
 import RadarDataSim.runsim as runsim
 from RadarDataSim.analysisplots import analysisdump
-from RadarDataSim.utilFunctions import readconfigfile
+from RadarDataSim.utilFunctions import readconfigfile,spect2acf
 from RadarDataSim.operators import RadarSpaceTimeOperator
 import matplotlib.pyplot as plt
 import scipy.fftpack as scfft
@@ -25,8 +26,8 @@ from PlaneProcPlot import plotinputdata,plotoutput,plotoutputerrors,ploterrors
 
 
 
-def invertRSTO(RSTO,Iono,alpha=1e-2):
-    
+def invertRSTO(RSTO,Iono,alpha=1e-2,invtype='tik'):
+    """ """
     
     nlout,ntout,np=Iono.Param_List.shape
     nlin=len(RSTO.Cart_Coords_In)
@@ -61,11 +62,12 @@ def invertRSTO(RSTO,Iono,alpha=1e-2):
     keeplog=sp.logical_and(sp.logical_and(rng_log,elbounds),sp.logical_and(altlog,rplog))
     keeplist=sp.where(keeplog)[0]
     nlin_red=len(keeplist)
+    # set up derivative matrix
     dx,dy=diffmat(dims)
     dx_red=dx[keeplist][:,keeplist]
     dy_red=dy[keeplist][:,keeplist]
     D=sp.sparse.vstack((dx_red,dy_red))
-    #make constriants
+    # New parameter matrix
     new_params=sp.zeros((nlin,len(time_in),np),dtype=Iono.Param_List.dtype)
     
     for itimen, itime in enumerate(time_out):
@@ -81,8 +83,15 @@ def invertRSTO(RSTO,Iono,alpha=1e-2):
                 b=Iono.Param_List[:,itimen,ip]
                 xr=cvx.Variable(nlin_red)
                 xi=cvx.Variable(nlin_red)
-                constr=alpha*cvx.norm(D*xr,2)
-                consti=alpha*cvx.norm(D*xi,2)
+                if invtype.lower()=='tik':
+                    constr=alpha*cvx.norm(xr,2)
+                    consti=alpha*cvx.norm(xi,2)
+                elif invtype.lower()=='tikd':
+                    constr=alpha*cvx.norm(D*xr,2)
+                    consti=alpha*cvx.norm(D*xi,2)
+                elif invtype.lower()=='tv':
+                    constr=alpha*cvx.norm(D*xr,1)
+                    consti=alpha*cvx.norm(D*xi,1)
                 br=b.real
                 bi=b.imag
                 if ip==0:
@@ -101,74 +110,72 @@ def invertRSTO(RSTO,Iono,alpha=1e-2):
                     result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True)
                     xcomp=xr.value.flatten()+1j*xi.value.flatten()
                     new_params[keeplog,it,ip]=xcomp
+                    new_params[sp.logical_not(keeplog),it,ip]=sp.nan
 
     ionoout=IonoContainer(coordlist=RSTO.Cart_Coords_In,paramlist=new_params,times = time_in,sensor_loc = sp.zeros(3),ver =0,coordvecs =
         ['x','y','z'],paramnames=Iono.Param_Names)
     return ionoout
     
+def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
     
-def invertRSTO_TikD(RSTO,Iono,alpha):
+
+    alpha_sweep=sp.logspace(-3,1,20)
+    costdir = os.path.join(basedir,'Cost')
+    ionoinfname=os.path.join(basedir,acfdir,'00lags.h5')
+    ionoin=IonoContainer.readh5(ionoinfname)
+    
+    dirio = ('Spectrums','Mat','ACFMat')
+    inputdir = os.path.join(basedir,dirio[0])
+    
+    dirlist = glob.glob(os.path.join(inputdir,'*.h5'))
+    (listorder,timevector,filenumbering,timebeg,time_s) = IonoContainer.gettimes(dirlist)
+    Ionolist = [dirlist[ikey] for ikey in listorder]
+    
+    RSTO = RadarSpaceTimeOperator(Ionolist,configfile,timevector)
     
     
-    nlout,ntout,np=Iono.Param_List.shape
-    nlin=len(RSTO.Cart_Coords_In)
-    time_out=RSTO.Time_Out
-    time_in=RSTO.Time_In
-    overlaps = RSTO.overlaps
-    rin,azin,elin=RSTO.Sphere_Coords_In.transpose()
+    ionospec=makeionocombined(dirlist)
+    tau,acfin=spect2acf(ionospec.Param_Names,ionospec.Param_List)
+    nloc,ntimes=acfin.shape[:2]
     
-    anglist=RSTO.simparams['angles']
-    ang_vec=sp.array([[i[0],i[1]] for i in anglist])
+    # get the original acf
+    ambmat=RSTO.simparams['amb_dict']['WttMatrix']
+    np=ambmat.shape[0]
+    acfin_amb=sp.zeros((nloc,ntimes,np))
+    for iloc,locarr in enumerate(acfin):
+        for itime,acfarr in enumerate(locarr):
+            acfin_amb[iloc,itime]=sp.dot(ambmat,acfarr)
+            
+    if os.path.isdir(costdir):
+        os.mkdir(costdir)
+    # pickle file stuff 
+    pname=os.path.join(costdir,'costdir.pickle')
+    if os.path.isfile(pname):
+        pickleFile = open(pname, 'rb')
+        dictlist = pickle.load(pickleFile)
+        alpha_list,errorlist,errorlaglist=dictlist
+        
+        pickleFile.close()
+        os.remove(pname)
+    else:
+        alpha_list=[]
+        errorlist=[]
+        errorlaglist=[]
     
-    # trim out cruft
-    allrng= RSTO.simparams['Rangegatesfinal']
-    dR=allrng[1]-allrng[0]
-    npdir=sp.ceil(int(np)/2.)
-    minangpos=ang_vec[sp.logical_and(ang_vec[:,0]<180.,ang_vec[:,0]>=0),1].min()
-    rngbounds=[allrng[0]-npdir*dR,allrng[-1]+npdir*dR]
-    rng_log=sp.logical_and(rin>rngbounds[0],rin<rngbounds[1])
-    elbounds=elin>minangpos-2
-    keeplog=sp.logical_and(rng_log,elbounds)
-    keeplist=sp.where(keeplog)[0]
-    nlin_red=len(keeplist)
-    #make constriants
-    new_params=sp.zeros((nlin,len(time_in),np),dtype=Iono.Param_List.dtype)
-    for itimen, itime in enumerate(time_out):
-        print('Making Outtime {0:d} of {1:d}'.format(itimen+1,len(time_out)))
-        allovers=overlaps[itimen]
-        curintimes=[i[0] for i in allovers]
-        for it_in_n,it in enumerate(curintimes):
-            print('\t Making Intime {0:d} of {1:d}'.format(it_in_n+1,len(curintimes)))
-            A=RSTO.RSTMat[itimen*nlout:(itimen+1)*nlout,it*nlin:(it+1)*nlin]
-            Acvx=cvx.Constant(A[:,keeplist])
-            for ip in range(1):
-                print('\t\t Making Lag {0:d} of {1:d}'.format(ip+1,np))
-                b=Iono.Param_List[:,itimen,ip]
-                xr=cvx.Variable(nlin_red)
-                xi=cvx.Variable(nlin_red)
-                constr=alpha*cvx.norm(xr,2)
-                consti=alpha*cvx.norm(xi,2)
-                br=b.real
-                bi=b.imag
-                if ip==0:
-                    objective=cvx.Minimize(cvx.norm(Acvx*xr-br,2)+constr)
-                    constraints= [xr>=0]
-                    prob=cvx.Problem(objective)
-                    result=prob.solve(verbose=True,solver=cvx.ECOS)
-                    new_params[keeplog,it,ip]=xr.value.flatten()
-                else:
-                    objective=cvx.Minimize(cvx.norm(Acvx*xr-br,2)+constr)
-                    prob=cvx.Problem(objective)
-                    result=prob.solve(verbose=True,solver=cvx.ECOS)
-                    
-                    objective=cvx.Minimize(cvx.norm(Acvx*xi-bi,2)+consti)
-                    prob=cvx.Problem(objective)
-                    result=prob.solve(verbose=True,solver=cvx.ECOS)
-                    xcomp=xr.value.flatten()+1j*xi.value.flatten()
-                    new_params[keeplog,it,ip]=xcomp
-    ionoout=IonoContainer(coordlist=RSTO.Cart_Coords_In,paramlist=new_params,times = time_in,sensor_loc = sp.zeros(3),ver =0,coordvecs =
-        ['x','y','z'],paramnames=Iono.Param_Names)
-    return ionoout
+    alpha_list_new=alpha_sweep.tolist()
+    for i in alpha_list:
+        alpha_list_new.remove(i)
+    
+    for i in alpha_list_new:
+        ionoout=invertRSTO(RSTO,ionoin,alpha=i,invtype=invtype)
+        acfout=ionoout.Param_List
+        alpha_list.append(i)
+        outdata=sp.power(sp.absolute(acfout-acfin_amb)/sp.absolute(acfin_amb),2)
+        aveerror=sp.nanmean(sp.nanmean(outdata,axis=0),axis=0)
+        errorlaglist.append(aveerror)
+    pickleFile = open(pname, 'wb')
+    pickle.dump([alpha_list,errorlist,errorlaglist],pickleFile)
+    pickleFile.close()
     
 def diffmat(dims,order = 'C'):
     """ This function will return a tuple of difference matricies for data from an 
@@ -283,7 +290,10 @@ if __name__== '__main__':
     else:
         basedirlist = basedir.split()
 
-
+    if 'paramsweep' in funcnamelist:
+        
+        parametersweep(basedir,configfile,acfdir='ACF',invtype='tik')
+        
     if 'origdata' in funcnamelist:
         funcnamelist.remove('origdata')
         makedirs = True
@@ -297,7 +307,7 @@ if __name__== '__main__':
 
         funcnamelist=['spectrums','applymat','fittingmat','plotting']
 
-
+    
 
     plotboolin = False
     plotboolout= False
