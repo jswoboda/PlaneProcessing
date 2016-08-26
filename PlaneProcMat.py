@@ -14,6 +14,7 @@ import pickle
 matplotlib.use('Agg')
 from RadarDataSim.IonoContainer import IonoContainer, MakeTestIonoclass,makeionocombined
 import RadarDataSim.runsim as runsim
+from RadarDataSim.radarData import makeCovmat
 from RadarDataSim.analysisplots import analysisdump
 from RadarDataSim.utilFunctions import readconfigfile,spect2acf
 from RadarDataSim.operators import RadarSpaceTimeOperator
@@ -21,7 +22,7 @@ import matplotlib.pyplot as plt
 import scipy.fftpack as scfft
 import cvxpy as cvx
 from PlaneProc import makeline, runradarsims
-from PlaneProcPlot import plotinputdata,plotoutput,plotoutputerrors,ploterrors
+from PlaneProcPlot import plotinputdata,plotoutput,plotoutputerrors,ploterrors,plotalphaerror
 
 
 
@@ -115,7 +116,34 @@ def invertRSTO(RSTO,Iono,alpha=1e-2,invtype='tik'):
     ionoout=IonoContainer(coordlist=RSTO.Cart_Coords_In,paramlist=new_params,times = time_in,sensor_loc = sp.zeros(3),ver =0,coordvecs =
         ['x','y','z'],paramnames=Iono.Param_Names)
     return ionoout
+def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
+    """ """
     
+    ionoinfname=os.path.join(basedir,acfdir,'00lags.h5')
+    ionoin=IonoContainer.readh5(ionoinfname)
+    
+    dirio = ('Spectrums','Mat','ACFMat')
+    inputdir = os.path.join(basedir,dirio[0])
+    
+    dirlist = glob.glob(os.path.join(inputdir,'*.h5'))
+    (listorder,timevector,filenumbering,timebeg,time_s) = IonoContainer.gettimes(dirlist)
+    Ionolist = [dirlist[ikey] for ikey in listorder]
+    
+    RSTO = RadarSpaceTimeOperator(Ionolist,configfile,timevector)  
+    ionoout=invertRSTO(RSTO,Iono,alpha=alpha,invtype=invtype)
+    outfile=os.path.join(basedir,'ACFInv','00lags.h5')
+    ionoout.saveh5(outfile)
+    if acfdir=='ACF':
+        lagsDatasum=ionoout.Param_List
+        # !!! This is done to speed up development 
+        lagsNoisesum=sp.zeros_like(lagsDatasum)
+        Nlags=lagsDataSum.shape[-1]
+        pulses_s=simparams['Tint']/RSTO.simparams['IPP']
+        Ctt=makeCovmat(lagsDatasum,lagsNoisesum,pulses_s,Nlags)
+        outfile=os.path.join(basedir,'ACFInv','00sigs.h5')
+        ionoout.Param_List=Ctt
+        ionoout.Param_Names=sp.repeat(ionoout.Param_Names[:,sp.newaxis],Nlags,axis=1)
+        ionoout.saveh5(outfile)
 def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
     
 
@@ -141,15 +169,15 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
     # get the original acf
     ambmat=RSTO.simparams['amb_dict']['WttMatrix']
     np=ambmat.shape[0]
-    acfin_amb=sp.zeros((nloc,ntimes,np))
+    acfin_amb=sp.zeros((nloc,ntimes,np),dtype=acfin.dtype)
     for iloc,locarr in enumerate(acfin):
         for itime,acfarr in enumerate(locarr):
             acfin_amb[iloc,itime]=sp.dot(ambmat,acfarr)
             
-    if os.path.isdir(costdir):
+    if not os.path.isdir(costdir):
         os.mkdir(costdir)
     # pickle file stuff 
-    pname=os.path.join(costdir,'costdir.pickle')
+    pname=os.path.join(costdir,'cost{0}-{1}.pickle'.format(acfdir,invtype))
     if os.path.isfile(pname):
         pickleFile = open(pname, 'rb')
         dictlist = pickle.load(pickleFile)
@@ -173,9 +201,16 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
         outdata=sp.power(sp.absolute(acfout-acfin_amb)/sp.absolute(acfin_amb),2)
         aveerror=sp.nanmean(sp.nanmean(outdata,axis=0),axis=0)
         errorlaglist.append(aveerror)
+        errorlist.append(sp.nansum(aveerror))
+        
     pickleFile = open(pname, 'wb')
     pickle.dump([alpha_list,errorlist,errorlaglist],pickleFile)
     pickleFile.close()
+    alphaarr=sp.array(alpha_list)
+    errorarr=sp.array(errorlist)
+    errorlagarr=sp.array(errorlaglist)
+    fig,axlist,axmain=plotalphaerror(alphaarr,errorarr,errorlagarr)
+    fig.savefig(os.path.join(costdir,'cost{0}-{1}.png'.format(acfdir,invtype)))
     
 def diffmat(dims,order = 'C'):
     """ This function will return a tuple of difference matricies for data from an 
@@ -263,6 +298,9 @@ if __name__== '__main__':
     p.add_argument("-l", "--linewid",help='Line Width in number of Samples.',default=1)
     p.add_argument('-m', "--mult", help="Multiplication of enhancement.", default=5.)
     p.add_argument('-w', "--wtimes", help="Put times at top of plots.",default='n')
+    p.add_argument('-k', "--ktype",help='The type of constraint can be tik tikd tv.',default='tik')
+    p.add_argument('-a', "--acftype",help='The ACF directory that will have the inversions applied to it',default='ACFMat')
+    p.add_argument('-g', "--gamma",help='The Parameter gamma for the constraints',default=1e-2)
     p.add_argument('-f','--funclist',help='Functions to be uses',nargs='+',default=['spectrums','applymat','fittingmat'])#action='append',dest='collection',default=['spectrums','radardata','fitting','analysis'])
         
     args = p.parse_args()
@@ -275,7 +313,9 @@ if __name__== '__main__':
     lw =float( args.linewid)
     mult = float(args.mult)
     wtimes=args.wtimes.lower()=='y'
-    
+    acffolder=args.acftype
+    invtype=args.ktype
+    gamma=args.gamma
     
         
     if len(fittimes)==0:
@@ -292,8 +332,10 @@ if __name__== '__main__':
 
     if 'paramsweep' in funcnamelist:
         
-        parametersweep(basedir,configfile,acfdir='ACF',invtype='tik')
-        
+        parametersweep(basedir,configfile,acfdir=acffolder,invtype=invtype)
+        funcnamelist.remove('paramsweep')
+    if 'invertdata' in funcnamelist:
+        runinversion(basedir,configfile,acfdir=acffolder,invtype=invtype,alpha=gamma)
     if 'origdata' in funcnamelist:
         funcnamelist.remove('origdata')
         makedirs = True

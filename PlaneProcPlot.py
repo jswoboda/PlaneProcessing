@@ -12,6 +12,8 @@ import pdb
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
+import matplotlib.gridspec as gridspec
+import seaborn as sns
 from RadarDataSim.IonoContainer import IonoContainer, makeionocombined
 from RadarDataSim.utilFunctions import readconfigfile
 from GeoData.GeoData import GeoData
@@ -515,8 +517,46 @@ def plotoutputerrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
         imcount=imcount+1
         plt.close(fig)
         
+#%% 
+def plotalphaerror(alphaarr,errorarr,errorlagarr):
+    sns.set_style('whitegrid')
+    sns.set_context('notebook')
+    Nlag=errorlagarr.shape[-1]
+    
+    
+    nlagplot=4.
+    nrows=1+int(sp.ceil(float(Nlag)/(2*nlagplot)))
 
-        
+    fig=plt.figure(figsize=(8,4*nrows),facecolor='w')
+    gs=gridspec.GridSpec(nrows,2)
+    axmain=plt.subplot(gs[0,:])
+    axlist=[plt.subplot(gs[int(sp.floor(float(i)/2.)+1),int(sp.mod(i,2))]) for i in range(2*(nrows-1))]
+    
+    axmain.plot(alphaarr,errorarr)
+    axmain.set_xscale('log')
+    axmain.set_yscale('log')
+    axmain.set_title('Error From All Lags Added',fontsize=fs)
+    axmain.set_ylabel('Error',fontsize=fs)
+    axmain.set_xlabel(r'$\gamma$',fontsize=fs)
+    
+    for iaxn,iax in enumerate(axlist):
+        strlist=[]
+        handlist=[]
+        for ilag in range(int(nlagplot)):
+            curlag=int(iaxn*nlagplot+ilag)
+            if curlag>=Nlag:
+                break
+            handlist.append(iax.plot(alphaarr,errorlagarr[:,curlag])[0])
+            strlist.append('Lag {0}'.format(curlag))
+        iax.set_xscale('log')
+        iax.set_yscale('log')
+        iax.set_title('Error From Lags',fontsize=fs)
+        iax.set_ylabel('Error',fontsize=fs)
+        iax.set_xlabel(r'$\gamma$',fontsize=fs)
+        iax.legend(handlist,strlist,loc='upper right',fontsize='large')
+    plt.tight_layout()
+    return(fig,axlist,axmain)
+#%% 
 def plotbackground(testdir,figname):
     """ Plots the background densities and temperatures"""
     
