@@ -130,7 +130,7 @@ def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
     Ionolist = [dirlist[ikey] for ikey in listorder]
     
     RSTO = RadarSpaceTimeOperator(Ionolist,configfile,timevector)  
-    ionoout=invertRSTO(RSTO,Iono,alpha=alpha,invtype=invtype)
+    ionoout=invertRSTO(RSTO,ionoin,alpha=alpha,invtype=invtype)
     outfile=os.path.join(basedir,'ACFInv','00lags.h5')
     ionoout.saveh5(outfile)
     if acfdir=='ACF':
