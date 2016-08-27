@@ -315,7 +315,7 @@ if __name__== '__main__':
     wtimes=args.wtimes.lower()=='y'
     acffolder=args.acftype
     invtype=args.ktype
-    gamma=args.gamma
+    gamma=float(args.gamma)
     
         
     if len(fittimes)==0:
