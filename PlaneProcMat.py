@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 import scipy.fftpack as scfft
 import cvxpy as cvx
 from PlaneProc import makeline, runradarsims
-from PlaneProcPlot import plotinputdata,plotoutput,plotoutputerrors,ploterrors,plotalphaerror
+from PlaneProcPlot import plotinputdata,plotoutput,ploterrors,plotalphaerror
 
 
 
@@ -378,6 +378,5 @@ if __name__== '__main__':
         if plotboolout:
             plotoutput(ibase,os.path.join(ibase,'fittedimagesmat'),configfile,wtimes,fitpath='FittedMat')
         if ploterror:
-            plotoutputerrors(ibase,os.path.join(ibase,'fittedmaterrorimages'),configfile,wtimes,fitpath='FittedMat')
             ploterrors(ibase,os.path.join(ibase,'fittederroronlyimages'),configfile,wtimes,fitpath='FittedMat')
             #save2dropbox(ibase)

@@ -15,7 +15,7 @@ from RadarDataSim.IonoContainer import MakeTestIonoclass
 import RadarDataSim.runsim as runsim
 from RadarDataSim.analysisplots import analysisdump,plotbeamparametersv2
 from RadarDataSim.utilFunctions import readconfigfile
-from PlaneProcPlot import plotinputdata,plotoutput,plotoutputerrors,ploterrors
+from PlaneProcPlot import plotinputdata,plotoutput,ploterrors
 from RadarDataSim.IonoContainer import IonoContainer
 
 
@@ -300,6 +300,5 @@ if __name__== '__main__':
         if plotboolout:
             plotoutput(ibase,os.path.join(ibase,'fittedimages'),configfile,wtimes)
         if ploterror:
-            plotoutputerrors(ibase,os.path.join(ibase,'fittederrorimages'),configfile,wtimes)
             ploterrors(ibase,os.path.join(ibase,'fittederroronlyimages'),configfile,wtimes)
 
