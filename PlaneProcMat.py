@@ -336,6 +336,7 @@ if __name__== '__main__':
         funcnamelist.remove('paramsweep')
     if 'invertdata' in funcnamelist:
         runinversion(basedir,configfile,acfdir=acffolder,invtype=invtype,alpha=gamma)
+        funcnamelist.remove('invertdata')
     if 'origdata' in funcnamelist:
         funcnamelist.remove('origdata')
         makedirs = True
