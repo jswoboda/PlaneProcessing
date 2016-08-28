@@ -138,7 +138,7 @@ def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
         # !!! This is done to speed up development 
         lagsNoisesum=sp.zeros_like(lagsDatasum)
         Nlags=lagsDatasum.shape[-1]
-        pulses_s=simparams['Tint']/RSTO.simparams['IPP']
+        pulses_s=RSTO.simparams['Tint']/RSTO.simparams['IPP']
         Ctt=makeCovmat(lagsDatasum,lagsNoisesum,pulses_s,Nlags)
         outfile=os.path.join(basedir,'ACFInv','00sigs.h5')
         ionoout.Param_List=Ctt
