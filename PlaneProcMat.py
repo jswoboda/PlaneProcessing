@@ -111,14 +111,14 @@ def invertRSTO(RSTO,Iono,alpha=1e-2,invtype='tik'):
                     result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True)
                     xcomp=xr.value.flatten()+1j*xi.value.flatten()
                     new_params[keeplog,it,ip]=xcomp
-                    new_params[sp.logical_not(keeplog),it,ip]=sp.nan
+                # set up nans                    
+                new_params[sp.logical_not(keeplog),it]=sp.nan
 
     ionoout=IonoContainer(coordlist=RSTO.Cart_Coords_In,paramlist=new_params,times = time_in,sensor_loc = sp.zeros(3),ver =0,coordvecs =
         ['x','y','z'],paramnames=Iono.Param_Names)
     return ionoout
 def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
     """ """
-    
     ionoinfname=os.path.join(basedir,acfdir,'00lags.h5')
     ionoin=IonoContainer.readh5(ionoinfname)
     
@@ -144,10 +144,12 @@ def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
         ionoout.Param_List=Ctt
         ionoout.Param_Names=sp.repeat(ionoout.Param_Names[:,sp.newaxis],Nlags,axis=1)
         ionoout.saveh5(outfile)
+        
+        
 def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
     
 
-    alpha_sweep=sp.logspace(-3,1,20)
+    alpha_sweep=sp.logspace(-4,1.5,30)
     costdir = os.path.join(basedir,'Cost')
     ionoinfname=os.path.join(basedir,acfdir,'00lags.h5')
     ionoin=IonoContainer.readh5(ionoinfname)

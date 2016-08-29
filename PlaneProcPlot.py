@@ -163,23 +163,34 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
     filename = os.path.join(testdir,fitpath,'fitteddata.h5')
     iono = IonoContainer.readh5(filename)
     Iono1 = GeoData(readIono,[iono])
-    rngrdr =Iono1.dataloc[:,0]
-    sign1 = sp.sign(Iono1.dataloc[:,1])
-    el = Iono1.dataloc[:,2]
-    elvec,elinv = sp.unique(el,return_inverse=True)
-    nbeams = len(elvec)
-    nrg = len(rngrdr)/nbeams
     nt = Iono1.times.shape[0]
-    Rngrdrmat = sp.reshape(rngrdr,(nrg,nbeams))
-    Signmat = sp.reshape(sign1,(nrg,nbeams))
-    Elmat = sp.reshape(el,(nrg,nbeams))
-
-    Xmat = Rngrdrmat*Signmat*sp.cos(Elmat*sp.pi/180.)
-    Zmat = Rngrdrmat*sp.sin(Elmat*sp.pi/180.)
-    Ne = Iono1.data['Ne'].reshape(nrg,nbeams,nt)
-    Te = Iono1.data['Te'].reshape(nrg,nbeams,nt)
-    Ti = Iono1.data['Ti'].reshape(nrg,nbeams,nt)
-
+    if Iono1.coordnames.lower()=='spherical':
+        rngrdr =Iono1.dataloc[:,0]
+        sign1 = sp.sign(Iono1.dataloc[:,1])
+        el = Iono1.dataloc[:,2]
+        elvec,elinv = sp.unique(el,return_inverse=True)
+        nbeams = len(elvec)
+        nrg = len(rngrdr)/nbeams
+        
+        Rngrdrmat = sp.reshape(rngrdr,(nrg,nbeams))
+        Signmat = sp.reshape(sign1,(nrg,nbeams))
+        Elmat = sp.reshape(el,(nrg,nbeams))
+    
+        Xmat = Rngrdrmat*Signmat*sp.cos(Elmat*sp.pi/180.)
+        Zmat = Rngrdrmat*sp.sin(Elmat*sp.pi/180.)
+        Ne = Iono1.data['Ne'].reshape(nrg,nbeams,nt)
+        Te = Iono1.data['Te'].reshape(nrg,nbeams,nt)
+        Ti = Iono1.data['Ti'].reshape(nrg,nbeams,nt)
+    elif Iono1.coordnames.lower()=='cartesian':
+        rng = sp.sqrt(Iono1.dataloc[:,0]**2+Iono1.dataloc[:,1]**2)*sp.sign(Iono1.dataloc[:,1])
+        z = Iono1.dataloc[:,2]
+        rngvec = sp.unique(rng)
+        zvec = sp.unique(z)
+        Xmat = rng.reshape(len(zvec),len(rngvec))
+        Zmat = z.reshape(len(zvec),len(rngvec))
+        Ne = Iono1.data['Ne'].reshape(len(zvec),len(rngvec),nt)
+        Ti = Iono1.data['Ti'].reshape(len(zvec),len(rngvec),nt)
+        Te = Iono1.data['Te'].reshape(len(zvec),len(rngvec),nt)
     imcount=0
     filetemplate = 'fitteddata'
 
