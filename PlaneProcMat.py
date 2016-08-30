@@ -9,6 +9,7 @@ import os, glob,inspect,getopt,sys
 import shutil
 import pdb
 import scipy as sp
+import numbers
 import matplotlib
 import pickle
 matplotlib.use('Agg')
@@ -27,7 +28,7 @@ from PlaneProcPlot import plotinputdata,plotoutput,ploterrors,plotalphaerror
 
 
 
-def invertRSTO(RSTO,Iono,alpha=1e-2,invtype='tik'):
+def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik'):
     """ """
     
     nlout,ntout,np=Iono.Param_List.shape
@@ -71,6 +72,9 @@ def invertRSTO(RSTO,Iono,alpha=1e-2,invtype='tik'):
     # New parameter matrix
     new_params=sp.zeros((nlin,len(time_in),np),dtype=Iono.Param_List.dtype)
     
+    if isinstance(alpha_list,numbers.Number):
+        alpha_list=[alpha_list]*np
+        
     for itimen, itime in enumerate(time_out):
         print('Making Outtime {0:d} of {1:d}'.format(itimen+1,len(time_out)))
         allovers=overlaps[itimen]
@@ -80,6 +84,7 @@ def invertRSTO(RSTO,Iono,alpha=1e-2,invtype='tik'):
             A=RSTO.RSTMat[itimen*nlout:(itimen+1)*nlout,it*nlin:(it+1)*nlin]
             Acvx=cvx.Constant(A[:,keeplist])
             for ip in range(np):
+                alpha=alpha_list[ip]
                 print('\t\t Making Lag {0:d} of {1:d}'.format(ip+1,np))
                 b=Iono.Param_List[:,itimen,ip]
                 xr=cvx.Variable(nlin_red)
@@ -194,7 +199,8 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
     
     alpha_list_new=alpha_sweep.tolist()
     for i in alpha_list:
-        alpha_list_new.remove(i)
+        if i in alpha_list_new:
+            alpha_list_new.remove(i)
     
     for i in alpha_list_new:
         ionoout=invertRSTO(RSTO,ionoin,alpha=i,invtype=invtype)

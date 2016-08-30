@@ -276,7 +276,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
         plt.savefig(os.path.join(imgdir,fname),dpi=300)
         imcount=imcount+1
         plt.close(fig)
-        
+#%% Error plotting 
 def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
     """This will plot all of the fitted data with each time step as a pcolor images of
     electron density and electron density from power mesurements.
@@ -401,6 +401,103 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
         imcount=imcount+1
         plt.close(fig)
 
+#%% 
+def plotacf(testdir,imgdir,wtimes=False,acfpath='Fitted',lag=0):
+    """This will plot all of the fitted data with each time step as a pcolor images of
+    electron density and electron density from power mesurements.
+    Inputs
+    testdir - The directory with the input data in h5 files formated for the ionocontainer structure.
+    imgdir - The directory that holds the images."""
+
+    if os.path.exists(imgdir):
+        imgfiles = glob.glob(os.path.join(imgdir,'*.png'))
+        for imgf in imgfiles:
+            os.remove(imgf)
+    else:
+        os.mkdir(imgdir)
+    filename = os.path.join(testdir,acfpath,'00lags.h5')
+    iono = IonoContainer.readh5(filename)
+    Iono1 = GeoData(readIono,[iono])
+    nt = Iono1.times.shape[0]
+    if Iono1.coordnames.lower()=='spherical':
+        rngrdr =Iono1.dataloc[:,0]
+        sign1 = sp.sign(Iono1.dataloc[:,1])
+        el = Iono1.dataloc[:,2]
+        elvec,elinv = sp.unique(el,return_inverse=True)
+        nbeams = len(elvec)
+        nrg = len(rngrdr)/nbeams
+        
+        Rngrdrmat = sp.reshape(rngrdr,(nrg,nbeams))
+        Signmat = sp.reshape(sign1,(nrg,nbeams))
+        Elmat = sp.reshape(el,(nrg,nbeams))
+    
+        Xmat = Rngrdrmat*Signmat*sp.cos(Elmat*sp.pi/180.)
+        Zmat = Rngrdrmat*sp.sin(Elmat*sp.pi/180.)
+        Ne = iono.Param_List[lag].reshape(nrg,nbeams,nt).real
+    elif Iono1.coordnames.lower()=='cartesian':
+        rng = sp.sqrt(Iono1.dataloc[:,0]**2+Iono1.dataloc[:,1]**2)*sp.sign(Iono1.dataloc[:,1])
+        z = Iono1.dataloc[:,2]
+        rngvec = sp.unique(rng)
+        zvec = sp.unique(z)
+        Xmat = rng.reshape(len(zvec),len(rngvec))
+        Zmat = z.reshape(len(zvec),len(rngvec))
+        Ne = iono.Param_List[lag].reshape(len(zvec),len(rngvec),nt)
+    imcount=0
+    filetemplate = 'acflag{0}'.format(lag)
+
+    dsetname = os.path.split(os.path.dirname(testdir))[-1]
+    print "Plotting Output data for "+dsetname
+
+    if 'perryplane' in testdir.lower():
+        xlim = [-200.,360.]
+        xticks = [-150.,0.,150.,300.]
+        allparams=True
+        ncols=3
+        figsize = (15,7)
+    else:
+        xlim = [0.,400.]
+        xticks = [0.,150.,300]
+        allparams = False
+        ncols=1
+        figsize = (5,7)
+    ylim = [100.,500]
+    for itimen,itime in enumerate(Iono1.times):
+        print "{0} Output for {1} of {2}".format(dsetname,itimen,len(Iono1.times))
+        
+        
+        Nemat = Ne[:,:,itimen]
+
+        
+        fig ,axmat= plt.subplots(nrows=1,ncols=ncols,facecolor='w',figsize=figsize,sharey=True)
+        if allparams:
+            avec=axmat.flatten()
+        else:
+            avec=[axmat]
+
+        plt.sca(avec[0])
+        avec[0].set_xlabel('X Plane in km',fontsize=fs)
+        avec[0].set_ylabel('Alt in km',fontsize=fs)
+        pc1 = avec[0].pcolor(Xmat,Zmat,Nemat,cmap = defmap,vmin=nemin,vmax=nemax)
+        plt.tick_params(labelsize=16)
+        plt.xticks(xticks)
+        avec[0].set_xlim(xlim)
+        avec[0].set_ylim(ylim)
+        avec[0].set_title('Electron Density',fontsize=fs)
+        cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
+        cb1.ax.set_xlabel(r'm$^{-3}$',fontsize=14)
+        
+        plt.tight_layout()
+        if wtimes:
+            plt.subplots_adjust(top=0.9)
+            spti = fig.suptitle('Parameters at {0} seconds'.format(int(tvec[itimen])),fontsize=24)
+
+#            ims.append([pc1,pc2])
+       
+
+        fname= '{0:0>3}_'.format(imcount)+filetemplate+'.png'
+        plt.savefig(os.path.join(imgdir,fname),dpi=300)
+        imcount=imcount+1
+        plt.close(fig)
         
 #%% Matrix plotting
 def plotalphaerror(alphaarr,errorarr,errorlagarr):
