@@ -124,6 +124,10 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik'):
     return ionoout
 def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
     """ """
+    costdir = os.path.join(basedir,'Cost')
+    pname=os.path.join(costdir,'cost{0}-{1}.pickle'.format(acfdir,invtype))
+    alpha_arr=pickle.load(pname)[-1]
+    
     ionoinfname=os.path.join(basedir,acfdir,'00lags.h5')
     ionoin=IonoContainer.readh5(ionoinfname)
     
@@ -135,7 +139,7 @@ def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
     Ionolist = [dirlist[ikey] for ikey in listorder]
     
     RSTO = RadarSpaceTimeOperator(Ionolist,configfile,timevector)  
-    ionoout=invertRSTO(RSTO,ionoin,alpha=alpha,invtype=invtype)
+    ionoout=invertRSTO(RSTO,ionoin,alpha_list=alpha_arr,invtype=invtype)
     outfile=os.path.join(basedir,'ACFInv','00lags.h5')
     ionoout.saveh5(outfile)
     if acfdir=='ACF':
@@ -150,7 +154,23 @@ def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
         ionoout.Param_Names=sp.repeat(ionoout.Param_Names[:,sp.newaxis],Nlags,axis=1)
         ionoout.saveh5(outfile)
         
-        
+def mkalphalist(pnamefile):
+    
+    pickleFile = open(pnamefile, 'rb')
+    dictlist = pickle.load(pickleFile)
+    alpha_list,errorlist,errorlaglist=dictlist
+    
+    pickleFile.close()
+    os.remove(pnamefile)
+
+    errorlagarr=sp.array(errorlaglist)
+    alphar=sp.array(alpha_list)
+    errlocs=sp.argmin(errorlagarr,axis=0)
+    alout=alphar[errlocs]
+    pickleFile = open(pnamefile, 'wb')
+    pickle.dump([alpha_list,errorlist,errorlaglist,alout],pickleFile)
+    pickleFile.close()
+    
 def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
     
 
@@ -185,17 +205,17 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
         os.mkdir(costdir)
     # pickle file stuff 
     pname=os.path.join(costdir,'cost{0}-{1}.pickle'.format(acfdir,invtype))
-    if os.path.isfile(pname):
-        pickleFile = open(pname, 'rb')
-        dictlist = pickle.load(pickleFile)
-        alpha_list,errorlist,errorlaglist=dictlist
-        
-        pickleFile.close()
-        os.remove(pname)
-    else:
-        alpha_list=[]
-        errorlist=[]
-        errorlaglist=[]
+#    if os.path.isfile(pname):
+#        pickleFile = open(pname, 'rb')
+#        dictlist = pickle.load(pickleFile)
+#        alpha_list,errorlist,errorlaglist=dictlist
+#        
+#        pickleFile.close()
+#        os.remove(pname)
+#    else:
+    alpha_list=[]
+    errorlist=[]
+    errorlaglist=[]
     
     alpha_list_new=alpha_sweep.tolist()
     for i in alpha_list:
@@ -203,7 +223,7 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
             alpha_list_new.remove(i)
     
     for i in alpha_list_new:
-        ionoout=invertRSTO(RSTO,ionoin,alpha=i,invtype=invtype)
+        ionoout=invertRSTO(RSTO,ionoin,alpha_list=i,invtype=invtype)
         acfout=ionoout.Param_List
         alpha_list.append(i)
         outdata=sp.power(sp.absolute(acfout-acfin_amb)/sp.absolute(acfin_amb),2)
@@ -379,7 +399,7 @@ if __name__== '__main__':
         funcnamelist.remove('plottingerror')
     for ibase in basedirlist:
         if len(funcnamelist)>0:
-            runradarsims(ibase,funcnamelist,configfile,remakealldata,fittimes)
+            runradarsims(ibase,funcnamelist,configfile,remakealldata,fittimes,invtype)
             #save2dropbox(ibase)
         if plotboolin:
             plotinputdata(ibase,os.path.join(ibase,'Inputimages'),wtimes)

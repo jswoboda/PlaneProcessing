@@ -141,7 +141,7 @@ def ke(item):
         return float('inf')
 #%%
 
-def runradarsims(testpath,funcnamelist=['spectrums','radardata','fitting'],configfile = 'planeproc2.ini',remakealldata=False,fittimes=None):
+def runradarsims(testpath,funcnamelist=['spectrums','radardata','fitting'],configfile = 'planeproc2.ini',remakealldata=False,fittimes=None,invtype=''):
     """ This will run the radar simulations for all the selected data sets"""
     origparamsdir = os.path.join(testpath,'Origparams')
     if not os.path.exists(testpath):
