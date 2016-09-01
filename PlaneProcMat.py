@@ -125,8 +125,11 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik'):
 def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
     """ """
     costdir = os.path.join(basedir,'Cost')
+    
     pname=os.path.join(costdir,'cost{0}-{1}.pickle'.format(acfdir,invtype))
-    alpha_arr=pickle.load(pname)[-1]
+    pickleFile = open(pname, 'rb')
+    alpha_arr=pickle.load(pickleFile)[-1]
+    pickleFile.close()
     
     ionoinfname=os.path.join(basedir,acfdir,'00lags.h5')
     ionoin=IonoContainer.readh5(ionoinfname)
@@ -158,7 +161,7 @@ def mkalphalist(pnamefile):
     
     pickleFile = open(pnamefile, 'rb')
     dictlist = pickle.load(pickleFile)
-    alpha_list,errorlist,errorlaglist=dictlist
+    alpha_list,errorlist,errorlaglist=dictlist[:3]
     
     pickleFile.close()
     os.remove(pnamefile)
