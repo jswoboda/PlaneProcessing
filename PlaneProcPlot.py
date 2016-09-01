@@ -432,7 +432,7 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',lag
     
         Xmat = Rngrdrmat*Signmat*sp.cos(Elmat*sp.pi/180.)
         Zmat = Rngrdrmat*sp.sin(Elmat*sp.pi/180.)
-        Ne = iono.Param_List[lag].reshape(nrg,nbeams,nt).real
+        Ne = iono.Param_List[:,:,lag].reshape(nrg,nbeams,nt).real
     elif set(iono.Coord_Vecs)=={'x','y','z'}:
         rng = sp.sqrt(iono.Cart_Coords[:,0]**2+iono.Cart_Coords[:,1]**2)*sp.sign(iono.Cart_Coords[:,1])
         z = iono.Cart_Coords[:,2]
