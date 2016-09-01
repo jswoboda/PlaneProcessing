@@ -146,7 +146,7 @@ def plotinputdata(testdir,imgdir,wtimes=False):
             plt.savefig(os.path.join(imgdir,fname),dpi=300)
             plt.close(fig)
 #%%Plot output data
-def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
+def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitteddata.h5'):
     """This will plot all of the fitted data with each time step as a pcolor images of
     electron density and electron density from power mesurements.
     Inputs
@@ -160,7 +160,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
             os.remove(imgf)
     else:
         os.mkdir(imgdir)
-    filename = os.path.join(testdir,fitpath,'fitteddata.h5')
+    filename = os.path.join(testdir,fitpath,fitfile)
     iono = IonoContainer.readh5(filename)
     Iono1 = GeoData(readIono,[iono])
     nt = Iono1.times.shape[0]
@@ -277,7 +277,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
         imcount=imcount+1
         plt.close(fig)
 #%% Error plotting 
-def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
+def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitteddata.h5'):
     """This will plot all of the fitted data with each time step as a pcolor images of
     electron density and electron density from power mesurements.
     Inputs
@@ -291,7 +291,7 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
             os.remove(imgf)
     else:
         os.mkdir(imgdir)
-    filename = os.path.join(testdir,fitpath,'fitteddata.h5')
+    filename = os.path.join(testdir,fitpath,fitfile)
     iono = IonoContainer.readh5(filename)
     Iono1 = GeoData(readIono,[iono])
     rngrdr =Iono1.dataloc[:,0]
@@ -402,7 +402,7 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted'):
         plt.close(fig)
 
 #%% 
-def plotacf(testdir,imgdir,wtimes=False,acfpath='Fitted',lag=0):
+def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',lag=0):
     """This will plot all of the fitted data with each time step as a pcolor images of
     electron density and electron density from power mesurements.
     Inputs
@@ -415,7 +415,7 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='Fitted',lag=0):
             os.remove(imgf)
     else:
         os.mkdir(imgdir)
-    filename = os.path.join(testdir,acfpath,'00lags.h5')
+    filename = os.path.join(testdir,acfpath,lagfile)
     iono = IonoContainer.readh5(filename)
     Iono1 = GeoData(readIono,[iono])
     nt = Iono1.times.shape[0]
