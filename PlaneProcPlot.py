@@ -417,12 +417,11 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',lag
         os.mkdir(imgdir)
     filename = os.path.join(testdir,acfpath,lagfile)
     iono = IonoContainer.readh5(filename)
-    Iono1 = GeoData(readIono,[iono])
-    nt = Iono1.times.shape[0]
-    if Iono1.coordnames.lower()=='spherical':
-        rngrdr =Iono1.dataloc[:,0]
-        sign1 = sp.sign(Iono1.dataloc[:,1])
-        el = Iono1.dataloc[:,2]
+    nt = iono.Time_Vector.shape[0]
+    if set(iono.Coord_Vecs)=={'r','theta','phi'}:
+        rngrdr =iono.Sphere_Coords[:,0]
+        sign1 = sp.sign(iono.Sphere_Coords[:,1])
+        el = iono.Sphere_Coords[:,2]
         elvec,elinv = sp.unique(el,return_inverse=True)
         nbeams = len(elvec)
         nrg = len(rngrdr)/nbeams
@@ -434,9 +433,9 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',lag
         Xmat = Rngrdrmat*Signmat*sp.cos(Elmat*sp.pi/180.)
         Zmat = Rngrdrmat*sp.sin(Elmat*sp.pi/180.)
         Ne = iono.Param_List[lag].reshape(nrg,nbeams,nt).real
-    elif Iono1.coordnames.lower()=='cartesian':
-        rng = sp.sqrt(Iono1.dataloc[:,0]**2+Iono1.dataloc[:,1]**2)*sp.sign(Iono1.dataloc[:,1])
-        z = Iono1.dataloc[:,2]
+    elif set(iono.Coord_Vecs)=={'x','y','z'}:
+        rng = sp.sqrt(iono.Cart_Coords[:,0]**2+iono.Cart_Coords[:,1]**2)*sp.sign(iono.Cart_Coords[:,1])
+        z = iono.Cart_Coords[:,2]
         rngvec = sp.unique(rng)
         zvec = sp.unique(z)
         Xmat = rng.reshape(len(zvec),len(rngvec))
@@ -461,8 +460,8 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',lag
         ncols=1
         figsize = (5,7)
     ylim = [100.,500]
-    for itimen,itime in enumerate(Iono1.times):
-        print "{0} Output for {1} of {2}".format(dsetname,itimen,len(Iono1.times))
+    for itimen,itime in enumerate(iono.Time_Vector):
+        print "{0} Output for {1} of {2}".format(dsetname,itimen,len(iono.Time_Vector))
         
         
         Nemat = Ne[:,:,itimen]
@@ -487,10 +486,7 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',lag
         cb1.ax.set_xlabel(r'm$^{-3}$',fontsize=14)
         
         plt.tight_layout()
-        if wtimes:
-            plt.subplots_adjust(top=0.9)
-            spti = fig.suptitle('Parameters at {0} seconds'.format(int(tvec[itimen])),fontsize=24)
-
+        
 #            ims.append([pc1,pc2])
        
 
