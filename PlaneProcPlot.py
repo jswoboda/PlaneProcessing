@@ -440,7 +440,7 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',lag
         zvec = sp.unique(z)
         Xmat = rng.reshape(len(zvec),len(rngvec))
         Zmat = z.reshape(len(zvec),len(rngvec))
-        Ne = iono.Param_List[:,:,lag].reshape(len(zvec),len(rngvec),nt)
+        Ne = iono.Param_List[:,:,lag].reshape(len(zvec),len(rngvec),nt).real
     imcount=0
     filetemplate = 'acflag{0}'.format(lag)
 

@@ -408,6 +408,7 @@ if __name__== '__main__':
             plotinputdata(ibase,os.path.join(ibase,'Inputimages'),wtimes)
         if plotboolout:
             plotoutput(ibase,os.path.join(ibase,'fittedimagesmat'),configfile,wtimes,fitpath='FittedMat')
+            plotoutput(ibase,os.path.join(ibase,'fittedimages{}'.format(invtype)),configfile,wtimes,fitpath='FittedInv')
         if ploterror:
             ploterrors(ibase,os.path.join(ibase,'fittederroronlyimages'),configfile,wtimes,fitpath='FittedMat')
             #save2dropbox(ibase)
