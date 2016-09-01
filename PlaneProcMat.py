@@ -28,7 +28,7 @@ from PlaneProcPlot import plotinputdata,plotoutput,ploterrors,plotalphaerror
 
 
 
-def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik'):
+def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
     """ """
     
     nlout,ntout,np=Iono.Param_List.shape
@@ -51,16 +51,31 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik'):
     
     # trim out cruft
     zmin,zmax=[150,500]
-    rpmin,rpmax=[100,200]
+    rpmin,rpmax=rbounds#[-50,100]#[100,200]
     altlog= sp.logical_and(zin>zmin,zin<zmax)
     rplog=sp.logical_and(rplane>rpmin,rplane<rpmax)
     allrng= RSTO.simparams['Rangegatesfinal']
     dR=allrng[1]-allrng[0]
     npdir=sp.ceil(int(np)/2.)
-    minangpos=ang_vec[sp.logical_and(ang_vec[:,0]<180.,ang_vec[:,0]>=0),1].min()
+    posang_log1= sp.logical_and(ang_vec[:,0]<=180.,ang_vec[:,0]>=0)
+    negang_log1 = sp.logical_or(ang_vec[:,0]>180.,ang_vec[:,0]<0)
+    azin_pos = sp.logical_and(azin<=180.,azin>=0)
+    azin_neg = sp.logical_or(azin>180.,azin<0)
+    minangpos=0
+    minangneg=0
+    
+    
+    if sp.any(posang_log1):
+        minangpos=ang_vec[posang_log1,1].min()
+    if sp.any(negang_log1):
+        minangneg=ang_vec[negang_log1,1].min()
+    
     rngbounds=[allrng[0]-npdir*dR,allrng[-1]+npdir*dR]
     rng_log=sp.logical_and(rin>rngbounds[0],rin<rngbounds[1])
-    elbounds=elin>minangpos-2
+    elbounds_pos=sp.logical_and(azin_pos,elin>minangpos)
+    elbounds_neg=sp.logical_and(azin_neg,elin>minangneg)
+    
+    elbounds=sp.logical_or(elbounds_pos,elbounds_neg)
     keeplog=sp.logical_and(sp.logical_and(rng_log,elbounds),sp.logical_and(altlog,rplog))
     keeplist=sp.where(keeplog)[0]
     nlin_red=len(keeplist)
@@ -142,7 +157,8 @@ def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
     Ionolist = [dirlist[ikey] for ikey in listorder]
     
     RSTO = RadarSpaceTimeOperator(Ionolist,configfile,timevector)  
-    ionoout=invertRSTO(RSTO,ionoin,alpha_list=alpha_arr,invtype=invtype)
+    
+    ionoout=invertRSTO(RSTO,ionoin,alpha_list=alpha_arr,invtype=invtype,rbounds)
     outfile=os.path.join(basedir,'ACFInv','00lags.h5')
     ionoout.saveh5(outfile)
     if acfdir=='ACF':
