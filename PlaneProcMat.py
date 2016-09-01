@@ -157,7 +157,7 @@ def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
     Ionolist = [dirlist[ikey] for ikey in listorder]
     
     RSTO = RadarSpaceTimeOperator(Ionolist,configfile,timevector)  
-    if 'perryplane' in testdir.lower():
+    if 'perryplane' in basedir.lower():
         rbounds=[-500,500]
     else:
         rbounds=[100,200]
