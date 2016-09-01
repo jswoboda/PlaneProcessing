@@ -450,15 +450,12 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',lag
     if 'perryplane' in testdir.lower():
         xlim = [-200.,360.]
         xticks = [-150.,0.,150.,300.]
-        allparams=True
-        ncols=3
-        figsize = (15,7)
+
     else:
         xlim = [0.,400.]
         xticks = [0.,150.,300]
-        allparams = False
-        ncols=1
-        figsize = (5,7)
+    ncols=1
+    figsize = (5,7)
     ylim = [100.,500]
     for itimen,itime in enumerate(iono.Time_Vector):
         print "{0} Output for {1} of {2}".format(dsetname,itimen,len(iono.Time_Vector))
