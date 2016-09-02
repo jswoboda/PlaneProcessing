@@ -137,6 +137,7 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
     ionoout=IonoContainer(coordlist=RSTO.Cart_Coords_In,paramlist=new_params,times = time_in,sensor_loc = sp.zeros(3),ver =0,coordvecs =
         ['x','y','z'],paramnames=Iono.Param_Names)
     return ionoout
+    
 def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
     """ """
     costdir = os.path.join(basedir,'Cost')
@@ -155,8 +156,11 @@ def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
     dirlist = glob.glob(os.path.join(inputdir,'*.h5'))
     (listorder,timevector,filenumbering,timebeg,time_s) = IonoContainer.gettimes(dirlist)
     Ionolist = [dirlist[ikey] for ikey in listorder]
-    
-    RSTO = RadarSpaceTimeOperator(Ionolist,configfile,timevector)  
+    if acfdir.lower()=='acf':
+        mattype='sim'
+    elif acfdir.lower()=='acfmat':
+        mattype='matrix'
+    RSTO = RadarSpaceTimeOperator(Ionolist,configfile,timevector,mattype=mattype)  
     if 'perryplane' in basedir.lower():
         rbounds=[-500,500]
     else:
