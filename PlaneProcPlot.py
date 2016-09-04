@@ -111,7 +111,7 @@ def plotinputdata(testdir,imgdir,wtimes=False):
            #pc1.set_norm(colors.LogNorm(vmin=5e8,vmax=5e12))
             tick_locator = ticker.MaxNLocator(nbins=5)
             
-            cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
+            cb1 = plt.colorbar(pc1, ax=avec[0])
             cb1.ax.xaxis.set_label_position('top')
             cb1.ax.set_xlabel(r'$N_e$ $(10^{10}$m$^{-3})$',fontsize=fscb)
             cb1.locator = tick_locator
@@ -126,7 +126,7 @@ def plotinputdata(testdir,imgdir,wtimes=False):
                 avec[1].set_ylim(ylim)
                 avec[1].set_title('Electron Temperature',fontsize=fs)
 
-                cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
+                cb2 = plt.colorbar(pc2, ax=avec[1])
                 cb2.ax.xaxis.set_label_position('top')
                 cb2.ax.set_xlabel(r'$T_e$ ($^{\circ}$K)',fontsize=fscb)
                 cb2.locator = tick_locator
@@ -141,7 +141,7 @@ def plotinputdata(testdir,imgdir,wtimes=False):
                 avec[2].set_ylim(ylim)
                 avec[2].set_title('Ion Temperature',fontsize=fs)
 
-                cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
+                cb3 = plt.colorbar(pc3, ax=avec[2])
                 cb3.ax.xaxis.set_label_position('top')
                 cb3.ax.set_xlabel(r'$T_i$ ($^{\circ}$K)',fontsize=fscb)
                 cb3.locator = tick_locator
@@ -248,7 +248,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
         avec[0].set_title('Electron Density',fontsize=fs)
         tick_locator = ticker.MaxNLocator(nbins=5)
             
-        cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
+        cb1 = plt.colorbar(pc1, ax=avec[0])
         cb1.ax.xaxis.set_label_position('top')
         cb1.ax.set_xlabel(r'$N_e$ $(10^{10}$m$^{-3})$',fontsize=fscb)
         cb1.locator = tick_locator
@@ -265,7 +265,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
             avec[1].set_ylim(ylim)
             avec[1].set_title('Electron Temperature',fontsize=fs)
 
-            cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
+            cb2 = plt.colorbar(pc2, ax=avec[1])
             cb2.ax.xaxis.set_label_position('top')
             cb2.ax.set_xlabel(r'$T_e$ ($^{\circ}$K)',fontsize=fscb)
             cb2.locator = tick_locator
@@ -282,7 +282,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
             #            for label in (ax.get_xticklabels() + ax.get_yticklabels()):
             #                label.set_fontsize(20)
 
-            cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
+            cb3 = plt.colorbar(pc3, ax=avec[2])
             cb3.ax.xaxis.set_label_position('top')
             cb3.ax.set_xlabel(r'$T_i$ $^{\circ}$K',fontsize=fscb)
             cb3.locator = tick_locator
@@ -381,7 +381,7 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
         avec[0].set_title('Electron Density Error',fontsize=fs)
         tick_locator = ticker.MaxNLocator(nbins=5)
             
-        cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
+        cb1 = plt.colorbar(pc1, ax=avec[0])
         cb1.ax.xaxis.set_label_position('top')
         cb1.ax.set_xlabel(r'$N_e$ $(10^{10}$m$^{-3})$',fontsize=fscb)
         cb1.locator = tick_locator
@@ -398,7 +398,7 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
             avec[1].set_ylim(ylim)
             avec[1].set_title('Electron Temperature % Error',fontsize=fs)
 
-            cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
+            cb2 = plt.colorbar(pc2, ax=avec[1])
             cb2.ax.xaxis.set_label_position('top')
             cb2.ax.set_xlabel(r'$T_e$ in ($^{\circ}$K)',fontsize=fscb)
             cb2.locator = tick_locator
@@ -415,7 +415,7 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
             #            for label in (ax.get_xticklabels() + ax.get_yticklabels()):
             #                label.set_fontsize(20)
 
-            cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
+            cb3 = plt.colorbar(pc3, ax=avec[2])
             cb3.ax.xaxis.set_label_position('top')
             cb3.ax.set_xlabel(r'$T_i$ ($^{\circ}$K)',fontsize=fscb)
             cb3.locator = tick_locator
@@ -514,7 +514,7 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',lag
         avec[0].set_title('Electron Density',fontsize=fs)
         tick_locator = ticker.MaxNLocator(nbins=5)
             
-        cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
+        cb1 = plt.colorbar(pc1, ax=avec[0])
         cb1.ax.xaxis.set_label_position('top')
         cb1.ax.set_xlabel(r'$N_e$ $(10^{10}$m$^{-3})$')
         cb1.locator = tick_locator
@@ -750,7 +750,7 @@ def plotsampling(testdir,outfile,wtimes=False):
    #pc1.set_norm(colors.LogNorm(vmin=5e8,vmax=5e12))
     tick_locator = ticker.MaxNLocator(nbins=5)
     
-    cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
+    cb1 = plt.colorbar(pc1, ax=avec[0])
     cb1.ax.xaxis.set_label_position('top')
     cb1.ax.set_xlabel(r'$N_e$ $(10^{10}$m$^{-3})$',fontsize=fscb)
     cb1.locator = tick_locator
