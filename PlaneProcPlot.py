@@ -742,7 +742,7 @@ def plotsampling(testdir,outfile,wtimes=False):
     plt.tick_params(labelsize=16)
     avec[0].set_xlabel('X Plane in km',fontsize=fs)
     avec[0].set_ylabel('Alt in km',fontsize=fs)
-    pc1 = avec[0].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = defmap,vmin=0.,vmax=3e11)
+    pc1 = avec[0].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = defmap,vmin=0.,vmax=3e11*ne_red)
     avec[0].set_xlim(xlim)
     avec[0].set_ylim(ylim)
     
