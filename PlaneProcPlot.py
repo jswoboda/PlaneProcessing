@@ -29,6 +29,9 @@ ne_red=1e-10
 nemin,nemax=[0.*ne_red,3e11*ne_red]
 temin,temax=[0,4e3]
 timin,timax=[0,4e3]
+necbarstr='$N_e$($10^{10}$m$^{-3}$)'
+tecbarstr='$T_e$($^{\circ}$K)'
+ticbarstr='$T_i$($^{\circ}$K)'
 #%% For sorting
 def ke(item):
     if item[0].isdigit():
@@ -113,7 +116,7 @@ def plotinputdata(testdir,imgdir,wtimes=False):
             
             cb1 = plt.colorbar(pc1, ax=avec[0])
             cb1.ax.xaxis.set_label_position('top')
-            cb1.ax.set_xlabel(r'$N_e$ $(10^{10}$m$^{-3})$',fontsize=fscb)
+            cb1.ax.set_xlabel(necbarstr,fontsize=fscb)
             cb1.locator = tick_locator
             cb1.update_ticks()
             if allparams:
@@ -128,7 +131,7 @@ def plotinputdata(testdir,imgdir,wtimes=False):
 
                 cb2 = plt.colorbar(pc2, ax=avec[1])
                 cb2.ax.xaxis.set_label_position('top')
-                cb2.ax.set_xlabel(r'$T_e$ ($^{\circ}$K)',fontsize=fscb)
+                cb2.ax.set_xlabel(tecbarstr,fontsize=fscb)
                 cb2.locator = tick_locator
                 cb2.update_ticks()
                 
@@ -143,7 +146,7 @@ def plotinputdata(testdir,imgdir,wtimes=False):
 
                 cb3 = plt.colorbar(pc3, ax=avec[2])
                 cb3.ax.xaxis.set_label_position('top')
-                cb3.ax.set_xlabel(r'$T_i$ ($^{\circ}$K)',fontsize=fscb)
+                cb3.ax.set_xlabel(ticbarstr,fontsize=fscb)
                 cb3.locator = tick_locator
                 cb3.update_ticks()
             plt.tight_layout()
@@ -250,7 +253,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
             
         cb1 = plt.colorbar(pc1, ax=avec[0])
         cb1.ax.xaxis.set_label_position('top')
-        cb1.ax.set_xlabel(r'$N_e$ $(10^{10}$m$^{-3})$',fontsize=fscb)
+        cb1.ax.set_xlabel(necbarstr,fontsize=fscb)
         cb1.locator = tick_locator
         cb1.update_ticks()
         if allparams:
@@ -267,7 +270,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
 
             cb2 = plt.colorbar(pc2, ax=avec[1])
             cb2.ax.xaxis.set_label_position('top')
-            cb2.ax.set_xlabel(r'$T_e$ ($^{\circ}$K)',fontsize=fscb)
+            cb2.ax.set_xlabel(tecbarstr,fontsize=fscb)
             cb2.locator = tick_locator
             cb2.update_ticks()
             plt.sca(avec[2])
@@ -284,7 +287,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
 
             cb3 = plt.colorbar(pc3, ax=avec[2])
             cb3.ax.xaxis.set_label_position('top')
-            cb3.ax.set_xlabel(r'$T_i$ $^{\circ}$K',fontsize=fscb)
+            cb3.ax.set_xlabel(ticbarstr,fontsize=fscb)
             cb3.locator = tick_locator
             cb3.update_ticks()	
         
@@ -383,7 +386,7 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
             
         cb1 = plt.colorbar(pc1, ax=avec[0])
         cb1.ax.xaxis.set_label_position('top')
-        cb1.ax.set_xlabel(r'$N_e$ $(10^{10}$m$^{-3})$',fontsize=fscb)
+        cb1.ax.set_xlabel(necbarstr,fontsize=fscb)
         cb1.locator = tick_locator
         cb1.update_ticks()
         if allparams:
@@ -400,7 +403,7 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
 
             cb2 = plt.colorbar(pc2, ax=avec[1])
             cb2.ax.xaxis.set_label_position('top')
-            cb2.ax.set_xlabel(r'$T_e$ in ($^{\circ}$K)',fontsize=fscb)
+            cb2.ax.set_xlabel(tecbarstr,fontsize=fscb)
             cb2.locator = tick_locator
             cb2.update_ticks()
             plt.sca(avec[2])
@@ -417,7 +420,7 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
 
             cb3 = plt.colorbar(pc3, ax=avec[2])
             cb3.ax.xaxis.set_label_position('top')
-            cb3.ax.set_xlabel(r'$T_i$ ($^{\circ}$K)',fontsize=fscb)
+            cb3.ax.set_xlabel(ticbarstr,fontsize=fscb)
             cb3.locator = tick_locator
             cb3.update_ticks()	
         
@@ -516,7 +519,7 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',lag
             
         cb1 = plt.colorbar(pc1, ax=avec[0])
         cb1.ax.xaxis.set_label_position('top')
-        cb1.ax.set_xlabel(r'$N_e$ $(10^{10}$m$^{-3})$')
+        cb1.ax.set_xlabel(necbarstr)
         cb1.locator = tick_locator
         cb1.update_ticks()
         plt.tight_layout()
@@ -746,7 +749,7 @@ def plotsampling(testdir,outfile,wtimes=False):
     avec[0].set_xlim(xlim)
     avec[0].set_ylim(ylim)
     
-    necbarstr='$N_e$$(10^{10}$m$^{-3})$'
+    
    #pc1.set_norm(colors.LogNorm(vmin=5e8,vmax=5e12))
     tick_locator = ticker.MaxNLocator(nbins=5)
     
