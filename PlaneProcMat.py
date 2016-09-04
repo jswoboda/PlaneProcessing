@@ -163,7 +163,7 @@ def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
     if 'perryplane' in basedir.lower():
         rbounds=[-500,500]
     else:
-        rbounds=[100,200]
+        rbounds=[0,500]
     ionoout=invertRSTO(RSTO,ionoin,alpha_list=alpha_arr,invtype=invtype,rbounds=rbounds)
     outfile=os.path.join(basedir,'ACFInv','00lags.h5')
     ionoout.saveh5(outfile)
