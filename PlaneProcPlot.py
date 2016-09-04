@@ -250,7 +250,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
             
         cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
         cb1.ax.xaxis.set_label_position('top')
-        cb1.ax.set_xlabel(r'$N_e$ in m$^{-3}$')
+        cb1.ax.set_xlabel(r'$N_e$ in m$^{-3}$',fontsize=fscb)
         cb1.locator = tick_locator
         cb1.update_ticks()
         if allparams:
@@ -266,7 +266,10 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
             avec[1].set_title('Electron Temperature',fontsize=fs)
 
             cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
-            cb2.ax.set_xlabel(r'$^{\circ}$K',fontsize=14)
+            cb2.ax.xaxis.set_label_position('top')
+            cb2.ax.set_xlabel(r'$T_e$ in $^{\circ}$K',fontsize=fscb)
+            cb2.locator = tick_locator
+            cb2.update_ticks()
             plt.sca(avec[2])
             plt.xticks(xticks)
             plt.tick_params(labelsize=16)
@@ -280,7 +283,10 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
             #                label.set_fontsize(20)
 
             cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
-            cb3.ax.set_xlabel(r'$^{\circ}$K',fontsize=14)	
+            cb3.ax.xaxis.set_label_position('top')
+            cb3.ax.set_xlabel(r'$$T_i$ in ^{\circ}$K',fontsize=fscb)
+            cb3.locator = tick_locator
+            cb3.update_ticks()	
         
         plt.tight_layout()
         if wtimes:
@@ -379,7 +385,7 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
             
         cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
         cb1.ax.xaxis.set_label_position('top')
-        cb1.ax.set_xlabel(r'$N_e$ in m$^{-3}$')
+        cb1.ax.set_xlabel(r'$N_e$ in m$^{-3}$',fontsize=fscb)
         cb1.locator = tick_locator
         cb1.update_ticks()
         if allparams:
@@ -395,7 +401,10 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
             avec[1].set_title('Electron Temperature % Error',fontsize=fs)
 
             cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
-            cb2.ax.set_xlabel(r'$^{\circ}$K',fontsize=14)
+            cb2.ax.xaxis.set_label_position('top')
+            cb2.ax.set_xlabel(r'$T_e$ in $^{\circ}$K',fontsize=fscb)
+            cb2.locator = tick_locator
+            cb2.update_ticks()
             plt.sca(avec[2])
             plt.xticks(xticks)
             plt.tick_params(labelsize=16)
@@ -409,7 +418,10 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
             #                label.set_fontsize(20)
 
             cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
-            cb3.ax.set_xlabel(r'$^{\circ}$K',fontsize=14)	
+            cb3.ax.xaxis.set_label_position('top')
+            cb3.ax.set_xlabel(r'$$T_i$ in ^{\circ}$K',fontsize=fscb)
+            cb3.locator = tick_locator
+            cb3.update_ticks()	
         
         plt.tight_layout()
         if wtimes:
@@ -714,16 +726,18 @@ def plotsampling(testdir,outfile,wtimes=False):
     rngmat = rng.reshape(len(zvec),len(rngvec))
     zmat = z.reshape(len(zvec),len(rngvec))
     Ne = Iono1.data['Ne'].reshape(len(zvec),len(rngvec),nt)
-    Ti = Iono1.data['Ti'].reshape(len(zvec),len(rngvec),nt)
-    Te = Iono1.data['Te'].reshape(len(zvec),len(rngvec),nt)
+
 
     itimen=0
     itime = Iono1.times[0]
     if f1:
         f1=False
         t0 = itime[0]
-        fig ,axmat= plt.subplots(nrows=ncols,ncols=2,facecolor='w',figsize=figsize ,sharey=True)
-    avec=axmat.flatten()
+        fig ,axmat= plt.subplots(nrows=1,ncols=ncols,facecolor='w',figsize=figsize ,sharey=True)
+        if allparams:
+            avec = axmat.flatten()
+        else:
+            avec =[axmat]
 
     plt.sca(avec[0])
     plt.xticks(xticks)
@@ -733,25 +747,17 @@ def plotsampling(testdir,outfile,wtimes=False):
     pc1 = avec[0].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = defmap,vmin=0.,vmax=3e11)
     avec[0].set_xlim(xlim)
     avec[0].set_ylim(ylim)
-    plt.sca(avec[1])
-    plt.xticks(xticks)
-    plt.tick_params(labelsize=16)
-    pc2 = avec[1].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = defmap,vmin=0.,vmax=3e11)
-    plot1 = avec[1].plot(rout,zout,'w.',markersize=3)
-    avec[1].set_xlim(xlim)
-    avec[1].set_ylim(ylim)
-    avec[1].set_xlabel('X Plane in km',fontsize=fs)
-    avec[1].set_ylabel('Alt in km',fontsize=fs)
+    
 
    #pc1.set_norm(colors.LogNorm(vmin=5e8,vmax=5e12))
     tick_locator = ticker.MaxNLocator(nbins=5)
     
     cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
     cb1.ax.xaxis.set_label_position('top')
-    cb1.ax.set_xlabel(r'$N_e$ in m$^{-3}$')
+    cb1.ax.set_xlabel(r'$N_e$ in m$^{-3}$',fontsize=fscb)
     cb1.locator = tick_locator
     cb1.update_ticks()
-
+    plot1 = avec[0].plot(rout,zout,'w.',markersize=3)
 
     plt.tight_layout()
     if wtimes:
