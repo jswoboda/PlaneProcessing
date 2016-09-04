@@ -143,7 +143,7 @@ def plotinputdata(testdir,imgdir,wtimes=False):
 
                 cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
                 cb3.ax.xaxis.set_label_position('top')
-                cb3.ax.set_xlabel(r'$$T_i$ in ^{\circ}$K',fontsize=fscb)
+                cb3.ax.set_xlabel(r'$T_i$ in ^{\circ}$K',fontsize=fscb)
                 cb3.locator = tick_locator
                 cb3.update_ticks()
             plt.tight_layout()
@@ -284,7 +284,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
 
             cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
             cb3.ax.xaxis.set_label_position('top')
-            cb3.ax.set_xlabel(r'$$T_i$ in ^{\circ}$K',fontsize=fscb)
+            cb3.ax.set_xlabel(r'$T_i$ in ^{\circ}$K',fontsize=fscb)
             cb3.locator = tick_locator
             cb3.update_ticks()	
         
@@ -419,7 +419,7 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
 
             cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
             cb3.ax.xaxis.set_label_position('top')
-            cb3.ax.set_xlabel(r'$$T_i$ in ^{\circ}$K',fontsize=fscb)
+            cb3.ax.set_xlabel(r'$T_i$ in ^{\circ}$K',fontsize=fscb)
             cb3.locator = tick_locator
             cb3.update_ticks()	
         
