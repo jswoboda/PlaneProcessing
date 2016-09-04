@@ -11,6 +11,7 @@ import matplotlib
 import pdb
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from matplotlib import ticker
 import matplotlib.colors as colors
 import matplotlib.gridspec as gridspec
 import seaborn as sns
@@ -107,8 +108,13 @@ def plotinputdata(testdir,imgdir,wtimes=False):
             avec[0].set_title('Electron Density',fontsize=fs)
             
            #pc1.set_norm(colors.LogNorm(vmin=5e8,vmax=5e12))
+            tick_locator = ticker.MaxNLocator(nbins=5)
+            
             cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
-            cb1.ax.set_xlabel(r'm$^{-3}$')
+            cb1.ax.xaxis.set_label_position('top')
+            cb1.ax.set_xlabel(r'$N_e$ in m$^{-3}$')
+            cb1.locator = tick_locator
+            cb1.update_ticks()
             if allparams:
                 plt.sca(avec[1])
                 plt.xticks(xticks)
@@ -120,7 +126,10 @@ def plotinputdata(testdir,imgdir,wtimes=False):
                 avec[1].set_title('Electron Temperature',fontsize=fs)
 
                 cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
-                cb2.ax.set_xlabel(r'$^{\circ}$K')
+                cb2.ax.xaxis.set_label_position('top')
+                cb2.ax.set_xlabel(r'$T_e$ in $^{\circ}$K')
+                cb2.locator = tick_locator
+                cb2.update_ticks()
                 plt.sca(avec[2])
                 plt.xticks(xticks)
                 plt.tick_params(labelsize=16)
@@ -131,8 +140,10 @@ def plotinputdata(testdir,imgdir,wtimes=False):
                 avec[2].set_title('Ion Temperature',fontsize=fs)
 
                 cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
-                cb3.ax.set_xlabel(r'$^{\circ}$K')
-
+                cb3.ax.xaxis.set_label_position('top')
+                cb3.ax.set_xlabel(r'$$T_i$ in ^{\circ}$K')
+                cb3.locator = tick_locator
+                cb3.update_ticks()
             plt.tight_layout()
             if wtimes:
                 plt.subplots_adjust(top=0.9)
