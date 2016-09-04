@@ -697,13 +697,13 @@ def plotsampling(testdir,outfile,wtimes=False):
         xticks = [0.,150.,300.]
         allparams = True
         ncols=3
-        figsize = (10,21)
+        figsize = (5,7)
     else:
         xlim = [0.,400.]
         xticks = [0.,150.,300.]
         allparams = False
         ncols=1
-        figsize = (10,7)
+        figsize = (5,7)
     ylim = [100.,500.]
     f1 =  True
     
