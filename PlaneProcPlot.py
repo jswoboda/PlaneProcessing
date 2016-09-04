@@ -26,7 +26,8 @@ defmap = 'viridis'# color map
 fs=18# fontsize
 fscb=14
 lw=4 #line width
-nemin,nemax=[0.,3e11]
+ne_red=1e-10
+nemin,nemax=[0.*ne_red,3e11*ne_red]
 temin,temax=[0,4e3]
 timin,timax=[0,4e3]
 #%% For sorting
@@ -85,7 +86,7 @@ def plotinputdata(testdir,imgdir,wtimes=False):
         zvec = sp.unique(z)
         rngmat = rng.reshape(len(zvec),len(rngvec))
         zmat = z.reshape(len(zvec),len(rngvec))
-        Ne = Iono1.data['Ne'].reshape(len(zvec),len(rngvec),nt)
+        Ne = Iono1.data['Ne'].reshape(len(zvec),len(rngvec),nt)*ne_red
         Ti = Iono1.data['Ti'].reshape(len(zvec),len(rngvec),nt)
         Te = Iono1.data['Te'].reshape(len(zvec),len(rngvec),nt)
         for itimen,itime in enumerate(Iono1.times):
@@ -113,7 +114,7 @@ def plotinputdata(testdir,imgdir,wtimes=False):
             
             cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
             cb1.ax.xaxis.set_label_position('top')
-            cb1.ax.set_xlabel(r'$N_e$ in m$^{-3}$',fontsize=fscb)
+            cb1.ax.set_xlabel(r'$N_e$ $(10^{10}$m$^{-3})$',fontsize=fscb)
             cb1.locator = tick_locator
             cb1.update_ticks()
             if allparams:
@@ -128,7 +129,7 @@ def plotinputdata(testdir,imgdir,wtimes=False):
 
                 cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
                 cb2.ax.xaxis.set_label_position('top')
-                cb2.ax.set_xlabel(r'$T_e$ in $^{\circ}$K',fontsize=fscb)
+                cb2.ax.set_xlabel(r'$T_e$ ($^{\circ}$K)',fontsize=fscb)
                 cb2.locator = tick_locator
                 cb2.update_ticks()
                 
@@ -143,7 +144,7 @@ def plotinputdata(testdir,imgdir,wtimes=False):
 
                 cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
                 cb3.ax.xaxis.set_label_position('top')
-                cb3.ax.set_xlabel(r'$T_i$ in ^{\circ}$K',fontsize=fscb)
+                cb3.ax.set_xlabel(r'$T_i$ ($^{\circ}$K)',fontsize=fscb)
                 cb3.locator = tick_locator
                 cb3.update_ticks()
             plt.tight_layout()
@@ -191,7 +192,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
     
         Xmat = Rngrdrmat*Signmat*sp.cos(Elmat*sp.pi/180.)
         Zmat = Rngrdrmat*sp.sin(Elmat*sp.pi/180.)
-        Ne = Iono1.data['Ne'].reshape(nrg,nbeams,nt)
+        Ne = Iono1.data['Ne'].reshape(nrg,nbeams,nt)*ne_red
         Te = Iono1.data['Te'].reshape(nrg,nbeams,nt)
         Ti = Iono1.data['Ti'].reshape(nrg,nbeams,nt)
     elif Iono1.coordnames.lower()=='cartesian':
@@ -201,7 +202,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
         zvec = sp.unique(z)
         Xmat = rng.reshape(len(zvec),len(rngvec))
         Zmat = z.reshape(len(zvec),len(rngvec))
-        Ne = Iono1.data['Ne'].reshape(len(zvec),len(rngvec),nt)
+        Ne = Iono1.data['Ne'].reshape(len(zvec),len(rngvec),nt)*ne_red
         Ti = Iono1.data['Ti'].reshape(len(zvec),len(rngvec),nt)
         Te = Iono1.data['Te'].reshape(len(zvec),len(rngvec),nt)
     imcount=0
@@ -250,7 +251,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
             
         cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
         cb1.ax.xaxis.set_label_position('top')
-        cb1.ax.set_xlabel(r'$N_e$ in m$^{-3}$',fontsize=fscb)
+        cb1.ax.set_xlabel(r'$N_e$ $(10^{10}$m$^{-3})$',fontsize=fscb)
         cb1.locator = tick_locator
         cb1.update_ticks()
         if allparams:
@@ -267,7 +268,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
 
             cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
             cb2.ax.xaxis.set_label_position('top')
-            cb2.ax.set_xlabel(r'$T_e$ in $^{\circ}$K',fontsize=fscb)
+            cb2.ax.set_xlabel(r'$T_e$ ($^{\circ}$K)',fontsize=fscb)
             cb2.locator = tick_locator
             cb2.update_ticks()
             plt.sca(avec[2])
@@ -284,7 +285,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
 
             cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
             cb3.ax.xaxis.set_label_position('top')
-            cb3.ax.set_xlabel(r'$T_i$ in ^{\circ}$K',fontsize=fscb)
+            cb3.ax.set_xlabel(r'$T_i$ $^{\circ}$K',fontsize=fscb)
             cb3.locator = tick_locator
             cb3.update_ticks()	
         
@@ -331,11 +332,9 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
 
     Xmat = Rngrdrmat*Signmat*sp.cos(Elmat*sp.pi/180.)
     Zmat = Rngrdrmat*sp.sin(Elmat*sp.pi/180.)
-    Ne = Iono1.data['Ne'].reshape(nrg,nbeams,nt)
-    Te = Iono1.data['Te'].reshape(nrg,nbeams,nt)
-    Ti = Iono1.data['Ti'].reshape(nrg,nbeams,nt)
+
     
-    nNe = Iono1.data['nNe'].reshape(nrg,nbeams,nt)
+    nNe = Iono1.data['nNe'].reshape(nrg,nbeams,nt)*ne_red
     nTe = Iono1.data['nTe'].reshape(nrg,nbeams,nt)
     nTi = Iono1.data['nTi'].reshape(nrg,nbeams,nt)
     
@@ -385,7 +384,7 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
             
         cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
         cb1.ax.xaxis.set_label_position('top')
-        cb1.ax.set_xlabel(r'$N_e$ in m$^{-3}$',fontsize=fscb)
+        cb1.ax.set_xlabel(r'$N_e$ $(10^{10}$m$^{-3})$',fontsize=fscb)
         cb1.locator = tick_locator
         cb1.update_ticks()
         if allparams:
@@ -402,7 +401,7 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
 
             cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
             cb2.ax.xaxis.set_label_position('top')
-            cb2.ax.set_xlabel(r'$T_e$ in $^{\circ}$K',fontsize=fscb)
+            cb2.ax.set_xlabel(r'$T_e$ in ($^{\circ}$K)',fontsize=fscb)
             cb2.locator = tick_locator
             cb2.update_ticks()
             plt.sca(avec[2])
@@ -419,7 +418,7 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
 
             cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
             cb3.ax.xaxis.set_label_position('top')
-            cb3.ax.set_xlabel(r'$T_i$ in ^{\circ}$K',fontsize=fscb)
+            cb3.ax.set_xlabel(r'$T_i$ ($^{\circ}$K)',fontsize=fscb)
             cb3.locator = tick_locator
             cb3.update_ticks()	
         
@@ -467,7 +466,7 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',lag
     
         Xmat = Rngrdrmat*Signmat*sp.cos(Elmat*sp.pi/180.)
         Zmat = Rngrdrmat*sp.sin(Elmat*sp.pi/180.)
-        Ne = iono.Param_List[:,:,lag].reshape(nrg,nbeams,nt).real
+        Ne = iono.Param_List[:,:,lag].reshape(nrg,nbeams,nt).real*ne_red
     elif set(iono.Coord_Vecs)=={'x','y','z'}:
         rng = sp.sqrt(iono.Cart_Coords[:,0]**2+iono.Cart_Coords[:,1]**2)*sp.sign(iono.Cart_Coords[:,1])
         z = iono.Cart_Coords[:,2]
@@ -475,7 +474,7 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',lag
         zvec = sp.unique(z)
         Xmat = rng.reshape(len(zvec),len(rngvec))
         Zmat = z.reshape(len(zvec),len(rngvec))
-        Ne = iono.Param_List[:,:,lag].reshape(len(zvec),len(rngvec),nt).real
+        Ne = iono.Param_List[:,:,lag].reshape(len(zvec),len(rngvec),nt).real*ne_red
     imcount=0
     filetemplate = 'acflag{0}'.format(lag)
 
@@ -518,7 +517,7 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',lag
             
         cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
         cb1.ax.xaxis.set_label_position('top')
-        cb1.ax.set_xlabel(r'$N_e$ in m$^{-3}$')
+        cb1.ax.set_xlabel(r'$N_e$ $(10^{10}$m$^{-3})$')
         cb1.locator = tick_locator
         cb1.update_ticks()
         plt.tight_layout()
@@ -725,7 +724,7 @@ def plotsampling(testdir,outfile,wtimes=False):
     zvec = sp.unique(z)
     rngmat = rng.reshape(len(zvec),len(rngvec))
     zmat = z.reshape(len(zvec),len(rngvec))
-    Ne = Iono1.data['Ne'].reshape(len(zvec),len(rngvec),nt)
+    Ne = Iono1.data['Ne'].reshape(len(zvec),len(rngvec),nt)*ne_red
 
 
     itimen=0
@@ -754,7 +753,7 @@ def plotsampling(testdir,outfile,wtimes=False):
     
     cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
     cb1.ax.xaxis.set_label_position('top')
-    cb1.ax.set_xlabel(r'$N_e$ in m$^{-3}$',fontsize=fscb)
+    cb1.ax.set_xlabel(r'$N_e$ $(10^{10}$m$^{-3})$',fontsize=fscb)
     cb1.locator = tick_locator
     cb1.update_ticks()
     plot1 = avec[0].plot(rout,zout,'w.',markersize=3)
