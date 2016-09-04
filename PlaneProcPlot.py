@@ -19,7 +19,6 @@ from RadarDataSim.IonoContainer import IonoContainer, makeionocombined
 from RadarDataSim.utilFunctions import readconfigfile
 from GeoData.GeoData import GeoData
 from GeoData.utilityfuncs import readIono
-from GeoData.plotting import insertinfo
 
 
 defmap = 'viridis'# color map
@@ -179,9 +178,9 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
     Iono1 = GeoData(readIono,[iono])
     nt = Iono1.times.shape[0]
     if Iono1.coordnames.lower()=='spherical':
-        rngrdr =Iono1.dataloc[:,0]
+        rngrdr =Iono1.dataloc[:,0].astype('float32')
         sign1 = sp.sign(Iono1.dataloc[:,1])
-        el = Iono1.dataloc[:,2]
+        el = Iono1.dataloc[:,2].astype('float32')
         elvec,elinv = sp.unique(el,return_inverse=True)
         nbeams = len(elvec)
         nrg = len(rngrdr)/nbeams
@@ -196,8 +195,8 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
         Te = Iono1.data['Te'].reshape(nrg,nbeams,nt)
         Ti = Iono1.data['Ti'].reshape(nrg,nbeams,nt)
     elif Iono1.coordnames.lower()=='cartesian':
-        rng = sp.sqrt(Iono1.dataloc[:,0]**2+Iono1.dataloc[:,1]**2)*sp.sign(Iono1.dataloc[:,1])
-        z = Iono1.dataloc[:,2]
+        rng = sp.sqrt(Iono1.dataloc[:,0]**2+Iono1.dataloc[:,1]**2)*sp.sign(Iono1.dataloc[:,1]).astype('float32')
+        z = Iono1.dataloc[:,2].astype('float32')
         rngvec = sp.unique(rng)
         zvec = sp.unique(z)
         Xmat = rng.reshape(len(zvec),len(rngvec))
@@ -319,9 +318,9 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
     filename = os.path.join(testdir,fitpath,fitfile)
     iono = IonoContainer.readh5(filename)
     Iono1 = GeoData(readIono,[iono])
-    rngrdr =Iono1.dataloc[:,0]
+    rngrdr =Iono1.dataloc[:,0].astype('float32')
     sign1 = sp.sign(Iono1.dataloc[:,1])
-    el = Iono1.dataloc[:,2]
+    el = Iono1.dataloc[:,2].astype('float32')
     elvec,elinv = sp.unique(el,return_inverse=True)
     nbeams = len(elvec)
     nrg = len(rngrdr)/nbeams
@@ -453,9 +452,9 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',lag
     iono = IonoContainer.readh5(filename)
     nt = iono.Time_Vector.shape[0]
     if set(iono.Coord_Vecs)=={'r','theta','phi'}:
-        rngrdr =iono.Sphere_Coords[:,0]
+        rngrdr =iono.Sphere_Coords[:,0].astype('float32')
         sign1 = sp.sign(iono.Sphere_Coords[:,1])
-        el = iono.Sphere_Coords[:,2]
+        el = iono.Sphere_Coords[:,2].astype('float32')
         elvec,elinv = sp.unique(el,return_inverse=True)
         nbeams = len(elvec)
         nrg = len(rngrdr)/nbeams
@@ -468,8 +467,8 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',lag
         Zmat = Rngrdrmat*sp.sin(Elmat*sp.pi/180.)
         Ne = iono.Param_List[:,:,lag].reshape(nrg,nbeams,nt).real*ne_red
     elif set(iono.Coord_Vecs)=={'x','y','z'}:
-        rng = sp.sqrt(iono.Cart_Coords[:,0]**2+iono.Cart_Coords[:,1]**2)*sp.sign(iono.Cart_Coords[:,1])
-        z = iono.Cart_Coords[:,2]
+        rng = sp.sqrt(iono.Cart_Coords[:,0]**2+iono.Cart_Coords[:,1]**2)*sp.sign(iono.Cart_Coords[:,1]).astype('float32')
+        z = iono.Cart_Coords[:,2].astype('float32')
         rngvec = sp.unique(rng)
         zvec = sp.unique(z)
         Xmat = rng.reshape(len(zvec),len(rngvec))
@@ -718,8 +717,8 @@ def plotsampling(testdir,outfile,wtimes=False):
     rout=sp.sqrt(xout**2+yout**2)
     Iono1 = GeoData(readIono,[iono])
     nt = Iono1.times.shape[0]
-    rng = sp.sqrt(Iono1.dataloc[:,0]**2+Iono1.dataloc[:,1]**2)*sp.sign(Iono1.dataloc[:,1])
-    z = Iono1.dataloc[:,2]
+    rng = sp.sqrt(Iono1.dataloc[:,0]**2+Iono1.dataloc[:,1]**2)*sp.sign(Iono1.dataloc[:,1]).astype('float32')
+    z = Iono1.dataloc[:,2].astype('float32')
     rngvec = sp.unique(rng)
     zvec = sp.unique(z)
     rngmat = rng.reshape(len(zvec),len(rngvec))
