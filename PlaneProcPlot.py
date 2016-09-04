@@ -23,7 +23,7 @@ from GeoData.utilityfuncs import readIono
 
 defmap = 'viridis'# color map
 fs=18# fontsize
-fscb=14
+fscb=12
 lw=4 #line width
 ne_red=1e-10
 nemin,nemax=[0.*ne_red,3e11*ne_red]
