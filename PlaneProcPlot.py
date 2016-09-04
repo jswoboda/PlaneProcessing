@@ -746,13 +746,13 @@ def plotsampling(testdir,outfile,wtimes=False):
     avec[0].set_xlim(xlim)
     avec[0].set_ylim(ylim)
     
-
+    necbarstr='$N_e$$(10^{10}$m$^{-3})$'
    #pc1.set_norm(colors.LogNorm(vmin=5e8,vmax=5e12))
     tick_locator = ticker.MaxNLocator(nbins=5)
     
     cb1 = plt.colorbar(pc1, ax=avec[0])
     cb1.ax.xaxis.set_label_position('top')
-    cb1.ax.set_xlabel(r'$N_e$\n$(10^{10}$m$^{-3})$',fontsize=fscb)
+    cb1.ax.set_xlabel(necbarstr,fontsize=fscb)
     cb1.locator = tick_locator
     cb1.update_ticks()
     plot1 = avec[0].plot(rout,zout,'w.',markersize=3)
