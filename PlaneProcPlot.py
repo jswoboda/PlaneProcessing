@@ -24,6 +24,7 @@ from GeoData.plotting import insertinfo
 
 defmap = 'viridis'# color map
 fs=18# fontsize
+fscb=14
 lw=4 #line width
 nemin,nemax=[0.,3e11]
 temin,temax=[0,4e3]
@@ -112,7 +113,7 @@ def plotinputdata(testdir,imgdir,wtimes=False):
             
             cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
             cb1.ax.xaxis.set_label_position('top')
-            cb1.ax.set_xlabel(r'$N_e$ in m$^{-3}$')
+            cb1.ax.set_xlabel(r'$N_e$ in m$^{-3}$',fontsize=fscb)
             cb1.locator = tick_locator
             cb1.update_ticks()
             if allparams:
@@ -127,9 +128,10 @@ def plotinputdata(testdir,imgdir,wtimes=False):
 
                 cb2 = plt.colorbar(pc2, ax=avec[1],format='%.0d')
                 cb2.ax.xaxis.set_label_position('top')
-                cb2.ax.set_xlabel(r'$T_e$ in $^{\circ}$K')
+                cb2.ax.set_xlabel(r'$T_e$ in $^{\circ}$K',fontsize=fscb)
                 cb2.locator = tick_locator
                 cb2.update_ticks()
+                
                 plt.sca(avec[2])
                 plt.xticks(xticks)
                 plt.tick_params(labelsize=16)
@@ -141,7 +143,7 @@ def plotinputdata(testdir,imgdir,wtimes=False):
 
                 cb3 = plt.colorbar(pc3, ax=avec[2],format='%.0d')
                 cb3.ax.xaxis.set_label_position('top')
-                cb3.ax.set_xlabel(r'$$T_i$ in ^{\circ}$K')
+                cb3.ax.set_xlabel(r'$$T_i$ in ^{\circ}$K',fontsize=fscb)
                 cb3.locator = tick_locator
                 cb3.update_ticks()
             plt.tight_layout()
@@ -244,8 +246,13 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
         avec[0].set_xlim(xlim)
         avec[0].set_ylim(ylim)
         avec[0].set_title('Electron Density',fontsize=fs)
+        tick_locator = ticker.MaxNLocator(nbins=5)
+            
         cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
-        cb1.ax.set_xlabel(r'm$^{-3}$',fontsize=14)
+        cb1.ax.xaxis.set_label_position('top')
+        cb1.ax.set_xlabel(r'$N_e$ in m$^{-3}$')
+        cb1.locator = tick_locator
+        cb1.update_ticks()
         if allparams:
 
             
@@ -368,8 +375,13 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
         avec[0].set_xlim(xlim)
         avec[0].set_ylim(ylim)
         avec[0].set_title('Electron Density Error',fontsize=fs)
+        tick_locator = ticker.MaxNLocator(nbins=5)
+            
         cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
-        cb1.ax.set_xlabel(r'm$^{-3}$',fontsize=14)
+        cb1.ax.xaxis.set_label_position('top')
+        cb1.ax.set_xlabel(r'$N_e$ in m$^{-3}$')
+        cb1.locator = tick_locator
+        cb1.update_ticks()
         if allparams:
 
             
@@ -490,9 +502,13 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',lag
         avec[0].set_xlim(xlim)
         avec[0].set_ylim(ylim)
         avec[0].set_title('Electron Density',fontsize=fs)
+        tick_locator = ticker.MaxNLocator(nbins=5)
+            
         cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
-        cb1.ax.set_xlabel(r'm$^{-3}$',fontsize=14)
-        
+        cb1.ax.xaxis.set_label_position('top')
+        cb1.ax.set_xlabel(r'$N_e$ in m$^{-3}$')
+        cb1.locator = tick_locator
+        cb1.update_ticks()
         plt.tight_layout()
         
 #            ims.append([pc1,pc2])
@@ -728,8 +744,14 @@ def plotsampling(testdir,outfile,wtimes=False):
     avec[1].set_ylabel('Alt in km',fontsize=fs)
 
    #pc1.set_norm(colors.LogNorm(vmin=5e8,vmax=5e12))
+    tick_locator = ticker.MaxNLocator(nbins=5)
+    
     cb1 = plt.colorbar(pc1, ax=avec[0],format='%.1e')
-    cb1.ax.set_xlabel(r'm$^{-3}$')
+    cb1.ax.xaxis.set_label_position('top')
+    cb1.ax.set_xlabel(r'$N_e$ in m$^{-3}$')
+    cb1.locator = tick_locator
+    cb1.update_ticks()
+
 
     plt.tight_layout()
     if wtimes:
