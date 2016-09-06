@@ -91,12 +91,12 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
         
     for itimen, itime in enumerate(time_out):
         print('Making Outtime {0:d} of {1:d}'.format(itimen+1,len(time_out)))
-        allovers=overlaps[itimen]
-        curintimes=[i[0] for i in allovers]
+        #allovers=overlaps[itimen]
+        #curintimes=[i[0] for i in allovers]
         #for it_in_n,it in enumerate(curintimes):
-        print('\t Making Intime {0:d} of {1:d}'.format(it_in_n+1,len(curintimes)))
+        #print('\t Making Intime {0:d} of {1:d}'.format(it_in_n+1,len(curintimes)))
         #A=RSTO.RSTMat[itimen*nlout:(itimen+1)*nlout,it*nlin:(it+1)*nlin]
-        RSTO.RSTMat[itimen*nlout:(itimen+1)*nlout,itimen*nlin:(itimen+1)*nlin]
+        A=RSTO.RSTMat[itimen*nlout:(itimen+1)*nlout,itimen*nlin:(itimen+1)*nlin]
         Acvx=cvx.Constant(A[:,keeplist])
         for ip in range(np):
             alpha=alpha_list[ip]
