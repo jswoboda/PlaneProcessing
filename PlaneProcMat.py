@@ -93,47 +93,50 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
         print('Making Outtime {0:d} of {1:d}'.format(itimen+1,len(time_out)))
         allovers=overlaps[itimen]
         curintimes=[i[0] for i in allovers]
-        for it_in_n,it in enumerate(curintimes):
-            print('\t Making Intime {0:d} of {1:d}'.format(it_in_n+1,len(curintimes)))
-            A=RSTO.RSTMat[itimen*nlout:(itimen+1)*nlout,it*nlin:(it+1)*nlin]
-            Acvx=cvx.Constant(A[:,keeplist])
-            for ip in range(np):
-                alpha=alpha_list[ip]
-                print('\t\t Making Lag {0:d} of {1:d}'.format(ip+1,np))
-                b=Iono.Param_List[:,itimen,ip]
-                xr=cvx.Variable(nlin_red)
-                xi=cvx.Variable(nlin_red)
-                if invtype.lower()=='tik':
-                    constr=alpha*cvx.norm(xr,2)
-                    consti=alpha*cvx.norm(xi,2)
-                elif invtype.lower()=='tikd':
-                    constr=alpha*cvx.norm(D*xr,2)
-                    consti=alpha*cvx.norm(D*xi,2)
-                elif invtype.lower()=='tv':
-                    constr=alpha*cvx.norm(D*xr,1)
-                    consti=alpha*cvx.norm(D*xi,1)
-                br=b.real
-                bi=b.imag
-                if ip==0:
-                    objective=cvx.Minimize(cvx.norm(Acvx*xr-br,2)+constr)
-                    constraints= [xr>=0]
-                    prob=cvx.Problem(objective)
-                    result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True)
-                    new_params[keeplog,it,ip]=xr.value.flatten()
-                else:
-                    objective=cvx.Minimize(cvx.norm(Acvx*xr-br,2)+constr)
-                    prob=cvx.Problem(objective)
-                    result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True)
-                    
-                    objective=cvx.Minimize(cvx.norm(Acvx*xi-bi,2)+consti)
-                    prob=cvx.Problem(objective)
-                    result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True)
-                    xcomp=xr.value.flatten()+1j*xi.value.flatten()
-                    new_params[keeplog,it,ip]=xcomp
-                # set up nans                    
-                new_params[sp.logical_not(keeplog),it]=sp.nan
+        #for it_in_n,it in enumerate(curintimes):
+        print('\t Making Intime {0:d} of {1:d}'.format(it_in_n+1,len(curintimes)))
+        #A=RSTO.RSTMat[itimen*nlout:(itimen+1)*nlout,it*nlin:(it+1)*nlin]
+        RSTO.RSTMat[itimen*nlout:(itimen+1)*nlout,itimen*nlin:(itimen+1)*nlin]
+        Acvx=cvx.Constant(A[:,keeplist])
+        for ip in range(np):
+            alpha=alpha_list[ip]
+            print('\t\t Making Lag {0:d} of {1:d}'.format(ip+1,np))
+            b=Iono.Param_List[:,itimen,ip]
+            xr=cvx.Variable(nlin_red)
+            xi=cvx.Variable(nlin_red)
+            if invtype.lower()=='tik':
+                constr=alpha*cvx.norm(xr,2)
+                consti=alpha*cvx.norm(xi,2)
+            elif invtype.lower()=='tikd':
+                constr=alpha*cvx.norm(D*xr,2)
+                consti=alpha*cvx.norm(D*xi,2)
+            elif invtype.lower()=='tv':
+                constr=alpha*cvx.norm(D*xr,1)
+                consti=alpha*cvx.norm(D*xi,1)
+            br=b.real
+            bi=b.imag
+            if ip==0:
+                objective=cvx.Minimize(cvx.norm(Acvx*xr-br,2)+constr)
+                constraints= [xr>=0]
+                prob=cvx.Problem(objective)
+                result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True)
+#                    new_params[keeplog,it,ip]=xr.value.flatten()
+                new_params[keeplog,itimen,ip]=xr.value.flatten()
+            else:
+                objective=cvx.Minimize(cvx.norm(Acvx*xr-br,2)+constr)
+                prob=cvx.Problem(objective)
+                result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True)
+                
+                objective=cvx.Minimize(cvx.norm(Acvx*xi-bi,2)+consti)
+                prob=cvx.Problem(objective)
+                result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True)
+                xcomp=xr.value.flatten()+1j*xi.value.flatten()
+#                    new_params[keeplog,it,ip]=xcomp
+                new_params[keeplog,itimen,ip]=xcomp
+            # set up nans                    
+            new_params[sp.logical_not(keeplog),it]=sp.nan
 
-    ionoout=IonoContainer(coordlist=RSTO.Cart_Coords_In,paramlist=new_params,times = time_in,sensor_loc = sp.zeros(3),ver =0,coordvecs =
+    ionoout=IonoContainer(coordlist=RSTO.Cart_Coords_In,paramlist=new_params,times = time_out,sensor_loc = sp.zeros(3),ver =0,coordvecs =
         ['x','y','z'],paramnames=Iono.Param_Names)
     return ionoout
     
