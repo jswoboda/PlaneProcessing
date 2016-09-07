@@ -501,10 +501,8 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',lag
 
         
         fig ,axmat= plt.subplots(nrows=1,ncols=ncols,facecolor='w',figsize=figsize,sharey=True)
-        if allparams:
-            avec=axmat.flatten()
-        else:
-            avec=[axmat]
+
+        avec=[axmat]
 
         plt.sca(avec[0])
         avec[0].set_xlabel('X Plane in km',fontsize=fs)

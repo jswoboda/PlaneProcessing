@@ -85,7 +85,7 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
     dy_red=dy[keeplist][:,keeplist]
     D=sp.sparse.vstack((dx_red,dy_red))
     # New parameter matrix
-    new_params=sp.zeros((nlin,len(time_in),np),dtype=Iono.Param_List.dtype)
+    new_params=sp.zeros((nlin,len(time_out),np),dtype=Iono.Param_List.dtype)
     if isinstance(alpha_list,numbers.Number):
         alpha_list=[alpha_list]*np
         
