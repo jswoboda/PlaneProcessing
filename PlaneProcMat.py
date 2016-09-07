@@ -202,7 +202,7 @@ def mkalphalist(pnamefile):
 def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
     
 
-    alpha_sweep=sp.logspace(-4,1.5,30)
+    alpha_sweep=sp.logspace(-3,1.5,25)
     costdir = os.path.join(basedir,'Cost')
     ionoinfname=os.path.join(basedir,acfdir,'00lags.h5')
     ionoin=IonoContainer.readh5(ionoinfname)
@@ -228,7 +228,7 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
     for iloc,locarr in enumerate(acfin):
         for itime,acfarr in enumerate(locarr):
             acfin_amb[iloc,itime]=sp.dot(ambmat,acfarr)
-            
+    acfin_amb=acfin_amb[:,0]
     if not os.path.isdir(costdir):
         os.mkdir(costdir)
     # pickle file stuff 
@@ -252,10 +252,10 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
     
     for i in alpha_list_new:
         ionoout=invertRSTO(RSTO,ionoin,alpha_list=i,invtype=invtype)
-        acfout=ionoout.Param_List
+        acfout=ionoout.Param_List[:,0]
         alpha_list.append(i)
         outdata=sp.power(sp.absolute(acfout-acfin_amb)/sp.absolute(acfin_amb),2)
-        aveerror=sp.nanmean(sp.nanmean(outdata,axis=0),axis=0)
+        aveerror=sp.nanmean(outdata,axis=0)
         errorlaglist.append(aveerror)
         errorlist.append(sp.nansum(aveerror))
         
@@ -432,7 +432,7 @@ if __name__== '__main__':
         if plotboolin:
             plotinputdata(ibase,os.path.join(ibase,'Inputimages'),wtimes)
         if plotboolout:
-            plotoutput(ibase,os.path.join(ibase,'fittedimagesmat'),configfile,wtimes,fitpath='FittedMat')
+            #plotoutput(ibase,os.path.join(ibase,'fittedimagesmat'),configfile,wtimes,fitpath='FittedMat')
             plotoutput(ibase,os.path.join(ibase,'fittedimages{}'.format(invtype)),configfile,wtimes,fitpath='FittedInv')
         if ploterror:
             ploterrors(ibase,os.path.join(ibase,'fittederroronlyimages'),configfile,wtimes,fitpath='FittedMat')
