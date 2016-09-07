@@ -134,7 +134,7 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
 #                    new_params[keeplog,it,ip]=xcomp
                 new_params[keeplog,itimen,ip]=xcomp
             # set up nans                    
-            new_params[sp.logical_not(keeplog),it]=sp.nan
+            new_params[sp.logical_not(keeplog),itimen]=sp.nan
 
     ionoout=IonoContainer(coordlist=RSTO.Cart_Coords_In,paramlist=new_params,times = time_out,sensor_loc = sp.zeros(3),ver =0,coordvecs =
         ['x','y','z'],paramnames=Iono.Param_Names)
