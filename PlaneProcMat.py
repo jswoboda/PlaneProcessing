@@ -262,6 +262,7 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
     pickleFile = open(pname, 'wb')
     pickle.dump([alpha_list,errorlist,errorlaglist],pickleFile)
     pickleFile.close()
+    mkalphalist(pname)
     alphaarr=sp.array(alpha_list)
     errorarr=sp.array(errorlist)
     errorlagarr=sp.array(errorlaglist)
