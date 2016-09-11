@@ -148,8 +148,22 @@ def translatemat(datadir,outputdir):
         curiono=IonoContainer.readmat(ifile)
         curfile=os.path.join(outputdir,f2list[i]+'.h5')
         curiono.saveh5(curfile)
-        
 
+def speedup(datadir,outputdir,s=5.):
+    ext='.h5'
+    ionocontlist = glob.glob(os.path.join(datadir,'*'+ext))
+    (sortlist,outime,fileslist,timebeg,timelist_s)=IonoContainer.gettimes(ionocontlist)
+    
+    mintime=timebeg.min()
+    
+    for i in ionocontlist:
+        curiono=IonoContainer.readh5(i)
+        curiono.Time_Vector=(curiono.Time_Vector.astype(float)-mintime)/s
+        curiono.Velocity=curiono.Velocity*s
+        fname='{0:05d}.h5'.format(int(curiono.Time_Vector[0,0]))
+        curfile=os.path.join(outputdir,fname)
+        curiono.saveh5(curfile)
+#%% 
 def runradarsims(testpath,funcnamelist=['spectrums','radardata','fitting'],configfile = 'planeproc2.ini',remakealldata=False,fittimes=None,invtype=''):
     """ This will run the radar simulations for all the selected data sets"""
     origparamsdir = os.path.join(testpath,'Origparams')
