@@ -168,7 +168,7 @@ def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
     else:
         rbounds=[0,500]
     ionoout=invertRSTO(RSTO,ionoin,alpha_list=alpha_arr,invtype=invtype,rbounds=rbounds)
-    outfile=os.path.join(basedir,'ACFInv','00lags.h5')
+    outfile=os.path.join(basedir,'ACFInv','00lags{0}.h5'.format(invtype))
     ionoout.saveh5(outfile)
     if acfdir=='ACF':
         lagsDatasum=ionoout.Param_List
@@ -177,7 +177,7 @@ def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
         Nlags=lagsDatasum.shape[-1]
         pulses_s=RSTO.simparams['Tint']/RSTO.simparams['IPP']
         Ctt=makeCovmat(lagsDatasum,lagsNoisesum,pulses_s,Nlags)
-        outfile=os.path.join(basedir,'ACFInv','00sigs.h5')
+        outfile=os.path.join(basedir,'ACFInv','00sigs{0}.h5'.format(invtype))
         ionoout.Param_List=Ctt
         ionoout.Param_Names=sp.repeat(ionoout.Param_Names[:,sp.newaxis],Nlags,axis=1)
         ionoout.saveh5(outfile)
@@ -412,6 +412,7 @@ if __name__== '__main__':
     plotboolin = False
     plotboolout= False
     ploterror=False
+    plotmat=False
     if 'plotting' in funcnamelist:
         plotboolin=True
         plotboolout=True
@@ -426,6 +427,9 @@ if __name__== '__main__':
     if 'plottingerror' in funcnamelist:
         ploterror=True
         funcnamelist.remove('plottingerror')
+    if 'plottingmat' in funcnamelist:
+        plotmat=True
+        funcnamelist.remove('plottingmat')
     for ibase in basedirlist:
         if len(funcnamelist)>0:
             runradarsims(ibase,funcnamelist,configfile,remakealldata,fittimes,invtype)
@@ -433,8 +437,10 @@ if __name__== '__main__':
         if plotboolin:
             plotinputdata(ibase,os.path.join(ibase,'Inputimages'),wtimes)
         if plotboolout:
-            #plotoutput(ibase,os.path.join(ibase,'fittedimagesmat'),configfile,wtimes,fitpath='FittedMat')
+            #
             plotoutput(ibase,os.path.join(ibase,'fittedimages{}'.format(invtype)),configfile,wtimes,fitpath='FittedInv')
+        if plotmat:
+            plotoutput(ibase,os.path.join(ibase,'fittedimagesmat'),configfile,wtimes,fitpath='FittedMat')
         if ploterror:
             ploterrors(ibase,os.path.join(ibase,'fittederroronlyimages'),configfile,wtimes,fitpath='FittedMat')
             #save2dropbox(ibase)
