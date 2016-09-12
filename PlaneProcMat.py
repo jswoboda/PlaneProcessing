@@ -160,15 +160,18 @@ def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
     Ionolist = [dirlist[ikey] for ikey in listorder]
     if acfdir.lower()=='acf':
         mattype='sim'
+        acfloc='ACFInv'
     elif acfdir.lower()=='acfmat':
         mattype='matrix'
+        acfloc='ACFMatInv'
     RSTO = RadarSpaceTimeOperator(Ionolist,configfile,timevector,mattype=mattype)  
     if 'perryplane' in basedir.lower():
         rbounds=[-500,500]
     else:
         rbounds=[0,500]
+    
     ionoout=invertRSTO(RSTO,ionoin,alpha_list=alpha_arr,invtype=invtype,rbounds=rbounds)
-    outfile=os.path.join(basedir,'ACFInv','00lags{0}.h5'.format(invtype))
+    outfile=os.path.join(basedir,acfloc,'00lags{0}.h5'.format(invtype))
     ionoout.saveh5(outfile)
     if acfdir=='ACF':
         lagsDatasum=ionoout.Param_List
@@ -177,7 +180,7 @@ def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
         Nlags=lagsDatasum.shape[-1]
         pulses_s=RSTO.simparams['Tint']/RSTO.simparams['IPP']
         Ctt=makeCovmat(lagsDatasum,lagsNoisesum,pulses_s,Nlags)
-        outfile=os.path.join(basedir,'ACFInv','00sigs{0}.h5'.format(invtype))
+        outfile=os.path.join(basedir,acfloc,'00sigs{0}.h5'.format(invtype))
         ionoout.Param_List=Ctt
         ionoout.Param_Names=sp.repeat(ionoout.Param_Names[:,sp.newaxis],Nlags,axis=1)
         ionoout.saveh5(outfile)
