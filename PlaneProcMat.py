@@ -159,11 +159,12 @@ def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
     (listorder,timevector,filenumbering,timebeg,time_s) = IonoContainer.gettimes(dirlist)
     Ionolist = [dirlist[ikey] for ikey in listorder]
     if acfdir.lower()=='acf':
-        mattype='sim'
+        
         acfloc='ACFInv'
     elif acfdir.lower()=='acfmat':
         mattype='matrix'
         acfloc='ACFMatInv'
+    mattype='sim'
     RSTO = RadarSpaceTimeOperator(Ionolist,configfile,timevector,mattype=mattype)  
     if 'perryplane' in basedir.lower():
         rbounds=[-500,500]
@@ -217,7 +218,7 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
     (listorder,timevector,filenumbering,timebeg,time_s) = IonoContainer.gettimes(dirlist)
     Ionolist = [dirlist[ikey] for ikey in listorder]
     
-    RSTO = RadarSpaceTimeOperator(Ionolist,configfile,timevector)
+    RSTO = RadarSpaceTimeOperator(Ionolist,configfile,timevector,mattype='Sim')
     
     
     ionospec=makeionocombined(dirlist)
@@ -358,7 +359,7 @@ if __name__== '__main__':
     p.add_argument("-l", "--linewid",help='Line Width in number of Samples.',default=1)
     p.add_argument('-m', "--mult", help="Multiplication of enhancement.", default=5.)
     p.add_argument('-w', "--wtimes", help="Put times at top of plots.",default='n')
-    p.add_argument('-k', "--ktype",help='The type of constraint can be tik tikd tv.',default='tik')
+    p.add_argument('-k', "--ktype",help='The type of constraint can be tik tikd tv.',default='')
     p.add_argument('-a', "--acftype",help='The ACF directory that will have the inversions applied to it',default='ACFMat')
     p.add_argument('-g', "--gamma",help='The Parameter gamma for the constraints',default=1e-2)
     p.add_argument('-f','--funclist',help='Functions to be uses',nargs='+',default=['spectrums','applymat','fittingmat'])#action='append',dest='collection',default=['spectrums','radardata','fitting','analysis'])
@@ -435,13 +436,13 @@ if __name__== '__main__':
         funcnamelist.remove('plottingmat')
     for ibase in basedirlist:
         if len(funcnamelist)>0:
-            runradarsims(ibase,funcnamelist,configfile,remakealldata,fittimes,invtype)
+            runradarsims(ibase,funcnamelist,configfile,remakealldata,fittimes,invtype=invtype)
             #save2dropbox(ibase)
         if plotboolin:
             plotinputdata(ibase,os.path.join(ibase,'Inputimages'),wtimes)
         if plotboolout:
             #
-            plotoutput(ibase,os.path.join(ibase,'fittedimages{}'.format(invtype)),configfile,wtimes,fitpath='FittedInv')
+            plotoutput(ibase,os.path.join(ibase,'fittedimages{}'.format(invtype)),configfile,wtimes,fitpath='FittedInv',fitfile='fitteddata{0}.h5'.format(invtype))
         if plotmat:
             plotoutput(ibase,os.path.join(ibase,'fittedimagesmat'),configfile,wtimes,fitpath='FittedMat')
         if ploterror:

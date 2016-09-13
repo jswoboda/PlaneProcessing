@@ -194,7 +194,7 @@ def runradarsims(testpath,funcnamelist=['spectrums','radardata','fitting'],confi
         if 'mat' in ifc:
             ismat=True
             break
-    runsim.main(funcnamelist,testpath,configfile,remakealldata,fittimes)
+    runsim.main(funcnamelist,testpath,configfile,remakealldata,fittimes,invtype=invtype)
     try:
         if ismat:
             plotdir = os.path.join(testpath,'AnalysisPlots')
