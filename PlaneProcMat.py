@@ -88,7 +88,8 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
     new_params=sp.zeros((nlin,len(time_out),np),dtype=Iono.Param_List.dtype)
     if isinstance(alpha_list,numbers.Number):
         alpha_list=[alpha_list]*np
-        
+    ave_datadif=sp.zeros((len(time_out,np)))
+    ave_data_const = sp.zeros_like(ave_datadif)
     for itimen, itime in enumerate(time_out):
         print('Making Outtime {0:d} of {1:d}'.format(itimen+1,len(time_out)))
         #allovers=overlaps[itimen]
@@ -133,12 +134,25 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
                 xcomp=xr.value.flatten()+1j*xi.value.flatten()
 #                    new_params[keeplog,it,ip]=xcomp
                 new_params[keeplog,itimen,ip]=xcomp
+                
+                ave_datadif[itimen,ip]=sp.sqrt(sp.nansum(sp.power(sp.dot(A[:,keeplist],xcomp)-b,2)))
+                if invtype.lower()=='tik':
+                    sumconst=sp.sqrt(sp.nansum(sp.power(sp.absolute(xcomp),2)))
+                elif invtype.lower()=='tikd':
+                    dx=sp.dot(D,xcomp)
+                    sumconst=sp.sqrt(sp.nansum(sp.power(sp.absolute(dx),2)))
+                elif invtype.lower()=='tv':
+                    dx=sp.dot(D,xcomp)
+                    sumconst=sp.nansum(sp.absolute(dx))
+                ave_data_const[itimen,ip]=sumconst
             # set up nans                    
             new_params[sp.logical_not(keeplog),itimen]=sp.nan
-
+    datadif=sp.nanmean(ave_datadif,axis=0)
+    constval=sp.nanmean(ave_data_const,axis=0)
     ionoout=IonoContainer(coordlist=RSTO.Cart_Coords_In,paramlist=new_params,times = time_out,sensor_loc = sp.zeros(3),ver =0,coordvecs =
         ['x','y','z'],paramnames=Iono.Param_Names)
-    return ionoout
+        
+    return (ionoout,datadif,constval)
     
 def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
     """ """
@@ -171,7 +185,7 @@ def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
     else:
         rbounds=[0,500]
     
-    ionoout=invertRSTO(RSTO,ionoin,alpha_list=alpha_arr,invtype=invtype,rbounds=rbounds)
+    ionoout=invertRSTO(RSTO,ionoin,alpha_list=alpha_arr,invtype=invtype,rbounds=rbounds)[0]
     outfile=os.path.join(basedir,acfloc,'00lags{0}.h5'.format(invtype))
     ionoout.saveh5(outfile)
     if acfdir=='ACF':
@@ -190,7 +204,7 @@ def mkalphalist(pnamefile):
     
     pickleFile = open(pnamefile, 'rb')
     dictlist = pickle.load(pickleFile)
-    alpha_list,errorlist,errorlaglist=dictlist[:3]
+    alpha_list,errorlist,datadif,constdif,errorlaglist=dictlist[:5]
     
     pickleFile.close()
     os.remove(pnamefile)
@@ -200,7 +214,7 @@ def mkalphalist(pnamefile):
     errlocs=sp.argmin(errorlagarr,axis=0)
     alout=alphar[errlocs]
     pickleFile = open(pnamefile, 'wb')
-    pickle.dump([alpha_list,errorlist,errorlaglist,alout],pickleFile)
+    pickle.dump([alpha_list,errorlist,datadif,constdif,errorlaglist,alout],pickleFile)
     pickleFile.close()
     
 def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
@@ -229,6 +243,20 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
     ambmat=RSTO.simparams['amb_dict']['WttMatrix']
     np=ambmat.shape[0]
     acfin_amb=sp.zeros((nloc,ntimes,np),dtype=acfin.dtype)
+    
+    xin,yin,zin=RSTO.Cart_Coords_In.transpose()
+    z_u=sp.unique(zin)
+    rplane=sp.sqrt(xin**2+yin**2)*sp.sign(xin)
+    r_u=sp.unique(rplane)
+    n_z=z_u.size
+    n_r=r_u.size
+    dims= [n_r,n_z]
+        # set up derivative matrix
+    dx,dy=diffmat(dims)
+    dx_red=dx[keeplist][:,keeplist]
+    dy_red=dy[keeplist][:,keeplist]
+    D=sp.sparse.vstack((dx_red,dy_red))
+    
     for iloc,locarr in enumerate(acfin):
         for itime,acfarr in enumerate(locarr):
             acfin_amb[iloc,itime]=sp.dot(ambmat,acfarr)
@@ -248,6 +276,8 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
     alpha_list=[]
     errorlist=[]
     errorlaglist=[]
+    datadiflist=[]
+    constlist=[]
     
     alpha_list_new=alpha_sweep.tolist()
     for i in alpha_list:
@@ -255,7 +285,9 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
             alpha_list_new.remove(i)
     
     for i in alpha_list_new:
-        ionoout=invertRSTO(RSTO,ionoin,alpha_list=i,invtype=invtype)
+        ionoout,datadif,constdif=invertRSTO(RSTO,ionoin,alpha_list=i,invtype=invtype)
+        datadiflist.append(datadif)
+        constlist.append(constdif)
         acfout=ionoout.Param_List[:,0]
         alpha_list.append(i)
         outdata=sp.power(sp.absolute(acfout-acfin_amb)/sp.absolute(acfin_amb),2)
@@ -264,7 +296,7 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
         errorlist.append(sp.nansum(aveerror))
         
     pickleFile = open(pname, 'wb')
-    pickle.dump([alpha_list,errorlist,errorlaglist],pickleFile)
+    pickle.dump([alpha_list,errorlist,datadiflist,constlist,errorlaglist],pickleFile)
     pickleFile.close()
     mkalphalist(pname)
     alphaarr=sp.array(alpha_list)
