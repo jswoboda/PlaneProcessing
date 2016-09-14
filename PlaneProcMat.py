@@ -83,6 +83,7 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
     dx,dy=diffmat(dims)
     dx_red=dx[keeplist][:,keeplist]
     dy_red=dy[keeplist][:,keeplist]
+    # need the sparse vstack to make srue things stay sparse
     D=sp.sparse.vstack((dx_red,dy_red))
     # New parameter matrix
     new_params=sp.zeros((nlin,len(time_out),np),dtype=Iono.Param_List.dtype)
@@ -218,7 +219,14 @@ def mkalphalist(pnamefile):
     pickleFile.close()
     
 def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
-    """ This function will run the inversion numerious times with different """
+    """ This function will run the inversion numerious times with different constraint
+        parameters. This will create a directory called cost and place.
+        Input
+        basedir - The directory that holds all of the data for the simulator.
+        configfile - The ini file for the simulation.
+        acfdir - The directory within basedir that hold the acfs to be inverted.
+        invtype - The inversion method that will be tested. Can be tik, tikd, and tv.
+        """
 
     alpha_sweep=sp.logspace(-3,1.5,25)
     costdir = os.path.join(basedir,'Cost')
@@ -243,20 +251,7 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
     ambmat=RSTO.simparams['amb_dict']['WttMatrix']
     np=ambmat.shape[0]
     acfin_amb=sp.zeros((nloc,ntimes,np),dtype=acfin.dtype)
-    
-    xin,yin,zin=RSTO.Cart_Coords_In.transpose()
-    z_u=sp.unique(zin)
-    rplane=sp.sqrt(xin**2+yin**2)*sp.sign(xin)
-    r_u=sp.unique(rplane)
-    n_z=z_u.size
-    n_r=r_u.size
-    dims= [n_r,n_z]
-        # set up derivative matrix
-    dx,dy=diffmat(dims)
-    dx_red=dx[keeplist][:,keeplist]
-    dy_red=dy[keeplist][:,keeplist]
-    D=sp.sparse.vstack((dx_red,dy_red))
-    
+        
     for iloc,locarr in enumerate(acfin):
         for itime,acfarr in enumerate(locarr):
             acfin_amb[iloc,itime]=sp.dot(ambmat,acfarr)
@@ -265,14 +260,7 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
         os.mkdir(costdir)
     # pickle file stuff 
     pname=os.path.join(costdir,'cost{0}-{1}.pickle'.format(acfdir,invtype))
-#    if os.path.isfile(pname):
-#        pickleFile = open(pname, 'rb')
-#        dictlist = pickle.load(pickleFile)
-#        alpha_list,errorlist,errorlaglist=dictlist
-#        
-#        pickleFile.close()
-#        os.remove(pname)
-#    else:
+
     alpha_list=[]
     errorlist=[]
     errorlaglist=[]
@@ -309,17 +297,27 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
     
     fig,axlist=plotLcurve(alphaarr,datadif,constdif)
     fig.savefig(os.path.join(costdir,'cost{0}-{1}.png'.format(acfdir,invtype)))
+    
 def diffmat(dims,order = 'C'):
     """ This function will return a tuple of difference matricies for data from an 
         Nd array that has been rasterized. The order parameter determines whether 
         the array was rasterized in a C style (python) of FORTRAN style (MATLAB).
+        Inputs:
+            dims- A list of the size of the x,y,z.. dimensions.
+            order- Specifies the vectorization of the matrix
+        Outputs:
+            dx,dy,dy... - The finite difference operators for a vectorized array.
+                If these are to be stacked together as one big operator then
+                sp.sparse.vstack should be used.
     """
+    # flip the dimensions around
     dims=[int(i) for i in dims]
     xdim = dims[0]
     ydim = dims[1]
     dims[0]=ydim
     dims[1]=xdim
-
+    
+    
     if order.lower() == 'c':
         dims = dims[::-1]
 
