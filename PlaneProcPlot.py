@@ -530,7 +530,7 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',lag
         imcount=imcount+1
         plt.close(fig)
         
-#%% Matrix plotting
+#%% Alpha and error plotting
 def plotalphaerror(alphaarr,errorarr,errorlagarr):
     sns.set_style('whitegrid')
     sns.set_context('notebook')
@@ -569,7 +569,39 @@ def plotalphaerror(alphaarr,errorarr,errorlagarr):
         iax.legend(handlist,strlist,loc='upper right',fontsize='large')
     plt.tight_layout()
     return(fig,axlist,axmain)
+
 #%% 
+def plotLcurve(alphaarr,datadif,constdif):
+    sns.set_style('whitegrid')
+    sns.set_context('notebook')
+    Nlag=datadif.shape[-1]
+    
+    
+    nlagplot=4.
+    nrows=int(sp.ceil(float(Nlag)/(2*nlagplot)))
+    
+    fig ,axmat= plt.subplots(nrows=nrows,ncols=2,facecolor='w',figsize=(8,4*nrows),sharey=True)
+    axlist=axmat.flatten()
+    
+
+    
+    for iaxn,iax in enumerate(axlist):
+        strlist=[]
+        handlist=[]
+        for ilag in range(int(nlagplot)):
+            curlag=int(iaxn*nlagplot+ilag)
+            if curlag>=Nlag:
+                break
+            handlist.append(iax.plot(constdif[:,curlag],datadif[:,curlag])[0])
+            strlist.append('Lag {0}'.format(curlag))
+        iax.set_xscale('log')
+        iax.set_yscale('log')
+        iax.set_title('Error From Lags',fontsize=fs)
+        iax.set_ylabel(r'$Ax-b$',fontsize=fs)
+        iax.set_xlabel(r'$f(x)$',fontsize=fs)
+        iax.legend(handlist,strlist,loc='upper right',fontsize='large')
+    plt.tight_layout()
+    return(fig,axlist)
 def plotbackground(testdir,figname):
     """ Plots the background densities and temperatures"""
     

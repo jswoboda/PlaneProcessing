@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 import scipy.fftpack as scfft
 import cvxpy as cvx
 from PlaneProc import makeline, runradarsims
-from PlaneProcPlot import plotinputdata,plotoutput,ploterrors,plotalphaerror
+from PlaneProcPlot import plotinputdata,plotoutput,ploterrors,plotalphaerror,plotLcurve
 
 
 
@@ -218,7 +218,7 @@ def mkalphalist(pnamefile):
     pickleFile.close()
     
 def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
-    
+    """ This function will run the inversion numerious times with different """
 
     alpha_sweep=sp.logspace(-3,1.5,25)
     costdir = os.path.join(basedir,'Cost')
@@ -302,9 +302,13 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
     alphaarr=sp.array(alpha_list)
     errorarr=sp.array(errorlist)
     errorlagarr=sp.array(errorlaglist)
+    datadif=sp.array(datadiflist)
+    constdif=sp.array(constlist)
     fig,axlist,axmain=plotalphaerror(alphaarr,errorarr,errorlagarr)
-    fig.savefig(os.path.join(costdir,'cost{0}-{1}.png'.format(acfdir,invtype)))
+    fig.savefig(os.path.join(costdir,'lcurve{0}-{1}.png'.format(acfdir,invtype)))
     
+    fig,axlist=plotLcurve(alphaarr,datadif,constdif)
+    fig.savefig(os.path.join(costdir,'cost{0}-{1}.png'.format(acfdir,invtype)))
 def diffmat(dims,order = 'C'):
     """ This function will return a tuple of difference matricies for data from an 
         Nd array that has been rasterized. The order parameter determines whether 
