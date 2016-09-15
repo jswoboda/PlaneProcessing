@@ -89,7 +89,7 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
     new_params=sp.zeros((nlin,len(time_out),np),dtype=Iono.Param_List.dtype)
     if isinstance(alpha_list,numbers.Number):
         alpha_list=[alpha_list]*np
-    ave_datadif=sp.zeros((len(time_out,np)))
+    ave_datadif=sp.zeros((len(time_out),np))
     ave_data_const = sp.zeros_like(ave_datadif)
     for itimen, itime in enumerate(time_out):
         print('Making Outtime {0:d} of {1:d}'.format(itimen+1,len(time_out)))
