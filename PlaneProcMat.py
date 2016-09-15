@@ -92,7 +92,7 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
         alpha_list=[alpha_list]*np
     ave_datadif=sp.zeros((len(time_out),np))
     ave_data_const = sp.zeros_like(ave_datadif)
-    myconst=1e10
+    q=1e10
     for itimen, itime in enumerate(time_out):
         print('Making Outtime {0:d} of {1:d}'.format(itimen+1,len(time_out)))
         #allovers=overlaps[itimen]
@@ -105,7 +105,7 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
         for ip in range(np):
             alpha=alpha_list[ip]
             print('\t\t Making Lag {0:d} of {1:d}'.format(ip+1,np))
-            datain=Iono.Param_List[:,itimen,ip]/myconst
+            datain=Iono.Param_List[:,itimen,ip]/q
             xr=cvx.Variable(nlin_red)
             xi=cvx.Variable(nlin_red)
             if invtype.lower()=='tik':
@@ -125,7 +125,7 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
                 prob=cvx.Problem(objective)
                 result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True)
 #                    new_params[keeplog,it,ip]=xr.value.flatten()
-                xcomp=sp.array(xr.value).flatten()*myconst
+                xcomp=sp.array(xr.value).flatten()*q
             else:
                 objective=cvx.Minimize(cvx.norm(Acvx*xr-br,2)+constr)
                 prob=cvx.Problem(objective)
@@ -134,10 +134,10 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
                 objective=cvx.Minimize(cvx.norm(Acvx*xi-bi,2)+consti)
                 prob=cvx.Problem(objective)
                 result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True)
-                xcomp=sp.array(xr.value + 1j*xi.value).flatten()*myconst
+                xcomp=sp.array(xr.value + 1j*xi.value).flatten()*q
 #                    new_params[keeplog,it,ip]=xcomp
             new_params[keeplog,itimen,ip]=xcomp
-            ave_datadif[itimen,ip]=sp.sqrt(sp.nansum(sp.absolute(A[:,keeplist].dot(xcomp)-datain)**2))
+            ave_datadif[itimen,ip]=sp.sqrt(sp.nansum(sp.absolute(A[:,keeplist].dot(xcomp)-datain*q)**2))
             if invtype.lower()=='tik':
                 sumconst=sp.sqrt(sp.nansum(sp.power(sp.absolute(xcomp),2)))
             elif invtype.lower()=='tikd':
