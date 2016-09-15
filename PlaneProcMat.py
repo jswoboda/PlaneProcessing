@@ -103,7 +103,7 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
         for ip in range(np):
             alpha=alpha_list[ip]
             print('\t\t Making Lag {0:d} of {1:d}'.format(ip+1,np))
-            b=Iono.Param_List[:,itimen,ip]
+            datain=Iono.Param_List[:,itimen,ip]
             xr=cvx.Variable(nlin_red)
             xi=cvx.Variable(nlin_red)
             if invtype.lower()=='tik':
@@ -115,15 +115,15 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
             elif invtype.lower()=='tv':
                 constr=alpha*cvx.norm(D*xr,1)
                 consti=alpha*cvx.norm(D*xi,1)
-            br=b.real
-            bi=b.imag
+            br=datain.real
+            bi=datain.imag
             if ip==0:
                 objective=cvx.Minimize(cvx.norm(Acvx*xr-br,2)+constr)
                 constraints= [xr>=0]
                 prob=cvx.Problem(objective)
                 result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True)
 #                    new_params[keeplog,it,ip]=xr.value.flatten()
-                new_params[keeplog,itimen,ip]=xr.value.flatten()
+                xcomp=sp.array(xr.value).flatten()
             else:
                 objective=cvx.Minimize(cvx.norm(Acvx*xr-br,2)+constr)
                 prob=cvx.Problem(objective)
@@ -132,20 +132,19 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
                 objective=cvx.Minimize(cvx.norm(Acvx*xi-bi,2)+consti)
                 prob=cvx.Problem(objective)
                 result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True)
-                xcomp=xr.value.flatten()+1j*xi.value.flatten()
+                xcomp=sp.array(xr.value + 1j*xi.value).flatten()
 #                    new_params[keeplog,it,ip]=xcomp
-                new_params[keeplog,itimen,ip]=xcomp
-                
-                ave_datadif[itimen,ip]=sp.sqrt(sp.nansum(sp.power(sp.dot(A[:,keeplist],xcomp)-b,2)))
-                if invtype.lower()=='tik':
-                    sumconst=sp.sqrt(sp.nansum(sp.power(sp.absolute(xcomp),2)))
-                elif invtype.lower()=='tikd':
-                    dx=sp.dot(D,xcomp)
-                    sumconst=sp.sqrt(sp.nansum(sp.power(sp.absolute(dx),2)))
-                elif invtype.lower()=='tv':
-                    dx=sp.dot(D,xcomp)
-                    sumconst=sp.nansum(sp.absolute(dx))
-                ave_data_const[itimen,ip]=sumconst
+            new_params[keeplog,itimen,ip]=xcomp
+            ave_datadif[itimen,ip]=sp.sqrt(sp.nansum(sp.absolute(A[:,keeplist].dot(xcomp)-datain)**2))
+            if invtype.lower()=='tik':
+                sumconst=sp.sqrt(sp.nansum(sp.power(sp.absolute(xcomp),2)))
+            elif invtype.lower()=='tikd':
+                dx=D.dot(xcomp)
+                sumconst=sp.sqrt(sp.nansum(sp.power(sp.absolute(dx),2)))
+            elif invtype.lower()=='tv':
+                dx=D.dot(xcomp)
+                sumconst=sp.nansum(sp.absolute(dx))
+            ave_data_const[itimen,ip]=sumconst
             # set up nans                    
             new_params[sp.logical_not(keeplog),itimen]=sp.nan
     datadif=sp.nanmean(ave_datadif,axis=0)
@@ -228,7 +227,7 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
         invtype - The inversion method that will be tested. Can be tik, tikd, and tv.
         """
 
-    alpha_sweep=sp.logspace(-3,1.5,25)
+    alpha_sweep=sp.logspace(-3.5,3.5,25)
     costdir = os.path.join(basedir,'Cost')
     ionoinfname=os.path.join(basedir,acfdir,'00lags.h5')
     ionoin=IonoContainer.readh5(ionoinfname)
@@ -274,6 +273,7 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
     
     for i in alpha_list_new:
         ionoout,datadif,constdif=invertRSTO(RSTO,ionoin,alpha_list=i,invtype=invtype)
+        
         datadiflist.append(datadif)
         constlist.append(constdif)
         acfout=ionoout.Param_List[:,0]
@@ -296,7 +296,7 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
     fig.savefig(os.path.join(costdir,'lcurve{0}-{1}.png'.format(acfdir,invtype)))
     
     fig,axlist=plotLcurve(alphaarr,datadif,constdif)
-    fig.savefig(os.path.join(costdir,'cost{0}-{1}.png'.format(acfdir,invtype)))
+    fig.savefig(os.path.join(costdir,'lcurve{0}-{1}.png'.format(acfdir,invtype)))
     
 def diffmat(dims,order = 'C'):
     """ This function will return a tuple of difference matricies for data from an 
