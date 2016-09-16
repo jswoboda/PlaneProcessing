@@ -48,8 +48,8 @@ def makeline(testdir,meanaz,linewidth=1,multval = 5.,start = 450.,rng_vel = -0.5
     rvec = sp.linspace(rngart,rngend,nr+1)
     zvec = sp.linspace(0,2.*nz,nz+1)
     Rmat,Zmat = sp.meshgrid(rvec,zvec)
-    Xmat = Rmat*sp.cos(d2r*meanaz)
-    Ymat = Rmat*sp.sin(d2r*meanaz)
+    Xmat = Rmat*sp.sin(d2r*meanaz)
+    Ymat = Rmat*sp.cos(d2r*meanaz)
     coords = sp.column_stack((Xmat.flatten(),Ymat.flatten(),Zmat.flatten()))
     if rng_vel==0.:
         timevec = sp.array([0.])

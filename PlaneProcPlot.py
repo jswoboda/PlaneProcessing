@@ -597,7 +597,7 @@ def plotLcurve(alphaarr,datadif,constdif):
         iax.set_xscale('log')
         iax.set_yscale('log')
         iax.set_title('Error From Lags',fontsize=fs)
-        iax.set_ylabel(r'$\|Ax-b$\|_2',fontsize=fs)
+        iax.set_ylabel(r'$\|Ax-b\|_2$',fontsize=fs)
         iax.set_xlabel(r'$f(x)$',fontsize=fs)
         iax.legend(handlist,strlist,loc='upper right',fontsize='large')
     plt.tight_layout()

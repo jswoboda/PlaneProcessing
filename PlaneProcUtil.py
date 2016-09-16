@@ -7,7 +7,7 @@ Created on Wed Dec 30 16:20:38 2015
 import os,glob,shutil
 import numpy as np
 import scipy as sp
-import scipy.io as io
+import scipy.io as sio
 from RadarDataSim.IonoContainer import IonoContainer
 
 def changefilenames(folder,exten,inttime,filetemplate,folder2=None):
@@ -31,73 +31,91 @@ def changefilenames(folder,exten,inttime,filetemplate,folder2=None):
         shutil.copy2(curfile,newfilename)
 
 
-def convertMattsfiles(fname_list,angle,keepspec=sp.array([0,1,2,6]),offset=0.,outdir=os.getcwd()):
+def convertMattsfiles(filename,datadir,outdir,keepspec=[0,1,2,6],angle=20.5,offset=0.):
     """ 
     This function will convert a set of files from Matt Zettegrens simulator to formated h5 files that 
     RadarDataSim can read. 
     Inputs
-        fname_list - This is a list of .mat files that will be converted.
+        filename - This is a .mat file that will be converted.
+        datadir - This is the directory location of the file.
+        outdir - The directory that the data will be stored.
         angle - The angle in degrees that the thing will lie on.
         keepspec - A numpy array of numbers.
         offset - Offset of the x-axis.
         outdir - The directory this is getting saved.
     """
-    angle_r = angle*sp.pi/180.
-    if isinstance(fname_list,str):
-        fname_list=[fname_list]
+    d2r=sp.pi/180.
+    angr=d2r*angle
+    lsp=7
+    # Read in Data
+    
+    inst = sio.loadmat(os.path.join(datadir,filename))
+    xg=inst['xg'][0,0]
+    x1v = xg['xp']+offset# added to avoid gratting lobes.
+    x3v = xg['zp']
+    
+    [x1mat,x3mat] = sp.meshgrid(x1v,x3v);
+    
 
-    for ifile in fname_list:
-        dirname,fname = os.path.split(ifile)
-        origfname,ext = os.path.splitext(fname)
-        filetime= origfname.split('_')[-1]
-        outfile = os.path.join(outdir,filetime+'.h5')
+    
+    E = x1mat*sp.sin(angr)#x
+    N = x1mat*sp.cos(angr)#y
+    U = x3mat
+    lxs=x3mat.size
+    
+    Time_Vector = sp.column_stack([inst['t'],inst['t']+15])
+    ns =inst['ns']
+    print('Loaded densities...');
+    
+    ns= sp.reshape(ns,[lxs,lsp])
+    Ts =inst['Ts']
+    print('Loaded temperatures...')
+    
+    Ts=sp.reshape(Ts,[lxs,lsp])
+    vs = inst['vsx1']
+    print('Loaded parallel velocities...\n');
+    
+    # derive velocity from ExB
+    Ez,Ex=sp.gradient(-1*inst['Phi'])
+    dx=sp.diff(xg['x'].flatten())[0]
+    dEdx=Ex/dx
+    vx1=-1*dEdx/xg['Bmag']
+    # from looking at the data it seems that the velocity is off by a factor of
+    # 10.
+    vx1=vx1.flatten()/10.
+    vs=sp.reshape(vs,[lxs,lsp])
+    vs=sp.sum(ns[:,:(lsp-1)]*vs[:,:(lsp-1)],1)/ns[:,lsp-1]
+    v_e= vx1*sp.sin(angr)
+    v_n = vx1*sp.cos(angr)
+    v_u = vs
+    #change units of velocity to km/s
+    Velocity = sp.reshape(sp.column_stack([v_e,v_n,v_u]),[lxs,1,3])
+    # reduce the number of spcecies
+#    if islogical(keepspec)
+#        keepspec(end)=true;
+#        keepspecnum = sum(keepspec);
+#    elseif ~any(keepspec==numspec)
+#        keepspec = [keepspec(:),numspec];
+#        keepspecnum = length(keepspec);
+#    else
+#        keepspecnum = length(keepspec);
+#    end
+    nsout = sp.reshape(ns[:,keepspec],[lxs,1,len(keepspec)])
+    Tsout = sp.reshape(Ts[:,keepspec],[lxs,1,len(keepspec)])
+    
+    
+    
+    # Put everything in to ionocontainer structure
+    Cart_Coords = sp.column_stack([E.flatten(),N.flatten(),U.flatten()])*1e-3
 
-        matdict = io.loadmat(ifile)
-        
-        x1v=matdict['xg']['xp'][0][0]
-        x3v=matdict['xg']['zp'][0][0]
-
-        x1v=x1v+offset*1e3
-        x1mat,x3mat = sp.meshgrid(x1v,x3v)
-
-
-        E = x1mat.flatten()*sp.cos(angle_r)
-        N = x1mat.flatten()*sp.sin(angle_r)
-        U = x3mat.flatten()
-        cart_coords = sp.column_stack((E,N,U))*1e-3
-        lxs=x3mat.size
-        
-        t1 = matdict['t'][0][0]
-        Time_Vector = sp.array([[t1,t1+15]])
-        
-        ns= matdict['ns']
-        lsp = ns.shape[-1]
-        ns = ns.reshape(lxs,lsp)
-        # set up the tempretures
-        Ts = matdict['Ts']
-        Ts = Ts.reshape(lxs,lsp)
-        # Set up the velocities
-        vs= matdict['vsx1']
-        vs = vs.reshape(lxs,lsp)
-        vion=sp.sum(vs[:,:lxs-1]*ns[:,:lxs-1],1)/ns[:,-1]
-
-        # reduce the number of species
-        Ts = Ts[:,keepspec]
-        Ts = Ts[:,sp.newaxis,:]
-        ns = ns[:,keepspec]
-        ns = ns[:,sp.newaxis,:]
-
-        Param_List=sp.concatenate((ns[:,:,:,sp.newaxis],Ts[:,:,:,sp.newaxis]),3)
-        v_e = vion*sp.cos(angle_r)
-        v_n = vion*sp.sin(angle_r)
-        v_u = sp.zeros_like(v_n)
-        Velocity = sp.column_stack((v_e,v_n,v_u))
-        Velocity = Velocity[:,sp.newaxis,:]
-        Species = ['O+','NO+','N2+','O2+','N+', 'H+','e-']
-        Species = [Species[i] for i in keepspec]
-        Iono1 = IonoContainer(cart_coords,Param_List,times=Time_Vector,ver=0,species=Species,velocity=Velocity)
-        
-        Iono1.saveh5(outfile)
+    Param_List = sp.concatenate((sp.expand_dims(nsout,nsout.ndim),sp.expand_dims(Tsout,Tsout.ndim)),-1);
+    Species = sp.array(['O+','NO+','N2+','O2+','N+', 'H+','e-'])
+    Species = Species[keepspec]
+    fpart=os.path.splitext(filename)[0]
+    fout=os.path.join(outdir,fpart+'.h5')
+    ionoout=IonoContainer(Cart_Coords,Param_List,Time_Vector,ver=0,species=Species,velocity=Velocity)
+    
+    ionoout.saveh5(fout)
 if __name__== '__main__':
 
     from argparse import ArgumentParser

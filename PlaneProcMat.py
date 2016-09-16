@@ -137,14 +137,14 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
                 xcomp=sp.array(xr.value + 1j*xi.value).flatten()*q
 #                    new_params[keeplog,it,ip]=xcomp
             new_params[keeplog,itimen,ip]=xcomp
-            ave_datadif[itimen,ip]=sp.sqrt(sp.nansum(sp.absolute(A[:,keeplist].dot(xcomp)-datain*q)**2))
+            ave_datadif[itimen,ip]=sp.sqrt(sp.nansum(sp.absolute(A[:,keeplist].dot(xcomp/q)-datain)**2))
             if invtype.lower()=='tik':
-                sumconst=sp.sqrt(sp.nansum(sp.power(sp.absolute(xcomp),2)))
+                sumconst=sp.sqrt(sp.nansum(sp.power(sp.absolute(xcomp/q),2)))
             elif invtype.lower()=='tikd':
-                dx=D.dot(xcomp)
+                dx=D.dot(xcomp/q)
                 sumconst=sp.sqrt(sp.nansum(sp.power(sp.absolute(dx),2)))
             elif invtype.lower()=='tv':
-                dx=D.dot(xcomp)
+                dx=D.dot(xcomp/q)
                 sumconst=sp.nansum(sp.absolute(dx))
             ave_data_const[itimen,ip]=sumconst
             # set up nans                    
@@ -295,7 +295,7 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
     datadif=sp.array(datadiflist)
     constdif=sp.array(constlist)
     fig,axlist,axmain=plotalphaerror(alphaarr,errorarr,errorlagarr)
-    fig.savefig(os.path.join(costdir,'lcurve{0}-{1}.png'.format(acfdir,invtype)))
+    fig.savefig(os.path.join(costdir,'cost{0}-{1}.png'.format(acfdir,invtype)))
     
     fig,axlist=plotLcurve(alphaarr,datadif,constdif)
     fig.savefig(os.path.join(costdir,'lcurve{0}-{1}.png'.format(acfdir,invtype)))
