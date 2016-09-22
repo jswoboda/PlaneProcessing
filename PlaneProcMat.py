@@ -123,17 +123,17 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
                 objective=cvx.Minimize(cvx.norm(Acvx*xr-br,2)+constr)
                 constraints= [xr>=0]
                 prob=cvx.Problem(objective)
-                result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True)
+                result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True,max_iters=4000)
 #                    new_params[keeplog,it,ip]=xr.value.flatten()
                 xcomp=sp.array(xr.value).flatten()*q
             else:
                 objective=cvx.Minimize(cvx.norm(Acvx*xr-br,2)+constr)
                 prob=cvx.Problem(objective)
-                result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True)
+                result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True,max_iters=4000)
                 
                 objective=cvx.Minimize(cvx.norm(Acvx*xi-bi,2)+consti)
                 prob=cvx.Problem(objective)
-                result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True)
+                result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True,max_iters=4000)
                 xcomp=sp.array(xr.value + 1j*xi.value).flatten()*q
 #                    new_params[keeplog,it,ip]=xcomp
             new_params[keeplog,itimen,ip]=xcomp
@@ -229,7 +229,7 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
         invtype - The inversion method that will be tested. Can be tik, tikd, and tv.
         """
 
-    alpha_sweep=sp.logspace(0,6,25)
+    alpha_sweep=sp.logspace(-2.5,1.5,25)
     costdir = os.path.join(basedir,'Cost')
     ionoinfname=os.path.join(basedir,acfdir,'00lags.h5')
     ionoin=IonoContainer.readh5(ionoinfname)
