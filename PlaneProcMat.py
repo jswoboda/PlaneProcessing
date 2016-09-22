@@ -280,7 +280,7 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
         constlist.append(constdif)
         acfout=ionoout.Param_List[:,0]
         alpha_list.append(i)
-        outdata=sp.power(sp.absolute(acfout-acfin_amb)/sp.absolute(acfin_amb),2)
+        outdata=sp.power(sp.absolute(acfout-acfin_amb),2)
         aveerror=sp.nanmean(outdata,axis=0)
         errorlaglist.append(aveerror)
         errorlist.append(sp.nansum(aveerror))
