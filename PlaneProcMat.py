@@ -229,7 +229,7 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
         invtype - The inversion method that will be tested. Can be tik, tikd, and tv.
         """
 
-    alpha_sweep=sp.logspace(-2.5,1.5,25)
+    alpha_sweep=sp.logspace(-4,1.5,25)
     costdir = os.path.join(basedir,'Cost')
     ionoinfname=os.path.join(basedir,acfdir,'00lags.h5')
     ionoin=IonoContainer.readh5(ionoinfname)
@@ -281,7 +281,7 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
         acfout=ionoout.Param_List[:,0]
         alpha_list.append(i)
         outdata=sp.power(sp.absolute(acfout-acfin_amb),2)
-        aveerror=sp.nanmean(outdata,axis=0)
+        aveerror=sp.sqrt(sp.nanmean(outdata,axis=0))
         errorlaglist.append(aveerror)
         errorlist.append(sp.nansum(aveerror))
         
@@ -453,6 +453,7 @@ if __name__== '__main__':
     plotboolout= False
     ploterror=False
     plotmat=False
+    plotmatinv=False
     if 'plotting' in funcnamelist:
         plotboolin=True
         plotboolout=True
@@ -470,6 +471,9 @@ if __name__== '__main__':
     if 'plottingmat' in funcnamelist:
         plotmat=True
         funcnamelist.remove('plottingmat')
+    if 'plottingmatinv' in funcnamelist:
+        plotmatinv=True
+        funcnamelist.remove('plottingmatinv')
     for ibase in basedirlist:
         if len(funcnamelist)>0:
             runradarsims(ibase,funcnamelist,configfile,remakealldata,fittimes,invtype=invtype)
@@ -481,6 +485,8 @@ if __name__== '__main__':
             plotoutput(ibase,os.path.join(ibase,'fittedimages{}'.format(invtype)),configfile,wtimes,fitpath='FittedInv',fitfile='fitteddata{0}.h5'.format(invtype))
         if plotmat:
             plotoutput(ibase,os.path.join(ibase,'fittedimagesmat'),configfile,wtimes,fitpath='FittedMat')
+        if plotmatinv:
+            plotoutput(ibase,os.path.join(ibase,'fittedimagesmat'),configfile,wtimes,fitpath='FittedMatInv',fitfile='fitteddata{0}.h5'.format(invtype))
         if ploterror:
             ploterrors(ibase,os.path.join(ibase,'fittederroronlyimages'),configfile,wtimes,fitpath='FittedMat')
             #save2dropbox(ibase)
