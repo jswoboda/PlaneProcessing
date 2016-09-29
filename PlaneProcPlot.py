@@ -617,7 +617,8 @@ def plotbackground(testdir,figname):
     z=redcoords[:,2]
     begdata = Iono_in.Param_List[numz/2::numz]
     allni=begdata[:,0,:-1,0]
-    allti=begdata[:,0,:-1,1]    
+    allti=begdata[:,0,:-1,1]
+    T_all = begdata[:,0,:,1]    
     N_all=begdata[:,0,:,0]
     Te = begdata[:,0,-1,-1]
     Ne = begdata[:,0,-1,0]
@@ -639,10 +640,15 @@ def plotbackground(testdir,figname):
     axmat[0].set_xlim([1e2,3e11])
     axmat[0].legend(handlist,Iono_in.Species,loc='upper left',fontsize='large')
     
-    p2=axmat[1].plot(Te,z,Ti,z,linewidth=4)
+    handlist2=[]
+#    p2=axmat[1].plot(Te,z,Ti,z,linewidth=lw)
+    for i in range(len(Iono_in.Species)):
+        p1=axmat[1].plot(T_all[:,i],z,label=Iono_in.Species[i],linewidth=lw)[0]
+        handlist2.append(p1)
     axmat[1].set_title('Ion and Electron Temperatures',fontsize=fs)
     axmat[1].set_xlabel(r'Temperature in $^{\circ}$K',fontsize=fs)
-    axmat[1].legend(p2,['Te','Ti'],loc='upper left')
+    axmat[1].legend(handlist2,Iono_in.Species,loc='upper left',fontsize='large')
+#    axmat[1].legend(p2,['Te','Ti'],loc='upper left')
     
     fig.savefig(figname,dpi=300)
 def plotlines(inputlist,fitiono,alt,times,paramlist=['Ne','Te','Ti']):
