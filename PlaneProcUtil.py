@@ -8,6 +8,7 @@ import os,glob,shutil
 import numpy as np
 import scipy as sp
 import scipy.io as sio
+import pdb
 from RadarDataSim.IonoContainer import IonoContainer
 
 
@@ -33,8 +34,32 @@ def changefilenames(folder,exten,inttime,filetemplate,folder2=None):
         newfilename = os.path.join(folder2,newnames[inum])
         shutil.copy2(curfile,newfilename)
 
+#%% Translation and speed up
+def translatemat(datadir,outputdir):
+    flist=glob.glob(os.path.join(datadir,'V*.mat'))
+    f2list=[os.path.splitext(os.path.split(i)[-1])[0].split('_')[-1] for i in flist]
+    for i,ifile in enumerate(flist):
+        print 'Opening {}'.format(os.path.split(ifile)[-1])
+        curiono=IonoContainer.readmat(ifile)
+        curfile=os.path.join(outputdir,f2list[i]+'.h5')
+        curiono.saveh5(curfile)
 
-def convertMattsfiles(filename,datadir,outdir,keepspec=[0,1,2,6],angle=20.5,offset=0.):
+def speedup(datadir,outputdir,s=5.):
+    ext='.h5'
+    ionocontlist = glob.glob(os.path.join(datadir,'*'+ext))
+    (sortlist,outime,fileslist,timebeg,timelist_s)=IonoContainer.gettimes(ionocontlist)
+    
+    mintime=timebeg.min()
+    
+    for i in ionocontlist:
+        curiono=IonoContainer.readh5(i)
+        curiono.Time_Vector=(curiono.Time_Vector.astype(float)-mintime)/s
+        curiono.Velocity=curiono.Velocity*s
+        fname='{0:05d}.h5'.format(int(curiono.Time_Vector[0,0]))
+        curfile=os.path.join(outputdir,fname)
+        curiono.saveh5(curfile)
+#%% Converting files
+def convertMattsfiles(filename,datadir,outdir,keepspec=[0,1,2,6],angle=15.,offset=0.):
     """ 
     This function will convert a set of files from Matt Zettegrens simulator to formated h5 files that 
     RadarDataSim can read. 
@@ -60,23 +85,22 @@ def convertMattsfiles(filename,datadir,outdir,keepspec=[0,1,2,6],angle=20.5,offs
     [x1mat,x3mat] = sp.meshgrid(x1v,x3v);
     
 
-    
+    print('Reading {0}'.format(filename))
     E = x1mat*sp.sin(angr)#x
     N = x1mat*sp.cos(angr)#y
     U = x3mat
     lxs=x3mat.size
-    
     Time_Vector = sp.column_stack([inst['t'],inst['t']+15])
     ns =inst['ns']
-    print('Loaded densities...');
+    print('\tLoaded densities...');
     
     ns= sp.reshape(ns,[lxs,lsp])
     Ts =inst['Ts']
-    print('Loaded temperatures...')
+    print('\tLoaded temperatures...')
     
     Ts=sp.reshape(Ts,[lxs,lsp])
     vs = inst['vsx1']
-    print('Loaded parallel velocities...\n');
+    print('\tLoaded parallel velocities...\n');
     
     # derive velocity from ExB
     Ez,Ex=sp.gradient(-1*inst['Phi'])
@@ -114,11 +138,19 @@ def convertMattsfiles(filename,datadir,outdir,keepspec=[0,1,2,6],angle=20.5,offs
     Param_List = sp.concatenate((sp.expand_dims(nsout,nsout.ndim),sp.expand_dims(Tsout,Tsout.ndim)),-1);
     Species = sp.array(['O+','NO+','N2+','O2+','N+', 'H+','e-'])
     Species = Species[keepspec]
-    fpart=os.path.splitext(filename)[0]
+    Species= [i for i in Species]
+    fpart=os.path.splitext(filename)[0].split('_')[-1]
     fout=os.path.join(outdir,fpart+'.h5')
     ionoout=IonoContainer(Cart_Coords,Param_List,Time_Vector,ver=0,species=Species,velocity=Velocity)
-    
+    ionoout.Sphere_Coords[:,1]=ionoout.Sphere_Coords[:,1].astype('float32')
+    ionoout.Sphere_Coords[:,1]=ionoout.Sphere_Coords[:,1].astype('float64')
     ionoout.saveh5(fout)
+def convertMattsfiles_dir(datadir,outdir,keepspec=[0,1,2,6],angle=15.,offset=0.):
+    fnames=glob.glob(os.path.join(datadir,'2*.mat'))
+    filenames=[os.path.split(i)[-1] for i in fnames]
+    for i in filenames:
+        convertMattsfiles(i,datadir,outdir,keepspec=keepspec,angle=angle,offset=offset)
+    
 if __name__== '__main__':
 
     from argparse import ArgumentParser
