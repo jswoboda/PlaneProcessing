@@ -56,8 +56,8 @@ def makeline(testdir,meanaz,linewidth=1,multval = 5.,start = 450.,rng_vel = -0.5
     else:
         timevec = sp.linspace(0.,900.,nt)
 
-    xvel = rng_vel*sp.sin(d2r*meanaz)
-    yvel = rng_vel*sp.cos(d2r*meanaz)
+    xvel = rng_vel*sp.sin(d2r*meanaz)*1e3
+    yvel = rng_vel*sp.cos(d2r*meanaz)*1e3
 
     parammult = sp.ones_like(Rmat).astype('float64')
     paramadd =sp.zeros_like(Rmat).astype('float64')

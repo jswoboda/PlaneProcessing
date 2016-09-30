@@ -10,6 +10,9 @@ import scipy as sp
 import scipy.io as sio
 from RadarDataSim.IonoContainer import IonoContainer
 
+
+def makesimpledata():
+    
 def changefilenames(folder,exten,inttime,filetemplate,folder2=None):
     if folder2 is None:
         folder2=folder
