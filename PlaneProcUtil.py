@@ -6,14 +6,44 @@ Created on Wed Dec 30 16:20:38 2015
 """
 import os,glob,shutil
 import numpy as np
+import numpy.ma as ma
 import scipy as sp
 import scipy.io as sio
 import pdb
 from RadarDataSim.IonoContainer import IonoContainer
 
 
-def makesimpledata():
+def makesimpledata(inputfile,timevec= None,begx=0.,begz=300.,vx=500.):
+    if timevec is None:
+        timevec= sp.column_stack((sp.linspace(0,60.,4,False),sp.linspace(0,60.,4,False)))
+    d2r=sp.pi/180.
+    Iono=IonoContainer.readh5(inputfile)
+    x,y,z=Iono.Cart_Coords.transpose()
+    angr= d2r*Iono.Sphere_Coords[:,1].max()
+    r=sp.sqrt(x**2+y**2)*sp.sign(x)
+    nx=r.size
+    np=1
+    sigx=30.
+    sigz=30.
+    outdata=sp.zeros((nx,len(timevec),np))
+    vel=sp.zeros((nx,len(timevec),3))
+    for it,t in enumerate(timevec): 
+        xc=begx+vx*t[0]*1e-3
+        xwin=sp.absolute(r-xc)<sigx
+        xwin=xwin.astype(x.dtype)
+        zwin=sp.absolute(z-begz)<sigz
+        zwin=zwin.astype(z.dtype)
+        x2=sp.exp(2-1/(1-(r-xc)**2/sigx**2)-1/(1-(z-begz)**2/sigz**2))
+        xar=ma.array(x2,mask=sp.logical_not(xwin*zwin),fill_value=0.0)
+        outdata[:,it,0]=xar.filled()
+        vr=vx*zwin*xwin*sp.ones_like(zwin)
+        vel[:,it,0]=vr*sp.sin(angr)
+        vel[:,it,1]=vr*sp.cos(angr)
+    ionoout=IonoContainer(coordlist=Iono.Cart_Coords,paramlist=outdata,times = timevec,sensor_loc = sp.zeros(3),ver =0,coordvecs =
+        ['x','y','z'],paramnames=Iono.Param_Names,velocity=vel)
+    return ionoout
     
+        
 def changefilenames(folder,exten,inttime,filetemplate,folder2=None):
     if folder2 is None:
         folder2=folder

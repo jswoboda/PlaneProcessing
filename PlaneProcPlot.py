@@ -24,7 +24,7 @@ from GeoData.utilityfuncs import readIono
 defmap = 'viridis'# color map
 fs=18# fontsize
 fscb=12
-lw=4 #line width
+lw=2 #line width
 ne_red=1e-10
 nemin,nemax=[0.*ne_red,3e11*ne_red]
 temin,temax=[0,4e3]
@@ -604,7 +604,9 @@ def plotLcurve(alphaarr,datadif,constdif):
     return(fig,axlist)
 def plotbackground(testdir,figname):
     """ Plots the background densities and temperatures"""
-    
+    sns.set_style('whitegrid')
+    sns.set_context('notebook')
+    sns.color_palette("hls", 8)
     filelist = glob.glob(os.path.join(testdir,'Origparams','*.h5'))
     numlist = [os.path.splitext(os.path.split(x)[-1])[0] for x in filelist]
     numdict = {numlist[i]:filelist[i] for i in range(len(filelist))}
@@ -647,6 +649,8 @@ def plotbackground(testdir,figname):
         handlist2.append(p1)
     axmat[1].set_title('Ion and Electron Temperatures',fontsize=fs)
     axmat[1].set_xlabel(r'Temperature in $^{\circ}$K',fontsize=fs)
+    axmat[1].set_xlim([0,2e3])
+    axmat[1].set_ylim(ylim)
     axmat[1].legend(handlist2,Iono_in.Species,loc='upper left',fontsize='large')
 #    axmat[1].legend(p2,['Te','Ti'],loc='upper left')
     
