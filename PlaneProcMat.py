@@ -243,20 +243,28 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
     
     RSTO = RadarSpaceTimeOperator(Ionolist,configfile,timevector,mattype='Sim')
     
+    npts=RSTO.simparams['numpoints']
     
     ionospec=makeionocombined(dirlist)
-    tau,acfin=spect2acf(ionospec.Param_Names,ionospec.Param_List)
-    nloc,ntimes=acfin.shape[:2]
-    
+    if npts==ionospec.Param_List.shape[-1]:
+        tau,acfin=spect2acf(ionospec.Param_Names,ionospec.Param_List)
+        nloc,ntimes=acfin.shape[:2]
+        ambmat=RSTO.simparams['amb_dict']['WttMatrix']
+        np=ambmat.shape[0]
+        acfin_amb=sp.zeros((nloc,ntimes,np),dtype=acfin.dtype)
     # get the original acf
-    ambmat=RSTO.simparams['amb_dict']['WttMatrix']
-    np=ambmat.shape[0]
-    acfin_amb=sp.zeros((nloc,ntimes,np),dtype=acfin.dtype)
+    
+    
+        ambmat=RSTO.simparams['amb_dict']['WttMatrix']
+        np=ambmat.shape[0]
+            
+        for iloc,locarr in enumerate(acfin):
+            for itime,acfarr in enumerate(locarr):
+                acfin_amb[iloc,itime]=sp.dot(ambmat,acfarr)
+                acfin_amb=acfin_amb[:,0]
+    else:
+        acfin_amb=ionospec.Param_List[:,0]
         
-    for iloc,locarr in enumerate(acfin):
-        for itime,acfarr in enumerate(locarr):
-            acfin_amb[iloc,itime]=sp.dot(ambmat,acfarr)
-    acfin_amb=acfin_amb[:,0]
     if not os.path.isdir(costdir):
         os.mkdir(costdir)
     # pickle file stuff 
