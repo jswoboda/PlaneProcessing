@@ -312,6 +312,7 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
     imgdir - The directory that holds the images."""
     (sensdict,simparams)=readconfigfile(config)
     tvec = simparams['Timevec']
+    cred=3.
     if os.path.exists(imgdir):
         imgfiles = glob.glob(os.path.join(imgdir,'*.png'))
         for imgf in imgfiles:
@@ -376,7 +377,7 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
         plt.sca(avec[0])
         avec[0].set_xlabel('X Plane in km',fontsize=fs)
         avec[0].set_ylabel('Alt in km',fontsize=fs)
-        pc1 = avec[0].pcolor(Xmat,Zmat,Nemat,cmap = defmap,vmin=nemin,vmax=nemax)
+        pc1 = avec[0].pcolor(Xmat,Zmat,Nemat,cmap = defmap,vmin=nemin/cred,vmax=nemax/cred)
         plt.tick_params(labelsize=16)
         plt.xticks(xticks)
         avec[0].set_xlim(xlim)
@@ -396,10 +397,10 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
             plt.tick_params(labelsize=16)
             plt.xticks(xticks)
             avec[1].set_xlabel('X Plane in km',fontsize=fs)
-            pc2 = avec[1].pcolor(Xmat,Zmat,Temat,cmap = defmap,vmin=temin,vmax=temax)
+            pc2 = avec[1].pcolor(Xmat,Zmat,Temat,cmap = defmap,vmin=temin/cred,vmax=temax/cred)
             avec[1].set_xlim(xlim)
             avec[1].set_ylim(ylim)
-            avec[1].set_title('Electron Temperature % Error',fontsize=fs)
+            avec[1].set_title('Electron Temperature Error',fontsize=fs)
 
             cb2 = plt.colorbar(pc2, ax=avec[1])
             cb2.ax.xaxis.set_label_position('top')
@@ -410,10 +411,10 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
             plt.xticks(xticks)
             plt.tick_params(labelsize=16)
             avec[2].set_xlabel('X Plane in km',fontsize=fs)
-            pc3 = avec[2].pcolor(Xmat,Zmat,Timat,cmap = defmap,vmin=timin,vmax=timax)
+            pc3 = avec[2].pcolor(Xmat,Zmat,Timat,cmap = defmap,vmin=timin/cred,vmax=timax/cred)
             avec[2].set_xlim(xlim)
             avec[2].set_ylim(ylim)
-            avec[2].set_title('Ion Temperature % Error',fontsize=fs)
+            avec[2].set_title('Ion Temperature Error',fontsize=fs)
             #        for ax in avec:
             #            for label in (ax.get_xticklabels() + ax.get_yticklabels()):
             #                label.set_fontsize(20)
@@ -512,7 +513,7 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',lag
         plt.xticks(xticks)
         avec[0].set_xlim(xlim)
         avec[0].set_ylim(ylim)
-        avec[0].set_title('Electron Density',fontsize=fs)
+        avec[0].set_title('',fontsize=fs)
         tick_locator = ticker.MaxNLocator(nbins=5)
             
         cb1 = plt.colorbar(pc1, ax=avec[0])
