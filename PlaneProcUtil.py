@@ -15,7 +15,7 @@ from RadarDataSim.IonoContainer import IonoContainer
 
 def makesimpledata(inputfile,timevec= None,begx=0.,begz=300.,vx=500.):
     if timevec is None:
-        timevec= sp.column_stack((sp.linspace(0,60.,4,False),sp.linspace(0,60.,4,False)))
+        timevec= sp.column_stack((sp.linspace(0,60.,4,False),sp.linspace(0,60.,4,False)+15.))
     d2r=sp.pi/180.
     Iono=IonoContainer.readh5(inputfile)
     x,y,z=Iono.Cart_Coords.transpose()
@@ -39,8 +39,8 @@ def makesimpledata(inputfile,timevec= None,begx=0.,begz=300.,vx=500.):
         vr=vx*zwin*xwin*sp.ones_like(zwin)
         vel[:,it,0]=vr*sp.sin(angr)
         vel[:,it,1]=vr*sp.cos(angr)
-    ionoout=IonoContainer(coordlist=Iono.Cart_Coords,paramlist=outdata,times = timevec,sensor_loc = sp.zeros(3),ver =0,coordvecs =
-        ['x','y','z'],paramnames=Iono.Param_Names,velocity=vel)
+    ionoout=IonoContainer(coordlist=Iono.Cart_Coords,paramlist=outdata*1e10,times = timevec,sensor_loc = sp.zeros(3),ver =0,coordvecs =
+        ['x','y','z'],paramnames=sp.array(['0']),velocity=vel)
     return ionoout
     
         

@@ -454,6 +454,9 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',lag
         os.mkdir(imgdir)
     filename = os.path.join(testdir,acfpath,lagfile)
     iono = IonoContainer.readh5(filename)
+    if iono.Param_List.shape[-1]==1:
+        nemax=1e10
+        nemin=0
     nt = iono.Time_Vector.shape[0]
     if set(iono.Coord_Vecs)=={'r','theta','phi'}:
         rngrdr =iono.Sphere_Coords[:,0].astype('float32')
@@ -508,7 +511,7 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',lag
         plt.sca(avec[0])
         avec[0].set_xlabel('X Plane in km',fontsize=fs)
         avec[0].set_ylabel('Alt in km',fontsize=fs)
-        pc1 = avec[0].pcolor(Xmat,Zmat,Nemat,cmap = defmap,vmin=nemin,vmax=nemax)
+        pc1 = avec[0].pcolor(Xmat,Zmat,Nemat,cmap = defmap,vmin=nemin,vmax=nemax*ne_red)
         plt.tick_params(labelsize=16)
         plt.xticks(xticks)
         avec[0].set_xlim(xlim)
@@ -626,7 +629,8 @@ def plotbackground(testdir,figname):
     Te = begdata[:,0,-1,-1]
     Ne = begdata[:,0,-1,0]
     tini=allti*allni
-    Ti=tini.sum(-1)/Ne
+    Nisum=allni.sum(-1)
+    Ti=tini.sum(-1)/Nisum
     ncols=2
     figsize = (5*ncols,7)
     
@@ -656,6 +660,7 @@ def plotbackground(testdir,figname):
     axmat[1].legend(p2,['Te','Ti'],loc='upper left')
     
     fig.savefig(figname,dpi=300)
+    
 def plotlines(inputlist,fitiono,alt,times,paramlist=['Ne','Te','Ti']):
     """ Plots the values along a specific alittude."""
     inputiono = makeionocombined(inputlist)
@@ -718,7 +723,7 @@ def plotlines(inputlist,fitiono,alt,times,paramlist=['Ne','Te','Ti']):
     plt.tight_layout()    
     return(fig)
 
-def plotsampling(testdir,outfile,wtimes=False):
+def plotsampling(testdir,outfile, ifile=None, wtimes=False):
     """This will plot all of the input data with each time step as a pcolor images of
     electron density and ion temperature.
     Inputs
@@ -727,14 +732,22 @@ def plotsampling(testdir,outfile,wtimes=False):
 
 
 
-    filelist = glob.glob(os.path.join(testdir,'Origparams','*.h5'))
-    numlist = [os.path.splitext(os.path.split(x)[-1])[0] for x in filelist]
-    numdict = {numlist[i]:filelist[i] for i in range(len(filelist))}
-    slist = sorted(numlist,key=ke)
+  
     imcount = 0
+    if ifile is None:
+        filelist = glob.glob(os.path.join(testdir,'Origparams','*.h5'))
+        numlist = [os.path.splitext(os.path.split(x)[-1])[0] for x in filelist]
+        numdict = {numlist[i]:filelist[i] for i in range(len(filelist))}
+        slist = sorted(numlist,key=ke)
+        inumn=0
+        inum = slist[0]
+        dsetname = os.path.split(os.path.dirname(testdir))[-1]
+        print "Plotting input data for "+dsetname
+
+        print "{0} Input for {1} of {2}".format(dsetname,inumn,len(slist))
+        ifile = numdict[inum]
+        iono = IonoContainer.readh5(ifile)
     filetemplate = 'inputdata'
-    dsetname = os.path.split(os.path.dirname(testdir))[-1]
-    print "Plotting input data for "+dsetname
 
     if 'perryplane' in testdir.lower():
         xlim = [-150.,360.]
@@ -751,11 +764,10 @@ def plotsampling(testdir,outfile,wtimes=False):
     ylim = [100.,500.]
     f1 =  True
     
-    inumn=0
-    inum = slist[0]
-    print "{0} Input for {1} of {2}".format(dsetname,inumn,len(slist))
-    ifile = numdict[inum]
-    iono = IonoContainer.readh5(ifile)
+   
+    if iono.Param_List.shape[-1]==1:
+        nemax=1e10
+        nemin=0
     iono2 = IonoContainer.readh5(outfile)
     xout,yout,zout = iono2.Cart_Coords.transpose()
     rout=sp.sqrt(xout**2+yout**2)
@@ -767,8 +779,10 @@ def plotsampling(testdir,outfile,wtimes=False):
     zvec = sp.unique(z)
     rngmat = rng.reshape(len(zvec),len(rngvec))
     zmat = z.reshape(len(zvec),len(rngvec))
-    Ne = Iono1.data['Ne'].reshape(len(zvec),len(rngvec),nt)*ne_red
-
+    if 'Ne' in Iono1.data.keys():
+        Ne = Iono1.data['Ne'].reshape(len(zvec),len(rngvec),nt)*ne_red
+    elif '0' in Iono1.data.keys():
+        Ne = Iono1.data['Ne'].reshape(len(zvec),len(rngvec),nt)*ne_red
 
     itimen=0
     itime = Iono1.times[0]
@@ -786,7 +800,7 @@ def plotsampling(testdir,outfile,wtimes=False):
     plt.tick_params(labelsize=16)
     avec[0].set_xlabel('X Plane in km',fontsize=fs)
     avec[0].set_ylabel('Alt in km',fontsize=fs)
-    pc1 = avec[0].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = defmap,vmin=0.,vmax=3e11*ne_red)
+    pc1 = avec[0].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = defmap,vmin=nemin,vmax=nemax*ne_red)
     avec[0].set_xlim(xlim)
     avec[0].set_ylim(ylim)
     
