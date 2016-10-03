@@ -643,17 +643,17 @@ def plotbackground(testdir,figname):
     axmat[0].set_xlim([1e2,3e11])
     axmat[0].legend(handlist,Iono_in.Species,loc='upper left',fontsize='large')
     
-    handlist2=[]
-#    p2=axmat[1].plot(Te,z,Ti,z,linewidth=lw)
-    for i in range(len(Iono_in.Species)):
-        p1=axmat[1].plot(T_all[:,i],z,label=Iono_in.Species[i],linewidth=lw)[0]
-        handlist2.append(p1)
+#    handlist2=[]
+    p2=axmat[1].plot(Te,z,Ti,z,linewidth=lw)
+#    for i in range(len(Iono_in.Species)):
+#        p1=axmat[1].plot(T_all[:,i],z,label=Iono_in.Species[i],linewidth=lw)[0]
+#        handlist2.append(p1)
     axmat[1].set_title('Ion and Electron Temperatures',fontsize=fs)
     axmat[1].set_xlabel(r'Temperature in $^{\circ}$K',fontsize=fs)
     axmat[1].set_xlim([0,2e3])
     axmat[1].set_ylim(ylim)
-    axmat[1].legend(handlist2,Iono_in.Species,loc='upper left',fontsize='large')
-#    axmat[1].legend(p2,['Te','Ti'],loc='upper left')
+#    axmat[1].legend(handlist2,Iono_in.Species,loc='upper left',fontsize='large')
+    axmat[1].legend(p2,['Te','Ti'],loc='upper left')
     
     fig.savefig(figname,dpi=300)
 def plotlines(inputlist,fitiono,alt,times,paramlist=['Ne','Te','Ti']):
