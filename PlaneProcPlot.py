@@ -439,7 +439,7 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
         plt.close(fig)
 
 #%% 
-def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',lag=0):
+def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',filetemplate=None,lag=0):
     """This will plot all of the fitted data with each time step as a pcolor images of
     electron density and electron density from power mesurements.
     Inputs
@@ -482,7 +482,8 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',lag
         Zmat = z.reshape(len(zvec),len(rngvec))
         Ne = iono.Param_List[:,:,lag].reshape(len(zvec),len(rngvec),nt).real*ne_red
     imcount=0
-    filetemplate = 'acflag{0}'.format(lag)
+    if filetemplate is None:
+        filetemplate = 'acflag{0}'.format(lag)
 
     dsetname = os.path.split(os.path.dirname(testdir))[-1]
     print "Plotting Output data for "+dsetname
@@ -766,7 +767,7 @@ def plotsampling(testdir,outfile, ifile=None, wtimes=False):
     
    
     if iono.Param_List.shape[-1]==1:
-        nemax=1e10
+        nemax=1e10*ne_red
         nemin=0
     iono2 = IonoContainer.readh5(outfile)
     xout,yout,zout = iono2.Cart_Coords.transpose()
@@ -800,7 +801,7 @@ def plotsampling(testdir,outfile, ifile=None, wtimes=False):
     plt.tick_params(labelsize=16)
     avec[0].set_xlabel('X Plane in km',fontsize=fs)
     avec[0].set_ylabel('Alt in km',fontsize=fs)
-    pc1 = avec[0].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = defmap,vmin=nemin,vmax=nemax*ne_red)
+    pc1 = avec[0].pcolor(rngmat,zmat,Ne[:,:,itimen],cmap = defmap,vmin=nemin,vmax=nemax)
     avec[0].set_xlim(xlim)
     avec[0].set_ylim(ylim)
     
