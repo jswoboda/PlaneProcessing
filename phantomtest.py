@@ -27,11 +27,14 @@ def phantest(inputfile,outdir,configfile,timevec):
     fscb=12
     figsize = (10,7)
     ylim = [100.,500.]
-    iono1=makesimpledata(inputfile,timevec= None,begx=0.,begz=300.,vx=500.)
+    iono1=makesimpledata(inputfile,timevec= None,begx=0.,begz=300.,vx=2000.)
     iono2=iono1.deepcopy()
     iono2.Param_List[:,1:]=0.
+#    sum1=sp.sum(iono1.Param_List,axis=1)
+#    iono1.Param_List[:,:,:]=0.
+#    iono1.Param_List[:,0]=sum1
     RSTO1 = RadarSpaceTimeOperator(iono1,configfile,timevec,mattype='matrix')
-    RSTO2=RadarSpaceTimeOperator(iono1,configfile,timevec,mattype='sim')
+    RSTO2 = RadarSpaceTimeOperator(iono1,configfile,timevec,mattype='sim')
     iono1new=RSTO1.mult_iono(iono1)
     iono2new=RSTO2.mult_iono(iono2)
     
