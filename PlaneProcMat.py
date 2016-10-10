@@ -105,7 +105,7 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
         for ip in range(np):
             alpha=alpha_list[ip]
             print('\t\t Making Lag {0:d} of {1:d}'.format(ip+1,np))
-            datain=Iono.Param_List[:,itimen,ip]/q
+            datain=Iono.Param_List[:,itimen,ip]
             xr=cvx.Variable(nlin_red)
             xi=cvx.Variable(nlin_red)
             if invtype.lower()=='tik':
@@ -125,7 +125,7 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
                 prob=cvx.Problem(objective)
                 result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True,max_iters=4000)
 #                    new_params[keeplog,it,ip]=xr.value.flatten()
-                xcomp=sp.array(xr.value).flatten()*q
+                xcomp=sp.array(xr.value).flatten()
             else:
                 objective=cvx.Minimize(cvx.norm(Acvx*xr-br,2)+constr)
                 prob=cvx.Problem(objective)
@@ -134,17 +134,17 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
                 objective=cvx.Minimize(cvx.norm(Acvx*xi-bi,2)+consti)
                 prob=cvx.Problem(objective)
                 result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True,max_iters=4000)
-                xcomp=sp.array(xr.value + 1j*xi.value).flatten()*q
+                xcomp=sp.array(xr.value + 1j*xi.value).flatten()
 #                    new_params[keeplog,it,ip]=xcomp
             new_params[keeplog,itimen,ip]=xcomp
-            ave_datadif[itimen,ip]=sp.sqrt(sp.nansum(sp.absolute(A[:,keeplist].dot(xcomp/q)-datain)**2))
+            ave_datadif[itimen,ip]=sp.sqrt(sp.nansum(sp.absolute(A[:,keeplist].dot(xcomp)-datain)**2))
             if invtype.lower()=='tik':
-                sumconst=sp.sqrt(sp.nansum(sp.power(sp.absolute(xcomp/q),2)))
+                sumconst=sp.sqrt(sp.nansum(sp.power(sp.absolute(xcomp),2)))
             elif invtype.lower()=='tikd':
-                dx=D.dot(xcomp/q)
+                dx=D.dot(xcomp)
                 sumconst=sp.sqrt(sp.nansum(sp.power(sp.absolute(dx),2)))
             elif invtype.lower()=='tv':
-                dx=D.dot(xcomp/q)
+                dx=D.dot(xcomp)
                 sumconst=sp.nansum(sp.absolute(dx))
             ave_data_const[itimen,ip]=sumconst
             # set up nans                    
