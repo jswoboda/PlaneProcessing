@@ -446,16 +446,16 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',fil
     imgdir - The directory that holds the images.
     """
 
-    if os.path.exists(imgdir):
-        imgfiles = glob.glob(os.path.join(imgdir,'*.png'))
-        for imgf in imgfiles:
-            os.remove(imgf)
-    else:
+#    if os.path.exists(imgdir):
+#        imgfiles = glob.glob(os.path.join(imgdir,'*.png'))
+#        for imgf in imgfiles:
+#            os.remove(imgf)
+    if not os.path.exists(imgdir):
         os.mkdir(imgdir)
     filename = os.path.join(testdir,acfpath,lagfile)
     iono = IonoContainer.readh5(filename)
     if iono.Param_List.shape[-1]==1:
-        nemax=1e10
+        nemax=1e9
         nemin=0
     nt = iono.Time_Vector.shape[0]
     if set(iono.Coord_Vecs)=={'r','theta','phi'}:
@@ -602,7 +602,7 @@ def plotLcurve(alphaarr,datadif,constdif):
             handlist.append(iax.plot(constdif[:,curlag],datadif[:,curlag])[0])
             strlist.append('Lag {0}'.format(curlag))
         iax.set_xscale('log')
-        iax.set_yscale('log')
+        iax.set_yscale('linear')
         iax.set_title('Error From Lags',fontsize=fs)
         iax.set_ylabel(r'$\|Ax-b\|_2$',fontsize=fs)
         iax.set_xlabel(r'$f(x)$',fontsize=fs)
