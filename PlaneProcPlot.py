@@ -40,11 +40,13 @@ def ke(item):
         return float('inf')
 #%% Plot input data
 def plotinputdata(testdir,imgdir,wtimes=False):
-    """This will plot all of the input data with each time step as a pcolor images of
+    """
+    This will plot all of the input data with each time step as a pcolor images of
     electron density and ion tempreture.
     Inputs
     testdir - The directory with the input data in h5 files formated for the ionocontainer structure.
-    imgdir - The directory that holds the images."""
+    imgdir - The directory that holds the images.
+    """
 
     if os.path.exists(imgdir):
         imgfiles = glob.glob(os.path.join(imgdir,'*.png'))
@@ -163,11 +165,13 @@ def plotinputdata(testdir,imgdir,wtimes=False):
             plt.close(fig)
 #%%Plot output data
 def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitteddata.h5'):
-    """This will plot all of the fitted data with each time step as a pcolor images of
+    """
+    This will plot all of the fitted data with each time step as a pcolor images of
     electron density and electron density from power mesurements.
     Inputs
     testdir - The directory with the input data in h5 files formated for the ionocontainer structure.
-    imgdir - The directory that holds the images."""
+    imgdir - The directory that holds the images.
+    """
     (sensdict,simparams)=readconfigfile(config)
     tvec = simparams['Timevec']
     if os.path.exists(imgdir):
@@ -294,10 +298,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
         plt.tight_layout()
         if wtimes:
             plt.subplots_adjust(top=0.9)
-            spti = fig.suptitle('Parameters at {0} seconds'.format(int(tvec[itimen])),fontsize=24)
-
-#            ims.append([pc1,pc2])
-       
+            spti = fig.suptitle('Parameters at {0} seconds'.format(int(tvec[itimen])),fontsize=24)       
 
         fname= '{0:0>3}_'.format(imcount)+filetemplate+'.png'
         plt.savefig(os.path.join(imgdir,fname),dpi=300)
@@ -305,11 +306,13 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
         plt.close(fig)
 #%% Error plotting 
 def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitteddata.h5'):
-    """This will plot all of the fitted data with each time step as a pcolor images of
+    """
+    This will plot all of the fitted data with each time step as a pcolor images of
     electron density and electron density from power mesurements.
     Inputs
     testdir - The directory with the input data in h5 files formated for the ionocontainer structure.
-    imgdir - The directory that holds the images."""
+    imgdir - The directory that holds the images.
+    """
     (sensdict,simparams)=readconfigfile(config)
     tvec = simparams['Timevec']
     cred=3.
@@ -415,9 +418,6 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
             avec[2].set_xlim(xlim)
             avec[2].set_ylim(ylim)
             avec[2].set_title('Ion Temperature Error',fontsize=fs)
-            #        for ax in avec:
-            #            for label in (ax.get_xticklabels() + ax.get_yticklabels()):
-            #                label.set_fontsize(20)
 
             cb3 = plt.colorbar(pc3, ax=avec[2])
             cb3.ax.xaxis.set_label_position('top')
@@ -429,8 +429,6 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
         if wtimes:
             plt.subplots_adjust(top=0.9)
             spti = fig.suptitle('Percent Error at {0} seconds'.format(int(tvec[itimen])),fontsize=24)
-
-#            ims.append([pc1,pc2])
        
 
         fname= '{0:0>3}_'.format(imcount)+filetemplate+'.png'
@@ -440,11 +438,13 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
 
 #%% 
 def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',filetemplate=None,lag=0):
-    """This will plot all of the fitted data with each time step as a pcolor images of
+    """
+    This will plot all of the fitted data with each time step as a pcolor images of
     electron density and electron density from power mesurements.
     Inputs
     testdir - The directory with the input data in h5 files formated for the ionocontainer structure.
-    imgdir - The directory that holds the images."""
+    imgdir - The directory that holds the images.
+    """
 
     if os.path.exists(imgdir):
         imgfiles = glob.glob(os.path.join(imgdir,'*.png'))
@@ -526,9 +526,6 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',fil
         cb1.locator = tick_locator
         cb1.update_ticks()
         plt.tight_layout()
-        
-#            ims.append([pc1,pc2])
-       
 
         fname= '{0:0>3}_'.format(imcount)+filetemplate+'.png'
         plt.savefig(os.path.join(imgdir,fname),dpi=300)
@@ -537,6 +534,9 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',fil
         
 #%% Alpha and error plotting
 def plotalphaerror(alphaarr,errorarr,errorlagarr):
+    """ This will plot the error with respect then alpha parameter for the 
+        constraint. 
+    """
     sns.set_style('whitegrid')
     sns.set_context('notebook')
     Nlag=errorlagarr.shape[-1]
@@ -577,6 +577,9 @@ def plotalphaerror(alphaarr,errorarr,errorlagarr):
 
 #%% 
 def plotLcurve(alphaarr,datadif,constdif):
+    """ 
+    This will plot the L-curve for 
+    """
     sns.set_style('whitegrid')
     sns.set_context('notebook')
     Nlag=datadif.shape[-1]
@@ -588,7 +591,6 @@ def plotLcurve(alphaarr,datadif,constdif):
     fig ,axmat= plt.subplots(nrows=nrows,ncols=2,facecolor='w',figsize=(8,4*nrows),sharey=True)
     axlist=axmat.flatten()
     
-
     
     for iaxn,iax in enumerate(axlist):
         strlist=[]
@@ -607,8 +609,11 @@ def plotLcurve(alphaarr,datadif,constdif):
         iax.legend(handlist,strlist,loc='upper right',fontsize='large')
     plt.tight_layout()
     return(fig,axlist)
+    
 def plotbackground(testdir,figname):
-    """ Plots the background densities and temperatures"""
+    """ 
+    Plots the background densities and temperatures. 
+    """
     sns.set_style('whitegrid')
     sns.set_context('notebook')
     sns.color_palette("hls", 8)
@@ -663,7 +668,9 @@ def plotbackground(testdir,figname):
     fig.savefig(figname,dpi=300)
     
 def plotlines(inputlist,fitiono,alt,times,paramlist=['Ne','Te','Ti']):
-    """ Plots the values along a specific alittude."""
+    """
+    Plots the values along a specific alittude. 
+    """
     inputiono = makeionocombined(inputlist)
     Iono1 = GeoData(readIono,[inputiono])
     fitiono = IonoContainer.readh5(fitiono)
@@ -730,8 +737,6 @@ def plotsampling(testdir,outfile, ifile=None, wtimes=False):
     Inputs
     testdir - The directory with the input data in h5 files formated for the ionocontainer structure.
     imgdir - The directory that holds the images."""
-
-
 
   
     imcount = 0

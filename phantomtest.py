@@ -34,9 +34,9 @@ def phantest(inputfile,outdir,configfile,timevec):
 #    iono1.Param_List[:,:,:]=0.
 #    iono1.Param_List[:,0]=sum1
     RSTO1 = RadarSpaceTimeOperator(iono1,configfile,timevec,mattype='matrix')
-    RSTO2 = RadarSpaceTimeOperator(iono1,configfile,timevec,mattype='sim')
+    RSTO2 = RadarSpaceTimeOperator(iono2,configfile,timevec,mattype='sim')
     iono1new=RSTO1.mult_iono(iono1)
-    iono2new=RSTO2.mult_iono(iono2)
+    iono2new=RSTO2.mult_iono(iono1)
     
     rngrdr =iono1new.Sphere_Coords[:,0].astype('float32')
     sign1 = sp.sign(iono1new.Sphere_Coords[:,1])
