@@ -261,7 +261,7 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
         for iloc,locarr in enumerate(acfin):
             for itime,acfarr in enumerate(locarr):
                 acfin_amb[iloc,itime]=sp.dot(ambmat,acfarr)
-                acfin_amb=acfin_amb[:,0]
+        acfin_amb=acfin_amb[:,0]
     else:
         acfin_amb=ionospec.Param_List[:,0]
         
