@@ -117,15 +117,15 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
             elif invtype.lower()=='tv':
                 constr=alpha*cvx.norm(D*xr,1)
                 consti=alpha*cvx.norm(D*xi,1)
-            br=datain.real
-            bi=datain.imag
+            br=datain.real/q
+            bi=datain.imag/q
             if ip==0:
                 objective=cvx.Minimize(cvx.norm(Acvx*xr-br,2)+constr)
                 constraints= [xr>=0]
                 prob=cvx.Problem(objective)
                 result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True,max_iters=4000)
 #                    new_params[keeplog,it,ip]=xr.value.flatten()
-                xcomp=sp.array(xr.value).flatten()
+                xcomp=sp.array(xr.value).flatten()*q
             else:
                 objective=cvx.Minimize(cvx.norm(Acvx*xr-br,2)+constr)
                 prob=cvx.Problem(objective)
@@ -134,7 +134,7 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
                 objective=cvx.Minimize(cvx.norm(Acvx*xi-bi,2)+consti)
                 prob=cvx.Problem(objective)
                 result=prob.solve(verbose=True,solver=cvx.SCS,use_indirect=True,max_iters=4000)
-                xcomp=sp.array(xr.value + 1j*xi.value).flatten()
+                xcomp=sp.array(xr.value + 1j*xi.value).flatten()*q
 #                    new_params[keeplog,it,ip]=xcomp
             new_params[keeplog,itimen,ip]=xcomp
             ave_datadif[itimen,ip]=sp.sqrt(sp.nansum(sp.absolute(A[:,keeplist].dot(xcomp)-datain)**2))
@@ -182,7 +182,7 @@ def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
         acfloc='ACFMatInv'
     mattype='sim'
     RSTO = RadarSpaceTimeOperator(Ionolist,configfile,timevector,mattype=mattype)  
-    if 'perryplane' in basedir.lower():
+    if 'perryplane' in basedir.lower() or 'SimpData':
         rbounds=[-500,500]
     else:
         rbounds=[0,500]
@@ -229,7 +229,7 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
         invtype - The inversion method that will be tested. Can be tik, tikd, and tv.
         """
 
-    alpha_sweep=sp.logspace(-1,1.5,25)
+    alpha_sweep=sp.logspace(-2,1,25)
     costdir = os.path.join(basedir,'Cost')
     ionoinfname=os.path.join(basedir,acfdir,'00lags.h5')
     ionoin=IonoContainer.readh5(ionoinfname)
@@ -275,14 +275,18 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
     errorlaglist=[]
     datadiflist=[]
     constlist=[]
-    
+    if 'perryplane' in basedir.lower() or 'SimpData':
+        rbounds=[-500,500]
+    else:
+        rbounds=[0,500]
+
     alpha_list_new=alpha_sweep.tolist()
     for i in alpha_list:
         if i in alpha_list_new:
             alpha_list_new.remove(i)
     
     for i in alpha_list_new:
-        ionoout,datadif,constdif=invertRSTO(RSTO,ionoin,alpha_list=i,invtype=invtype)
+        ionoout,datadif,constdif=invertRSTO(RSTO,ionoin,alpha_list=i,invtype=invtype,rbounds=rbounds)
         
         datadiflist.append(datadif)
         constlist.append(constdif)
