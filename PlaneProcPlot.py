@@ -585,7 +585,7 @@ def plotLcurve(alphaarr,datadif,constdif):
 
     
     fig ,axmat= plt.subplots(nrows=1,ncols=1,facecolor='w',figsize=(6,6),sharey=True)
-    axlist=axmat.flatten()
+    axlist=axmat
     
     iax = axmat
     curlag=0
