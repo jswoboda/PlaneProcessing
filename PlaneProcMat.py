@@ -103,7 +103,7 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
         A=RSTO.RSTMat[itimen*nlout:(itimen+1)*nlout,itimen*nlin:(itimen+1)*nlin]
         Acvx=cvx.Constant(A[:,keeplist])
         for ip in range(np):
-            alpha=alpha_list[ip]
+            alpha=alpha_list[ip]*2
             print('\t\t Making Lag {0:d} of {1:d}'.format(ip+1,np))
             datain=Iono.Param_List[:,itimen,ip]
             xr=cvx.Variable(nlin_red)
@@ -229,7 +229,7 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
         invtype - The inversion method that will be tested. Can be tik, tikd, and tv.
         """
 
-    alpha_sweep=sp.logspace(-3,0,25)
+    alpha_sweep=sp.logspace(-4,1,5)
     costdir = os.path.join(basedir,'Cost')
     ionoinfname=os.path.join(basedir,acfdir,'00lags.h5')
     ionoin=IonoContainer.readh5(ionoinfname)
