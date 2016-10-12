@@ -578,7 +578,31 @@ def plotalphaerror(alphaarr,errorarr,errorlagarr):
 #%% 
 def plotLcurve(alphaarr,datadif,constdif):
     """ 
-    This will plot the L-curve for 
+    This will plot the L-curve for the first lag.
+    """
+    sns.set_style('whitegrid')
+    sns.set_context('notebook')
+
+    
+    fig ,axmat= plt.subplots(nrows=1,ncols=1,facecolor='w',figsize=(6,6),sharey=True)
+    axlist=axmat.flatten()
+    
+    iax = axmat
+    curlag=0
+    axlist=iax.plot(datadif[:,curlag],constdif[:,curlag])[0]
+    iax.set_xscale('log')
+    iax.set_yscale('log')
+    iax.set_title('L Curve',fontsize=fs)
+    iax.set_xlabel(r'$\|Ax-b\|_2$',fontsize=fs)
+    iax.set_ylabel(r'$f(x)$',fontsize=fs)
+    plt.tight_layout()
+    
+    
+    return(fig,axlist)
+    
+def plotLcurveall(alphaarr,datadif,constdif):
+    """ 
+    This will plot the L-curve for all of the lags
     """
     sns.set_style('whitegrid')
     sns.set_context('notebook')
@@ -599,17 +623,16 @@ def plotLcurve(alphaarr,datadif,constdif):
             curlag=int(iaxn*nlagplot+ilag)
             if curlag>=Nlag:
                 break
-            handlist.append(iax.plot(constdif[:,curlag],datadif[:,curlag])[0])
+            handlist.append(iax.plot(datadif[:,curlag],constdif[:,curlag])[0])
             strlist.append('Lag {0}'.format(curlag))
         iax.set_xscale('log')
         iax.set_yscale('log')
-        iax.set_title('Error From Lags',fontsize=fs)
-        iax.set_ylabel(r'$\|Ax-b\|_2$',fontsize=fs)
-        iax.set_xlabel(r'$f(x)$',fontsize=fs)
+        iax.set_title('L Curve',fontsize=fs)
+        iax.set_xlabel(r'$\|Ax-b\|_2$',fontsize=fs)
+        iax.set_ylabel(r'$f(x)$',fontsize=fs)
         iax.legend(handlist,strlist,loc='upper right',fontsize='large')
     plt.tight_layout()
     return(fig,axlist)
-    
 def plotbackground(testdir,figname):
     """ 
     Plots the background densities and temperatures. 
