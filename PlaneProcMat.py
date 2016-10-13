@@ -229,7 +229,7 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
         invtype - The inversion method that will be tested. Can be tik, tikd, and tv.
         """
 
-    alpha_sweep=sp.logspace(-2,sp.log10(2.)/2,5)
+    alpha_sweep=sp.logspace(-4,0,5)
     costdir = os.path.join(basedir,'Cost')
     ionoinfname=os.path.join(basedir,acfdir,'00lags.h5')
     ionoin=IonoContainer.readh5(ionoinfname)
