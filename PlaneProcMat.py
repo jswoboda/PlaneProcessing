@@ -28,10 +28,13 @@ from PlaneProcPlot import plotinputdata,plotoutput,ploterrors,plotalphaerror,plo
 
 
 
-def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
+def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200],Nlin=0):
     """ """
     
-    nlout,ntout,np=Iono.Param_List.shape
+    nlout,ntout,nl=Iono.Param_List.shape
+    if Nlin !=0:
+        nl=Nlin
+    
     nlin=len(RSTO.Cart_Coords_In)
     time_out=RSTO.Time_Out
     time_in=RSTO.Time_In
@@ -57,7 +60,7 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
     rplog=sp.logical_and(rplane>rpmin,rplane<rpmax)
     allrng= RSTO.simparams['Rangegatesfinal']
     dR=allrng[1]-allrng[0]
-    npdir=sp.ceil(int(np)/2.)
+    nldir=sp.ceil(int(nl)/2.)
     posang_log1= sp.logical_and(ang_vec[:,0]<=180.,ang_vec[:,0]>=0)
     negang_log1 = sp.logical_or(ang_vec[:,0]>180.,ang_vec[:,0]<0)
     azin_pos = sp.logical_and(azin<=180.,azin>=0)
@@ -71,7 +74,7 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
     if sp.any(negang_log1):
         minangneg=ang_vec[negang_log1,1].min()
     
-    rngbounds=[allrng[0]-npdir*dR,allrng[-1]+npdir*dR]
+    rngbounds=[allrng[0]-nldir*dR,allrng[-1]+nldir*dR]
     rng_log=sp.logical_and(rin>rngbounds[0],rin<rngbounds[1])
     elbounds_pos=sp.logical_and(azin_pos,elin>minangpos)
     elbounds_neg=sp.logical_and(azin_neg,elin>minangneg)
@@ -87,10 +90,10 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
     # need the sparse vstack to make srue things stay sparse
     D=sp.sparse.vstack((dx_red,dy_red))
     # New parameter matrix
-    new_params=sp.zeros((nlin,len(time_out),np),dtype=Iono.Param_List.dtype)
+    new_params=sp.zeros((nlin,len(time_out),nl),dtype=Iono.Param_List.dtype)
     if isinstance(alpha_list,numbers.Number):
-        alpha_list=[alpha_list]*np
-    ave_datadif=sp.zeros((len(time_out),np))
+        alpha_list=[alpha_list]*nl
+    ave_datadif=sp.zeros((len(time_out),nl))
     ave_data_const = sp.zeros_like(ave_datadif)
     q=1e10
     for itimen, itime in enumerate(time_out):
@@ -102,9 +105,9 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200]):
         #A=RSTO.RSTMat[itimen*nlout:(itimen+1)*nlout,it*nlin:(it+1)*nlin]
         A=RSTO.RSTMat[itimen*nlout:(itimen+1)*nlout,itimen*nlin:(itimen+1)*nlin]
         Acvx=cvx.Constant(A[:,keeplist])
-        for ip in range(np):
+        for ip in range(nl):
             alpha=alpha_list[ip]*2
-            print('\t\t Making Lag {0:d} of {1:d}'.format(ip+1,np))
+            print('\t\t Making Lag {0:d} of {1:d}'.format(ip+1,nl))
             datain=Iono.Param_List[:,itimen,ip]
             xr=cvx.Variable(nlin_red)
             xi=cvx.Variable(nlin_red)
@@ -286,7 +289,7 @@ def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
             alpha_list_new.remove(i)
     
     for i in alpha_list_new:
-        ionoout,datadif,constdif=invertRSTO(RSTO,ionoin,alpha_list=i,invtype=invtype,rbounds=rbounds)
+        ionoout,datadif,constdif=invertRSTO(RSTO,ionoin,alpha_list=i,invtype=invtype,rbounds=rbounds,Nlin=1)
         
         datadiflist.append(datadif)
         constlist.append(constdif)
