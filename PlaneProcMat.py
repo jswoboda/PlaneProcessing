@@ -29,7 +29,7 @@ from PlaneProcPlot import plotinputdata,plotoutput,ploterrors,plotalphaerror,plo
 
 
 def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200],Nlin=0):
-    """ """
+    """ This will run the inversion program given an ionocontainer, an alpha and """
     
     nlout,ntout,nl=Iono.Param_List.shape
     if Nlin !=0:
