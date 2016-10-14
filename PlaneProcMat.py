@@ -155,11 +155,11 @@ def invertRSTO(RSTO,Iono,alpha_list=1e-2,invtype='tik',rbounds=[100,200],Nlin=0)
     datadif=sp.nanmean(ave_datadif,axis=0)
     constval=sp.nanmean(ave_data_const,axis=0)
     ionoout=IonoContainer(coordlist=RSTO.Cart_Coords_In,paramlist=new_params,times = time_out,sensor_loc = sp.zeros(3),ver =0,coordvecs =
-        ['x','y','z'],paramnames=Iono.Param_Names)
+        ['x','y','z'],paramnames=Iono.Param_Names[:Nlin])
         
     return (ionoout,datadif,constval)
     
-def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
+def runinversion(basedir,configfile,acfdir='ACF',invtype='tik'):
     """ """
     costdir = os.path.join(basedir,'Cost')
     
@@ -169,8 +169,16 @@ def runinversion(basedir,configfile,acfdir='ACF',invtype='tik',alpha=1e-2):
     pickleFile.close()
     
     ionoinfname=os.path.join(basedir,acfdir,'00lags.h5')
+    ionosigname=os.path.join(basedir,acfdir,'00sigs.h5')
     ionoin=IonoContainer.readh5(ionoinfname)
+    ionosigin=IonoContainer.readh5(ionosigname)
+    nl,nt,np1,np2=ionosigin.Param_List.shape
+    sigs=ionosigin.Param_List.reshape((nl*nt,np1,np2))
+    sigsmean=sp.nanmean(sigs,axis=0)
+    sigdiag=sp.diag(sigsmean)
+    sigsout=sp.power(sigdiag/sigdiag[0],.5).real
     
+    alpha_arr=sigsout*alpha_arr[0]
     dirio = ('Spectrums','Mat','ACFMat')
     inputdir = os.path.join(basedir,dirio[0])
     
@@ -223,16 +231,17 @@ def mkalphalist(pnamefile):
     pickleFile.close()
     
 def parametersweep(basedir,configfile,acfdir='ACF',invtype='tik'):
-    """ This function will run the inversion numerious times with different constraint
+    """ 
+        This function will run the inversion numerious times with different constraint
         parameters. This will create a directory called cost and place.
         Input
         basedir - The directory that holds all of the data for the simulator.
         configfile - The ini file for the simulation.
         acfdir - The directory within basedir that hold the acfs to be inverted.
         invtype - The inversion method that will be tested. Can be tik, tikd, and tv.
-        """
+    """
 
-    alpha_sweep=sp.logspace(-4.5,.5,5)
+    alpha_sweep=sp.logspace(-4.5,sp.log10(5),25)
     costdir = os.path.join(basedir,'Cost')
     ionoinfname=os.path.join(basedir,acfdir,'00lags.h5')
     ionoin=IonoContainer.readh5(ionoinfname)
