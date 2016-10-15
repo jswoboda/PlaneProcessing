@@ -25,3 +25,6 @@ cp -r ~/DATA/PerryPlane/MattsDataInv/fittedimagestikd ~/Dropbox/Inversion/Frameo
 #cp -r ~/DATA/PerryPlane/MattsDataInv/ACFInv/ ~/Dropbox/Inversion/Frameofref/tv
 #cp -r ~/DATA/PerryPlane/MattsDataInv/FittedInv/ ~/Dropbox/Inversion/Frameofref/tv
 #cp -r ~/DATA/PerryPlane/MattsDataInv/fittedimagestv ~/Dropbox/Inversion/Frameofref/tv
+
+# Send over cost information
+cp -r ~/DATA/PerryPlane/MattsDataInv/Cost/ ~/Dropbox/Inversion/Frameofref
