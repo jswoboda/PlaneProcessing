@@ -456,7 +456,7 @@ if __name__== '__main__':
         parametersweep(basedir,configfile,acfdir=acffolder,invtype=invtype)
         funcnamelist.remove('paramsweep')
     if 'invertdata' in funcnamelist:
-        runinversion(basedir,configfile,acfdir=acffolder,invtype=invtype,alpha=gamma)
+        runinversion(basedir,configfile,acfdir=acffolder,invtype=invtype)
         funcnamelist.remove('invertdata')
     if 'origdata' in funcnamelist:
         funcnamelist.remove('origdata')
