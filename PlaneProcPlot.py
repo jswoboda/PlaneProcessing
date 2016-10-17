@@ -454,9 +454,9 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',fil
         os.mkdir(imgdir)
     filename = os.path.join(testdir,acfpath,lagfile)
     iono = IonoContainer.readh5(filename)
-    if iono.Param_List.shape[-1]==1:
-        nemax=1e10
-        nemin=0
+#    if iono.Param_List.shape[-1]==1:
+#        nemax=1e10
+#        nemin=0
     nt = iono.Time_Vector.shape[0]
     if set(iono.Coord_Vecs)=={'r','theta','phi'}:
         rngrdr =iono.Sphere_Coords[:,0].astype('float32')
@@ -512,7 +512,7 @@ def plotacf(testdir,imgdir,wtimes=False,acfpath='ACFInv',lagfile='00lags.h5',fil
         plt.sca(avec[0])
         avec[0].set_xlabel('X Plane in km',fontsize=fs)
         avec[0].set_ylabel('Alt in km',fontsize=fs)
-        pc1 = avec[0].pcolor(Xmat,Zmat,Nemat,cmap = defmap,vmin=nemin,vmax=nemax*ne_red)
+        pc1 = avec[0].pcolor(Xmat,Zmat,Nemat,cmap = defmap,vmin=nemin,vmax=nemax)
         plt.tick_params(labelsize=16)
         plt.xticks(xticks)
         avec[0].set_xlim(xlim)

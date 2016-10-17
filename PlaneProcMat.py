@@ -169,16 +169,8 @@ def runinversion(basedir,configfile,acfdir='ACF',invtype='tik'):
     pickleFile.close()
     
     ionoinfname=os.path.join(basedir,acfdir,'00lags.h5')
-    ionosigname=os.path.join(basedir,acfdir,'00sigs.h5')
     ionoin=IonoContainer.readh5(ionoinfname)
-    ionosigin=IonoContainer.readh5(ionosigname)
-    nl,nt,np1,np2=ionosigin.Param_List.shape
-    sigs=ionosigin.Param_List.reshape((nl*nt,np1,np2))
-    sigsmean=sp.nanmean(sigs,axis=0)
-    sigdiag=sp.diag(sigsmean)
-    sigsout=sp.power(sigdiag/sigdiag[0],.5).real
     
-    alpha_arr=sigsout*alpha_arr[0]
     dirio = ('Spectrums','Mat','ACFMat')
     inputdir = os.path.join(basedir,dirio[0])
     
@@ -186,7 +178,15 @@ def runinversion(basedir,configfile,acfdir='ACF',invtype='tik'):
     (listorder,timevector,filenumbering,timebeg,time_s) = IonoContainer.gettimes(dirlist)
     Ionolist = [dirlist[ikey] for ikey in listorder]
     if acfdir.lower()=='acf':
-        
+        ionosigname=os.path.join(basedir,acfdir,'00sigs.h5') 
+        ionosigin=IonoContainer.readh5(ionosigname)
+        nl,nt,np1,np2=ionosigin.Param_List.shape
+        sigs=ionosigin.Param_List.reshape((nl*nt,np1,np2))
+        sigsmean=sp.nanmean(sigs,axis=0)
+        sigdiag=sp.diag(sigsmean)
+        sigsout=sp.power(sigdiag/sigdiag[0],.5).real
+        alpha_arr=sp.ones_like(alpha_arr)*alpha_arr[0]
+    
         acfloc='ACFInv'
     elif acfdir.lower()=='acfmat':
         mattype='matrix'
