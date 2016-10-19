@@ -19,7 +19,7 @@ def phantest(inputfile,outdir,configfile,timevec):
     
     
     ne_red=1e-10
-    nemin,nemax=[0.*ne_red,1e10*ne_red]
+    nemin,nemax=[0.*ne_red,3e11*ne_red]
     xlim = [-200.,360.]
     xticks = [-150.,0.,150.,300.]
     defmap = 'viridis'# color map
@@ -27,7 +27,9 @@ def phantest(inputfile,outdir,configfile,timevec):
     fscb=12
     figsize = (10,7)
     ylim = [100.,500.]
-    iono1=makesimpledata(inputfile,timevec= None,begx=0.,begz=300.,vx=500.)
+    
+#    iono1=makesimpledata(inputfile,timevec= None,begx=0.,begz=300.,vx=500.)
+    iono1=makeionocombined(os.path.split(inputfile)[0])
     iono2=iono1.deepcopy()
     iono2.Param_List[:,1:]=0.
 #    sum1=sp.sum(iono1.Param_List,axis=1)
@@ -94,8 +96,9 @@ def phantest(inputfile,outdir,configfile,timevec):
     cb2.update_ticks()
     plt.tight_layout()
     return fig,avec,Nemat1,Nemat2
+    
 if __name__== '__main__':
-    f1='~/DATA/PerryPlane/MattsData/Origparams/18000.h5'
+    f1='~/DATA/PerryPlane/MattsDataInv/Origparams/18000.h5'
     f1=os.path.expanduser(f1)
     outdir=os.path.expanduser('~/DATA/PerryPlane/SimpleData')
     if not os.path.isdir(outdir):
