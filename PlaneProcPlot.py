@@ -689,8 +689,72 @@ def plotbackground(testdir,figname):
     axmat[1].legend(p2,['Te','Ti'],loc='upper left')
     
     fig.savefig(figname,dpi=300)
+
+def plotlines(inputlist,fitiono,alt,times,fig, axvec,paramlist=['Ne','Te','Ti']):
+    """
+    Plots the values along a specific alittude. 
+    """
+    inputiono = makeionocombined(inputlist)
+    Iono1 = GeoData(readIono,[inputiono])
+    fitiono = IonoContainer.readh5(fitiono)
+    fitGeo = GeoData(readIono,[fitiono])
     
-def plotlines(inputlist,fitiono,alt,times,paramlist=['Ne','Te','Ti']):
+    paramlist = ['Ne','Te','Ti']
+    (x,y,z) = inputiono.Cart_Coords.transpose()
+    r = sp.sqrt(x**2+y**2)*sp.sign(y)
+    incoords = sp.column_stack((r,z,sp.ones_like(z)))
+    ru,zu =[ sp.unique(r),sp.unique(z)]
+    Rmat,Zmat = sp.meshgrid(ru,zu)
+    zinput = sp.argmin(sp.absolute(zu-alt))
+    
+    (xf,yf,zf) = fitiono.Cart_Coords.transpose()
+    rf = sp.sqrt(xf**2+yf**2)*sp.sign(yf)
+    outcoords = sp.column_stack((rf,zf,sp.ones_like(zf)))
+    rfu,zfu =[ sp.unique(rf),sp.unique(zf)]
+    Rfmat,Zfmat = sp.meshgrid(rfu,zfu)
+    zoutput = sp.argmin(sp.absolute(zfu-alt))
+    
+    fitGeo.interpolate(incoords,Iono1.coordnames,method='linear',fill_value=sp.nan,twodinterp = True,oldcoords=outcoords)
+
+    uz = sp.unique(z)
+    ur = sp.unique(r)
+    (rmat,zmat) = sp.meshgrid(ur,uz)
+    
+    inputdata = {}
+    for iparm in paramlist:
+        if iparm =='Nepow':
+            iparm='Ne'
+        curdata = Iono1.data[iparm][:,times[0]]
+        
+        inputdata[iparm] = sp.reshape(curdata,Rmat.shape)[zinput]
+
+    outputdata = {}
+    for iparm in paramlist:
+        curdata = fitGeo.data[iparm][:, times[1]]
+        outputdata[iparm] = sp.reshape(curdata,Rmat.shape)[zinput]
+    
+    #fig, axvec = plt.subplots(len(paramlist),1,sharey=False,figsize=(12,5*len(paramlist)))
+    
+    for ipn,iparam in enumerate(paramlist):
+        ax = axvec[ipn]
+        ax2 = ax.twinx()
+        p1, = ax.plot(ru,inputdata[iparam],'b-',label='In',linewidth=3)
+        p2, = ax.plot(ru,outputdata[iparam],'b--',label='Out',linewidth=3)
+        ax.set_title(iparam)
+        ax.set_xlabel('X Plane in km')
+#        gi = sp.gradient(inputdata[iparam])/sp.gradient(ru)
+#        go = sp.gradient(outputdata[iparam])/sp.gradient(ru)
+#        p3, = ax2.plot(ru,gi,'g-',label='Grad In',linewidth=3)
+#        p4, = ax2.plot(ru,go,'g--',label='Grad Out',linewidth=3)
+        ax.yaxis.label.set_color(p1.get_color())
+        #ax2.yaxis.label.set_color(p3.get_color())
+        lines = [p1,p2]#,p3,p4]
+        ax.legend(lines,[l.get_label() for l in lines])
+    
+    plt.tight_layout()    
+    return(fig)
+
+def plotgradlines(inputlist,fitiono,alt,times,paramlist=['Ne','Te','Ti']):
     """
     Plots the values along a specific alittude. 
     """
