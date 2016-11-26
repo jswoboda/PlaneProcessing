@@ -699,7 +699,7 @@ def plotlines(inputlist,fitiono,alt,times,fig, axvec,paramlist=['Ne','Te','Ti'])
     fitiono = IonoContainer.readh5(fitiono)
     fitGeo = GeoData(readIono,[fitiono])
     
-    paramlist = ['Ne','Te','Ti']
+    #paramlist = ['Ne','Te','Ti']
     (x,y,z) = inputiono.Cart_Coords.transpose()
     r = sp.sqrt(x**2+y**2)*sp.sign(y)
     incoords = sp.column_stack((r,z,sp.ones_like(z)))
@@ -737,7 +737,6 @@ def plotlines(inputlist,fitiono,alt,times,fig, axvec,paramlist=['Ne','Te','Ti'])
     
     for ipn,iparam in enumerate(paramlist):
         ax = axvec[ipn]
-        ax2 = ax.twinx()
         p1, = ax.plot(ru,inputdata[iparam],'b-',label='In',linewidth=3)
         p2, = ax.plot(ru,outputdata[iparam],'b--',label='Out',linewidth=3)
         ax.set_title(iparam)
@@ -752,7 +751,7 @@ def plotlines(inputlist,fitiono,alt,times,fig, axvec,paramlist=['Ne','Te','Ti'])
         ax.legend(lines,[l.get_label() for l in lines])
     
     plt.tight_layout()    
-    return(fig)
+    return(lines)
 
 def plotgradlines(inputlist,fitiono,alt,times,paramlist=['Ne','Te','Ti']):
     """
