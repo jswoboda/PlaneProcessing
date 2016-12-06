@@ -9,7 +9,7 @@ import os, glob,inspect,getopt,sys
 import shutil
 import scipy as sp
 import scipy.io as sio
-from RadarDataSim.IonoContainer import IonoContainer
+from SimISR.IonoContainer import IonoContainer
 
 def readmattsdata(filename,datadir,outdir,keepspec=[0,1,2,6],angle=20.5):
     d2r=sp.pi/180.

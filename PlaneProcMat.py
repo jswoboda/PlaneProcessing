@@ -13,12 +13,12 @@ import numbers
 import matplotlib
 import pickle
 matplotlib.use('Agg')
-from RadarDataSim.IonoContainer import IonoContainer, MakeTestIonoclass,makeionocombined
-import RadarDataSim.runsim as runsim
-from RadarDataSim.radarData import makeCovmat
-from RadarDataSim.analysisplots import analysisdump
-from RadarDataSim.utilFunctions import readconfigfile,spect2acf
-from RadarDataSim.operators import RadarSpaceTimeOperator
+from SimISR.IonoContainer import IonoContainer, MakeTestIonoclass,makeionocombined
+import SimISR.runsim as runsim
+from SimISR.radarData import makeCovmat
+from SimISR.analysisplots import analysisdump
+from SimISR.utilFunctions import readconfigfile,spect2acf
+from SimISR.operators import RadarSpaceTimeOperator
 import matplotlib.pyplot as plt
 import scipy.fftpack as scfft
 import cvxpy as cvx

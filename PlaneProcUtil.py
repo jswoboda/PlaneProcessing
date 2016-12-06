@@ -10,8 +10,8 @@ import numpy.ma as ma
 import scipy as sp
 import scipy.io as sio
 import pdb
-from RadarDataSim.IonoContainer import IonoContainer,MakeTestIonoclass
-from RadarDataSim.utilFunctions import Chapmanfunc
+from SimISR.IonoContainer import IonoContainer,MakeTestIonoclass
+from SimISR.utilFunctions import Chapmanfunc
 
 def makesimpledata(inputfile,timevec= None,begx=0.,begz=300.,vx=500.):
     if timevec is None:
@@ -98,7 +98,7 @@ def speedup(datadir,outputdir,s=5.):
 def convertMattsfiles(filename,datadir,outdir,keepspec=[0,1,2,6],angle=15.,offset=0.):
     """ 
     This function will convert a set of files from Matt Zettegrens simulator to formated h5 files that 
-    RadarDataSim can read. 
+    SimISR can read. 
     Inputs
         filename - This is a .mat file that will be converted.
         datadir - This is the directory location of the file.

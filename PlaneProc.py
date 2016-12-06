@@ -11,12 +11,12 @@ import pdb
 import scipy as sp
 import matplotlib
 matplotlib.use('Agg')
-from RadarDataSim.IonoContainer import MakeTestIonoclass
-import RadarDataSim.runsim as runsim
-from RadarDataSim.analysisplots import analysisdump,plotbeamparametersv2
-from RadarDataSim.utilFunctions import readconfigfile
+from SimISR.IonoContainer import MakeTestIonoclass
+import SimISR.runsim as runsim
+from SimISR.analysisplots import analysisdump,plotbeamparametersv2
+from SimISR.utilFunctions import readconfigfile
 from PlaneProcPlot import plotinputdata,plotoutput,ploterrors
-from RadarDataSim.IonoContainer import IonoContainer
+from SimISR.IonoContainer import IonoContainer
 
 
 def makeline(testdir,meanaz,linewidth=1,multval = 5.,start = 450.,rng_vel = -0.5):

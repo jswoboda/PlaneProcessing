@@ -15,8 +15,8 @@ from matplotlib import ticker
 import matplotlib.colors as colors
 import matplotlib.gridspec as gridspec
 import seaborn as sns
-from RadarDataSim.IonoContainer import IonoContainer, makeionocombined
-from RadarDataSim.utilFunctions import readconfigfile
+from SimISR.IonoContainer import IonoContainer, makeionocombined
+from SimISR.utilFunctions import readconfigfile
 from GeoData.GeoData import GeoData
 from GeoData.utilityfuncs import readIono
 

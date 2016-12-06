@@ -7,8 +7,8 @@ Created on Wed Oct  5 13:27:40 2016
 
 import scipy as sp
 import os,glob
-from RadarDataSim.IonoContainer import IonoContainer, makeionocombined
-from RadarDataSim.operators import RadarSpaceTimeOperator
+from SimISR.IonoContainer import IonoContainer, makeionocombined
+from SimISR.operators import RadarSpaceTimeOperator
 import matplotlib.pyplot as plt
 from matplotlib import ticker
 import matplotlib.colors as colors
