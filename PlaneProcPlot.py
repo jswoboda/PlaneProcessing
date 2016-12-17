@@ -32,6 +32,7 @@ timin,timax=[0,4e3]
 necbarstr='$N_e$($10^{10}$m$^{-3}$)'
 tecbarstr='$T_e$($^{\circ}$K)'
 ticbarstr='$T_i$($^{\circ}$K)'
+ercbarstr='%Error'
 #%% For sorting
 def ke(item):
     if item[0].isdigit():
@@ -339,7 +340,9 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
     Xmat = Rngrdrmat*Signmat*sp.cos(Elmat*sp.pi/180.)
     Zmat = Rngrdrmat*sp.sin(Elmat*sp.pi/180.)
 
-    
+    Ne = Iono1.data['Ne'].reshape(len(zvec),len(rngvec),nt)*ne_red
+    Ti = Iono1.data['Ti'].reshape(len(zvec),len(rngvec),nt)
+    Te = Iono1.data['Te'].reshape(len(zvec),len(rngvec),nt)
     nNe = Iono1.data['nNe'].reshape(nrg,nbeams,nt)*ne_red
     nTe = Iono1.data['nTe'].reshape(nrg,nbeams,nt)
     nTi = Iono1.data['nTi'].reshape(nrg,nbeams,nt)
@@ -422,6 +425,139 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
             cb3 = plt.colorbar(pc3, ax=avec[2])
             cb3.ax.xaxis.set_label_position('top')
             cb3.ax.set_xlabel(ticbarstr,fontsize=fscb)
+            cb3.locator = tick_locator
+            cb3.update_ticks()	
+        
+        plt.tight_layout()
+        if wtimes:
+            plt.subplots_adjust(top=0.9)
+            spti = fig.suptitle('Error at {0} seconds'.format(int(tvec[itimen])),fontsize=24)
+       
+
+        fname= '{0:0>3}_'.format(imcount)+filetemplate+'.png'
+        plt.savefig(os.path.join(imgdir,fname),dpi=300)
+        imcount=imcount+1
+        plt.close(fig)
+
+def plotpercenterror(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitteddata.h5'):
+    """
+    This will plot all of the fitted data with each time step as a pcolor images of
+    electron density and electron density from power mesurements.
+    Inputs
+    testdir - The directory with the input data in h5 files formated for the ionocontainer structure.
+    imgdir - The directory that holds the images.
+    """
+    (sensdict,simparams)=readconfigfile(config)
+    tvec = simparams['Timevec']
+    cred=3.
+    if os.path.exists(imgdir):
+        imgfiles = glob.glob(os.path.join(imgdir,'*.png'))
+        for imgf in imgfiles:
+            os.remove(imgf)
+    else:
+        os.mkdir(imgdir)
+    filename = os.path.join(testdir,fitpath,fitfile)
+    iono = IonoContainer.readh5(filename)
+    Iono1 = GeoData(readIono,[iono])
+    rngrdr =Iono1.dataloc[:,0].astype('float32')
+    sign1 = sp.sign(Iono1.dataloc[:,1])
+    el = Iono1.dataloc[:,2].astype('float32')
+    elvec,elinv = sp.unique(el,return_inverse=True)
+    nbeams = len(elvec)
+    nrg = len(rngrdr)/nbeams
+    nt = Iono1.times.shape[0]
+    Rngrdrmat = sp.reshape(rngrdr,(nrg,nbeams))
+    Signmat = sp.reshape(sign1,(nrg,nbeams))
+    Elmat = sp.reshape(el,(nrg,nbeams))
+    permin,permax=[0.,25.]
+    Xmat = Rngrdrmat*Signmat*sp.cos(Elmat*sp.pi/180.)
+    Zmat = Rngrdrmat*sp.sin(Elmat*sp.pi/180.)
+
+    Ne = Iono1.data['Ne'].reshape(len(zvec),len(rngvec),nt)
+    Ti = Iono1.data['Ti'].reshape(len(zvec),len(rngvec),nt)
+    Te = Iono1.data['Te'].reshape(len(zvec),len(rngvec),nt)
+    nNe = 100.*Iono1.data['nNe'].reshape(nrg,nbeams,nt)/Ne
+    nTe = 100.*Iono1.data['nTe'].reshape(nrg,nbeams,nt)/Te
+    nTi = 100.*Iono1.data['nTi'].reshape(nrg,nbeams,nt)/Ti
+    
+
+    imcount=0
+    filetemplate = 'fitteddataerrorpercent'
+    dsetname = os.path.split(os.path.dirname(testdir))[-1]
+    print "Plotting Output error data for "+dsetname
+
+    if 'perryplane' in testdir.lower():
+        xlim = [-200.,360.]
+        xticks = [-150.,0.,150.,300.]
+        allparams=True
+        ncols=3
+        figsize = (15,7)
+    else:
+        xlim = [0.,400.]
+        xticks = [0.,150.,300]
+        allparams = False
+        ncols=1
+        figsize = (5,7)
+    ylim = [100.,500]
+    for itimen,itime in enumerate(Iono1.times):
+        print "{0} Output for {1} of {2}".format(dsetname,itimen,len(Iono1.times))
+        
+        
+        Nemat = nNe[:,:,itimen]
+        Timat = nTi[:,:,itimen]
+        Temat = nTe[:,:,itimen]
+        
+        fig ,axmat= plt.subplots(nrows=1,ncols=ncols,facecolor='w',figsize=figsize,sharey=True)
+        if allparams:
+            avec=axmat.flatten()
+        else:
+            avec=[axmat]
+
+        plt.sca(avec[0])
+        avec[0].set_xlabel('X Plane in km',fontsize=fs)
+        avec[0].set_ylabel('Alt in km',fontsize=fs)
+        pc1 = avec[0].pcolor(Xmat,Zmat,Nemat,cmap = defmap,vmin=permin,vmax=permax)
+        plt.tick_params(labelsize=16)
+        plt.xticks(xticks)
+        avec[0].set_xlim(xlim)
+        avec[0].set_ylim(ylim)
+        avec[0].set_title('Electron Density % Error',fontsize=fs)
+        tick_locator = ticker.MaxNLocator(nbins=5)
+            
+        cb1 = plt.colorbar(pc1, ax=avec[0])
+        cb1.ax.xaxis.set_label_position('top')
+        cb1.ax.set_xlabel(ercbarstr,fontsize=fscb)
+        cb1.locator = tick_locator
+        cb1.update_ticks()
+        if allparams:
+
+            
+            plt.sca(avec[1])
+            plt.tick_params(labelsize=16)
+            plt.xticks(xticks)
+            avec[1].set_xlabel('X Plane in km',fontsize=fs)
+            pc2 = avec[1].pcolor(Xmat,Zmat,Temat,cmap = defmap,vmin=permin,vmax=permax)
+            avec[1].set_xlim(xlim)
+            avec[1].set_ylim(ylim)
+            avec[1].set_title('Electron Temperature % Error',fontsize=fs)
+
+            cb2 = plt.colorbar(pc2, ax=avec[1])
+            cb2.ax.xaxis.set_label_position('top')
+            cb2.ax.set_xlabel(ercbarstr,fontsize=fscb)
+            cb2.locator = tick_locator
+            cb2.update_ticks()
+            plt.sca(avec[2])
+            plt.xticks(xticks)
+            plt.tick_params(labelsize=16)
+            avec[2].set_xlabel('X Plane in km',fontsize=fs)
+            pc3 = avec[2].pcolor(Xmat,Zmat,Timat,cmap = defmap,vmin=permin,vmax=permax)
+            avec[2].set_xlim(xlim)
+            avec[2].set_ylim(ylim)
+            avec[2].set_title('Ion Temperature % Error',fontsize=fs)
+
+            cb3 = plt.colorbar(pc3, ax=avec[2])
+            cb3.ax.xaxis.set_label_position('top')
+            cb3.ax.set_xlabel(ercbarstr,fontsize=fscb)
             cb3.locator = tick_locator
             cb3.update_ticks()	
         

@@ -15,7 +15,7 @@ from SimISR.IonoContainer import MakeTestIonoclass
 import SimISR.runsim as runsim
 from SimISR.analysisplots import analysisdump,plotbeamparametersv2
 from SimISR.utilFunctions import readconfigfile
-from PlaneProcPlot import plotinputdata,plotoutput,ploterrors
+from PlaneProcPlot import plotinputdata,plotoutput,ploterrors, plotpercenterror
 from SimISR.IonoContainer import IonoContainer
 
 
@@ -301,4 +301,5 @@ if __name__== '__main__':
             plotoutput(ibase,os.path.join(ibase,'fittedimages'),configfile,wtimes)
         if ploterror:
             ploterrors(ibase,os.path.join(ibase,'fittederroronlyimages'),configfile,wtimes)
+            plotpercenterror(ibase,os.path.join(ibase,'fittederroronlyimages'),configfile,wtimes)
 
