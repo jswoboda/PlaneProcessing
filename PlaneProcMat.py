@@ -513,4 +513,5 @@ if __name__== '__main__':
             plotoutput(ibase,os.path.join(ibase,'fittedimagesmat'),configfile,wtimes,fitpath='FittedMatInv',fitfile='fitteddata{0}.h5'.format(invtype))
         if ploterror:
             ploterrors(ibase,os.path.join(ibase,'fittederroronlyimages'),configfile,wtimes,fitpath='FittedMat')
+            plotpercenterror(ibase,os.path.join(ibase,'fittederroronlyimages'),configfile,wtimes,fitpath='FittedMat')
             #save2dropbox(ibase)

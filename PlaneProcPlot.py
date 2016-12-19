@@ -316,9 +316,10 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
     """
     (sensdict,simparams)=readconfigfile(config)
     tvec = simparams['Timevec']
+    filetemplate = 'fitteddataerrorp'
     cred=3.
     if os.path.exists(imgdir):
-        imgfiles = glob.glob(os.path.join(imgdir,'*.png'))
+        imgfiles = glob.glob(os.path.join(imgdir,'*'+filetemplate+'.png'))
         for imgf in imgfiles:
             os.remove(imgf)
     else:
@@ -340,16 +341,14 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
     Xmat = Rngrdrmat*Signmat*sp.cos(Elmat*sp.pi/180.)
     Zmat = Rngrdrmat*sp.sin(Elmat*sp.pi/180.)
 
-    Ne = Iono1.data['Ne'].reshape(len(zvec),len(rngvec),nt)*ne_red
-    Ti = Iono1.data['Ti'].reshape(len(zvec),len(rngvec),nt)
-    Te = Iono1.data['Te'].reshape(len(zvec),len(rngvec),nt)
+
     nNe = Iono1.data['nNe'].reshape(nrg,nbeams,nt)*ne_red
     nTe = Iono1.data['nTe'].reshape(nrg,nbeams,nt)
     nTi = Iono1.data['nTi'].reshape(nrg,nbeams,nt)
     
 
     imcount=0
-    filetemplate = 'fitteddataerrorp'
+    
     dsetname = os.path.split(os.path.dirname(testdir))[-1]
     print "Plotting Output error data for "+dsetname
 
@@ -449,9 +448,9 @@ def plotpercenterror(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile
     """
     (sensdict,simparams)=readconfigfile(config)
     tvec = simparams['Timevec']
-    cred=3.
+    filetemplate = 'fitteddataerrorpercent'
     if os.path.exists(imgdir):
-        imgfiles = glob.glob(os.path.join(imgdir,'*.png'))
+        imgfiles = glob.glob(os.path.join(imgdir,'*'+filetemplate+'.png'))
         for imgf in imgfiles:
             os.remove(imgf)
     else:
@@ -469,20 +468,20 @@ def plotpercenterror(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile
     Rngrdrmat = sp.reshape(rngrdr,(nrg,nbeams))
     Signmat = sp.reshape(sign1,(nrg,nbeams))
     Elmat = sp.reshape(el,(nrg,nbeams))
-    permin,permax=[0.,25.]
+    permin,permax=[0.,100.]
     Xmat = Rngrdrmat*Signmat*sp.cos(Elmat*sp.pi/180.)
     Zmat = Rngrdrmat*sp.sin(Elmat*sp.pi/180.)
 
-    Ne = Iono1.data['Ne'].reshape(len(zvec),len(rngvec),nt)
-    Ti = Iono1.data['Ti'].reshape(len(zvec),len(rngvec),nt)
-    Te = Iono1.data['Te'].reshape(len(zvec),len(rngvec),nt)
+    Ne = Iono1.data['Ne'].reshape(nrg,nbeams,nt)
+    Ti = Iono1.data['Ti'].reshape(nrg,nbeams,nt)
+    Te = Iono1.data['Te'].reshape(nrg,nbeams,nt)
     nNe = 100.*Iono1.data['nNe'].reshape(nrg,nbeams,nt)/Ne
     nTe = 100.*Iono1.data['nTe'].reshape(nrg,nbeams,nt)/Te
     nTi = 100.*Iono1.data['nTi'].reshape(nrg,nbeams,nt)/Ti
     
 
     imcount=0
-    filetemplate = 'fitteddataerrorpercent'
+    
     dsetname = os.path.split(os.path.dirname(testdir))[-1]
     print "Plotting Output error data for "+dsetname
 

@@ -17,5 +17,5 @@ cp ~/DATA/PlaneProcessing/Phased_Array/exp_width_01/fittedimages/*.png  ~/Dropbo
 
 python PlaneProc.py -f plotting -w y -i ~/DATA/PlaneProcessing/Phased_Array/exp_width_01 -c ~/DATA/PlaneProcessing/Phased_Array/planeproc2.ini -r True
 
-convert  ~/DATA/PlaneProcessing/Phased_Array/exp_width_01/fittedimages/*.png ~/Dropbox/ISRErrorPapergifs/S1_2km_input.gif
+convert  ~/DATA/PlaneProcessing/Phased_Array/exp_width_01/Inputimages/*.png ~/Dropbox/ISRErrorPapergifs/S1_2km_input.gif
 convert  ~/DATA/PlaneProcessing/Phased_Array/exp_width_01/fittedimages/*.png ~/Dropbox/ISRErrorPapergifs/S2_2km_output.gif 
