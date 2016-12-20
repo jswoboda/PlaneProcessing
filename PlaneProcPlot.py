@@ -173,6 +173,7 @@ def plotoutput(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
     testdir - The directory with the input data in h5 files formated for the ionocontainer structure.
     imgdir - The directory that holds the images.
     """
+    sns.set_style('whitegrid')
     (sensdict,simparams)=readconfigfile(config)
     tvec = simparams['Timevec']
     if os.path.exists(imgdir):
@@ -314,6 +315,7 @@ def ploterrors(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile='fitt
     testdir - The directory with the input data in h5 files formated for the ionocontainer structure.
     imgdir - The directory that holds the images.
     """
+    sns.set_style('whitegrid')
     (sensdict,simparams)=readconfigfile(config)
     tvec = simparams['Timevec']
     filetemplate = 'fitteddataerrorp'
@@ -446,6 +448,7 @@ def plotpercenterror(testdir,imgdir,config,wtimes=False,fitpath='Fitted',fitfile
     testdir - The directory with the input data in h5 files formated for the ionocontainer structure.
     imgdir - The directory that holds the images.
     """
+    sns.set_style('whitegrid')
     (sensdict,simparams)=readconfigfile(config)
     tvec = simparams['Timevec']
     filetemplate = 'fitteddataerrorpercent'

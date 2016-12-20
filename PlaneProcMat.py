@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 import scipy.fftpack as scfft
 import cvxpy as cvx
 from PlaneProc import makeline, runradarsims
-from PlaneProcPlot import plotinputdata,plotoutput,ploterrors,plotalphaerror,plotLcurve
+from PlaneProcPlot import plotinputdata,plotoutput,ploterrors,plotalphaerror,plotLcurve,plotpercenterror
 
 
 
