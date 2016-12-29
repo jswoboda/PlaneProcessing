@@ -712,6 +712,31 @@ def plotalphaerror(alphaarr,errorarr,errorlagarr):
         iax.legend(handlist,strlist,loc='upper right',fontsize='large')
     plt.tight_layout()
     return(fig,axlist,axmain)
+    
+def plotalphaerrorpub(alphaarr,errorarr,errorlagarr):
+    """ This will plot the error with respect then alpha parameter for the 
+        constraint. 
+    """
+    sns.set_style('whitegrid')
+    sns.set_context('notebook')
+    Nlag=errorlagarr.shape[-1]
+    
+    
+    nlagplot=4.
+    nrows=1+int(sp.ceil(float(Nlag)/(2*nlagplot)))
+    
+    fig,ax=plt.subplots(nrows=1,ncols=1,figsize=(8,4),facecolor='w')
+    
+    ax.plot(alphaarr,errorarr)
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.set_title('Error Lag Zero',fontsize=fs)
+    ax.set_ylabel('Error',fontsize=fs)
+    ax.set_xlabel(r'$\gamma$',fontsize=fs)
+    
+
+    return(fig,ax)
+
 
 #%% 
 def plotLcurve(alphaarr,datadif,constdif):
